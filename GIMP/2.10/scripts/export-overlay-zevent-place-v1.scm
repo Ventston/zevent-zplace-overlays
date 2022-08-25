@@ -40,7 +40,7 @@
     ; Merge again, file-png-save2 skips the mask if we don't
     (set! layer (car (gimp-image-merge-visible-layers image CLIP-TO-IMAGE)))
 
-    (gimp-image-attach-parasite 1 (list "gimp-comment" 1 "Created with GIMP and script-fu-export-overlay-zevent-place-v1 script"))
+    (gimp-image-attach-parasite image (list "gimp-comment" 1 "Created with GIMP and script-fu-export-overlay-zevent-place-v1 script"))
     
     (gimp-image-undo-group-end image) ; Can't actually call undo from script so let the user do it in one action
     (gimp-displays-flush)
