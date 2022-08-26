@@ -1,5 +1,7 @@
-# Scripts pour pixelwar ZEvent 2022 /place
+# Scripts pour la fresque pixel art ZEvent /place 2022
 
 Remarque: ceci n'est pas adapté à la fresque du zUnivers de Zerator (z/place), relisez le titre.
 
-Outil de production et affichage de calques (overlays) pour https://place.zevent.fr 
+Ce dépot contient des scripts pour faciliter de production et l'affichage de calques (overlays) sur https://place.zevent.fr.
+
+Sauf problèmes, j'écrirai ici la documentation d'utilisation avant dimanche 28/08 (soir).
