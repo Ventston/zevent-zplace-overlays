@@ -1,3 +1,5 @@
+; Licence: MIT
+; Copyright 2022 ludolpif
 ; On GNU/Linux, this script goes in ~/.config/GIMP/2.10/scripts/
 ; On Windows, in %USERPROFILE%\AppData\Roaming\GIMP\2.10\scripts\
 ; Restart GIMP, open an Image, open the "Filters" menu.
