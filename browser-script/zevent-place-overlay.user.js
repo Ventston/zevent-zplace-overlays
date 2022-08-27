@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
-// @version      1.
+// @version      1.1
 // @description  try to take over the world! Adaptations by ludolpif for ZEvent/place. Press H to hide/show again the overlay.
 // @author       MinusKube & ludolpif (questions or help: ludolpif#4419 on discord)
 // @match        https://place.zevent.fr/
