@@ -1,14 +1,13 @@
 // ==UserScript==
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
-// @version      1
+// @version      1.
 // @description  try to take over the world! Adaptations by ludolpif for ZEvent/place. Press H to hide/show again the overlay.
 // @author       MinusKube & ludolpif (questions or help: ludolpif#4419 on discord)
 // @match        https://place.zevent.fr/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=zevent.fr
 // @grant        none
 // @downloadURL  https://github.com/ludolpif/overlay-zevent-place/raw/main/browser-script/zevent-place-overlay.user.js
-// @updateURL    https://github.com/ludolpif/overlay-zevent-place/raw/main/browser-script/zevent-place-overlay.user.js
 // ==/UserScript==
 
 // Script I (ludolpif) used as base : https://greasyfork.org/fr/scripts/444833-z-place-overlay/code
@@ -32,7 +31,9 @@ const observer = new MutationObserver(function (mutations, mutationInstance) {
             }
         });
         // Fix for firefox ESR 91 ('pixellated' needs >=93)
-        parentDiv.style.setProperty('image-rendering', 'crisp-edges');
+        if (navigator.userAgent.replace(/^Mozilla.* rv:(\d+).*$/, '$1') < 93) {
+            parentDiv.style.setProperty('image-rendering', 'crisp-edges');
+        }
     }
     let addedCanvas = null;
     //console.log(mutations);
@@ -67,7 +68,7 @@ const observer = new MutationObserver(function (mutations, mutationInstance) {
          * - Les calques (overlays) ne s'affichent qu'après l'authentification sur le site https://place.zevent.fr
          * - Les nombres 1000,1000 sont adéquats pour la taille initiale de zevent-place. Ça augmentera pendant l'évènement.
          *    À changer quand la personne qui produit le calque (overlay) aura publié un premier calque à la nouvelle taille.
-         * - Il ne faut pas ajouter ou enlever de point-virugle en fin de ligne, ça tombe en panne sinon.
+         * - Ne touchez pas et préservez les point-virugles en fin de lignes de code, le script tombe en panne sinon.
 
          */
         loadOverlay(addedCanvas, 0, 0, 1000, 1000, "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay.png");
