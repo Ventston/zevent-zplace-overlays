@@ -67,14 +67,14 @@ const observer = new MutationObserver(function (mutations, mutationInstance) {
          *  7) Allez sur l'onglet de https://place.zevent.fr et rafraichissez avec Ctrl+R
          * Remarques :
          * - Les calques (overlays) ne s'affichent qu'après l'authentification sur le site https://place.zevent.fr
-         * - Les nombres 1000,1000 sont adéquats pour la taille initiale de zevent-place. Ça augmentera pendant l'évènement.
+         * - Les nombres 500,500 seront probablement adéquats pour la taille initiale de zevent-place. Ça augmentera pendant l'évènement.
          *    À changer quand la personne qui produit le calque (overlay) aura publié un premier calque à la nouvelle taille.
-         * - Ne touchez pas et préservez les point-virugles en fin de lignes de code, le script tombe en panne sinon.
+         * - Ne touchez pas / préservez les point-virgules en fin de ligne de code, le script tombe en panne sinon.
 
          */
         loadOverlay(addedCanvas, 0, 0, 1000, 1000, "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay.png");
-        //loadOverlay(addedCanvas, 0, 0, 1000, 1000, "https://raw.githubusercontent.com/someone/someproject/main/some-name.png");
-        //loadOverlay(addedCanvas, 0, 0, 1000, 1000, "https://s8.gifyu.com/images/Overlay-someother-cool-streamer.png");
+        //loadOverlay(addedCanvas, 0, 0, 500, 500, "https://raw.githubusercontent.com/someone/someproject/main/some-name.png");
+        //loadOverlay(addedCanvas, 0, 0, 1000, 500, "https://s8.gifyu.com/images/Overlay-someother-cool-streamer.png");
 
         /*
          * EN: Script users: find overlays URL on Streamer's discord servers
@@ -91,7 +91,7 @@ const observer = new MutationObserver(function (mutations, mutationInstance) {
          *  7) Go on https://place.zevent.fr browser tab and refresh the page with Ctrl+R
          * Remarks :
          * - Overlays will display only after successful authentication on https://place.zevent.fr website
-         * - Numbers 1000,1000 are fiine for the initial size of zevent-place. It will grow during the event.
+         * - Numbers 500,500 are probably fine for the initial size of zevent-place. It will grow during the event.
          * - Don't mess up any semi-colon (;) at end of code lines, it will break the script.
          */
     }
