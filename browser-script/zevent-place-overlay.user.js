@@ -72,9 +72,9 @@ const observer = new MutationObserver(function (mutations, mutationInstance) {
          * - Ne touchez pas / préservez les point-virgules en fin de ligne de code, le script tombe en panne sinon.
 
          */
-        loadOverlay(addedCanvas, 0, 0, 1000, 1000, "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay.png");
-        //loadOverlay(addedCanvas, 0, 0, 500, 500, "https://raw.githubusercontent.com/someone/someproject/main/some-name.png");
-        //loadOverlay(addedCanvas, 0, 0, 1000, 500, "https://s8.gifyu.com/images/Overlay-someother-cool-streamer.png");
+        loadOverlay(addedCanvas, 0, 0, 1000, 1000, "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay.png" );
+        //loadOverlay(addedCanvas, 0, 0, 500, 500, "https://raw.githubusercontent.com/someone/someproject/main/some-name.png" );
+        //loadOverlay(addedCanvas, 0, 0, 1000, 500, "https://s8.gifyu.com/images/Overlay-someother-cool-streamer.png" );
 
         /*
          * EN: Script users: find overlays URL on Streamer's discord servers
