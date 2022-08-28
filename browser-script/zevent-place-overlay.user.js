@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.2
+// @version      1.3
 // @description  try to take over the world! Adaptations by ludolpif for ZEvent/place. Press H to hide/show again the overlay.
 // @author       MinusKube & ludolpif (questions or help: ludolpif#4419 on discord)
 // @match        https://place.zevent.fr/
@@ -17,7 +17,9 @@
 // Copyright 2021-2022 MinusKube & ludolpif
 'use strict';
 console.log("zevent-place-overlay: started");
-window.addEventListener("DOMContentLoaded", function(event) {
+let zevent_place_overlay_loaded = false;
+
+function zevent_place_overlay_on_dom_content_loaded(event) {
     function loadOverlay(canvas, left, top, width, height, src) {
         const parentDiv = canvas.parentElement;
         const image = document.createElement("img");
@@ -37,11 +39,15 @@ window.addEventListener("DOMContentLoaded", function(event) {
             parentDiv.style.setProperty('image-rendering', 'crisp-edges');
         }
     }
-    console.log("zevent-place-overlay: DOMContentLoaded");
+    if ( zevent_place_overlay_loaded == true ) {
+        return;
+    }
+    console.log("zevent-place-overlay: on_dom_content_loaded");
     var allCanvas = document.getElementsByTagName("canvas");
     console.log("zevent-place-overlay: canvas count : " + allCanvas.length);
     console.log(allCanvas);
     for (var i = 0; i < allCanvas.length; i++) {
+        zevent_place_overlay_loaded = true;
         var addedCanvas = allCanvas[i];
         /*
          * FR: Utilisateurs du script: trouvez une ou des URL d'overlay (calques) sur les serveurs Discord des Streamers,
@@ -86,4 +92,7 @@ window.addEventListener("DOMContentLoaded", function(event) {
          * - Don't mess up any semi-colon (;) at end of code lines, it will break the script.
          */
     }
-});
+}
+
+window.addEventListener("DOMContentLoaded", zevent_place_overlay_on_dom_content_loaded);
+zevent_place_overlay_on_dom_content_loaded(null); // If too late for DOMContentLoaded
