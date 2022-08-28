@@ -2,21 +2,22 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.1
+// @version      1.2
 // @description  try to take over the world! Adaptations by ludolpif for ZEvent/place. Press H to hide/show again the overlay.
 // @author       MinusKube & ludolpif (questions or help: ludolpif#4419 on discord)
 // @match        https://place.zevent.fr/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=zevent.fr
 // @grant        none
 // @downloadURL  https://github.com/ludolpif/overlay-zevent-place/raw/main/browser-script/zevent-place-overlay.user.js
+// @updateURL  https://github.com/ludolpif/overlay-zevent-place/raw/main/browser-script/zevent-place-overlay.user.js
 // ==/UserScript==
 
 // Script I (ludolpif) used as base : https://greasyfork.org/fr/scripts/444833-z-place-overlay/code
 // Original and this code licence : MIT
 // Copyright 2021-2022 MinusKube & ludolpif
 'use strict';
-
-const observer = new MutationObserver(function (mutations, mutationInstance) {
+console.log("zevent-place-overlay: started");
+window.addEventListener("DOMContentLoaded", function(event) {
     function loadOverlay(canvas, left, top, width, height, src) {
         const parentDiv = canvas.parentElement;
         const image = document.createElement("img");
@@ -36,28 +37,18 @@ const observer = new MutationObserver(function (mutations, mutationInstance) {
             parentDiv.style.setProperty('image-rendering', 'crisp-edges');
         }
     }
-    let addedCanvas = null;
-    //console.log(mutations);
-    for (const mutation of mutations) {
-        // Check if the canvas has been added during this mutation
-        for (const addedNode of mutation.addedNodes) {
-            if (!(addedNode instanceof Element)) {
-                continue;
-            }
-            const canvases = addedNode.getElementsByTagName('canvas');
-            if (canvases.length > 0) {
-                addedCanvas = canvases[0];
-                break;
-            }
-        }
-    }
-    if (addedCanvas) {
+    console.log("zevent-place-overlay: DOMContentLoaded");
+    var allCanvas = document.getElementsByTagName("canvas");
+    console.log("zevent-place-overlay: canvas count : " + allCanvas.length);
+    console.log(allCanvas);
+    for (var i = 0; i < allCanvas.length; i++) {
+        var addedCanvas = allCanvas[i];
         /*
          * FR: Utilisateurs du script: trouvez une ou des URL d'overlay (calques) sur les serveurs Discord des Streamers,
          *      et utilisez les ci-dessous (et supprimez la ligne avec demo-overlay.png).
          * Pour activer un nouveau calque (overlay) :
          *  0) S'assurer que vous lisez ça depuis un onglet de l'extension TamperMonkey dans votre navigateur
-         *    (sinon vous avez manqué des étapes de la documentation sous README.md: https://github.com/ludolpif/overlay-zevent-place ) 
+         *    (sinon vous avez manqué des étapes de la documentation sous README.md: https://github.com/ludolpif/overlay-zevent-place )
          *  1) Utilisez une ligne //loadOveray(...); laissée en exemple
          *  2) SÉCURITÉ: ne tentez pas de charger autre chose qu'une image .png
          *  3) Remplacez l'URL d'exemple par l'URL trouvée sur le Discord de votre Streamer
@@ -73,7 +64,7 @@ const observer = new MutationObserver(function (mutations, mutationInstance) {
 
          */
         loadOverlay(addedCanvas, 0, 0, 500, 500, "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay.png" );
-        //loadOverlay(addedCanvas, 0, 0, 500, 500, "https://raw.githubusercontent.com/someone/someproject/main/some-name.png" );
+        //loadOverlay(addedCanvas, 0, 0, 500, 500, "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay2.png" );
         //loadOverlay(addedCanvas, 0, 0, 1000, 500, "https://s8.gifyu.com/images/Overlay-someother-cool-streamer.png" );
 
         /*
@@ -96,10 +87,3 @@ const observer = new MutationObserver(function (mutations, mutationInstance) {
          */
     }
 });
-
-observer.observe(document, {
-    childList: true,
-    subtree:   true,
-    characterDataOldValue : true
-});
-console.log("zevent-place-overlay: started observing document mutations");
