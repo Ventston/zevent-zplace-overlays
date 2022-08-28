@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.3
+// @version      1.4
 // @description  try to take over the world! Adaptations by ludolpif for ZEvent/place. Press H to hide/show again the overlay.
 // @author       MinusKube & ludolpif (questions or help: ludolpif#4419 on discord)
 // @match        https://place.zevent.fr/
@@ -95,4 +95,6 @@ function zevent_place_overlay_on_dom_content_loaded(event) {
 }
 
 window.addEventListener("DOMContentLoaded", zevent_place_overlay_on_dom_content_loaded);
-zevent_place_overlay_on_dom_content_loaded(null); // If too late for DOMContentLoaded
+setTimeout(function() {
+  zevent_place_overlay_on_dom_content_loaded(null); // If too late for DOMContentLoaded
+}, "5000");
