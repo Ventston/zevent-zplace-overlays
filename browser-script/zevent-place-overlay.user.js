@@ -2,14 +2,14 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.4
-// @description  try to take over the world! Adaptations by ludolpif for ZEvent/place. Press H to hide/show again the overlay.
-// @author       MinusKube & ludolpif (questions or help: ludolpif#4419 on discord)
+// @version      1.5
+// @description  Please organize with other participants on Discord: https://discord.gg/SbqEHZ47 ; Press H to hide/show again the overlay.
+// @author       MinusKube & ludolpif (questions or bugs: ludolpif#4419 on Discord)
 // @match        https://place.zevent.fr/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=zevent.fr
 // @grant        none
 // @downloadURL  https://github.com/ludolpif/overlay-zevent-place/raw/main/browser-script/zevent-place-overlay.user.js
-// @updateURL  https://github.com/ludolpif/overlay-zevent-place/raw/main/browser-script/zevent-place-overlay.user.js
+// @updateURL    https://github.com/ludolpif/overlay-zevent-place/raw/main/browser-script/zevent-place-overlay.user.js
 // ==/UserScript==
 
 // Script I (ludolpif) used as base : https://greasyfork.org/fr/scripts/444833-z-place-overlay/code
@@ -96,5 +96,8 @@ function zevent_place_overlay_on_dom_content_loaded(event) {
 
 window.addEventListener("DOMContentLoaded", zevent_place_overlay_on_dom_content_loaded);
 setTimeout(function() {
-  zevent_place_overlay_on_dom_content_loaded(null); // If too late for DOMContentLoaded
+  zevent_place_overlay_on_dom_content_loaded(null); // If too late for DOMContentLoaded or no canvas found
+}, "1000");
+setTimeout(function() {
+  zevent_place_overlay_on_dom_content_loaded(null); // Again after 5 seconds
 }, "5000");
