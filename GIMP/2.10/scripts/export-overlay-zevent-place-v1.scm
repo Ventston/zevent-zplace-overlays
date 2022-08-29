@@ -21,6 +21,7 @@
     (gimp-context-push)
     (gimp-context-set-defaults)
     (gimp-image-undo-group-start image)
+    (gimp-selection-none image)
 
     ; gimp-image-merge-visible-layers strips any mask and preserve alpha
     (set! layer (car (gimp-image-merge-visible-layers image CLIP-TO-IMAGE)))

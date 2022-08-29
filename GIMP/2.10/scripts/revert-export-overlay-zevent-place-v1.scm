@@ -15,6 +15,7 @@
     (gimp-context-push)
     (gimp-context-set-defaults)
     (gimp-image-undo-group-start image)
+    (gimp-selection-none image)
 
     (set! layer (car (gimp-image-merge-visible-layers image CLIP-TO-IMAGE)))
     (gimp-layer-resize-to-image-size layer)
