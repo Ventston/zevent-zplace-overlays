@@ -16,7 +16,7 @@ Ce dépot contient des scripts pour faciliter de production et l'affichage de ca
 - https://github.com/ludolpif/overlay-zevent-place/archive/refs/heads/main.zip
 - fusionner depuis le ZIP overlay-zevent-place-main\GIMP\2.10 dans C:\Users\votrenom\AppData\Roaming\GIMP\2.10
 
-# Alternative à GIMP (en ligne) pour les exports d'overlay
+### Alternative à GIMP (en ligne) pour les exports d'overlay
 - https://overlay-zplace.4each.dev/
 
 ## Documentation
