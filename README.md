@@ -49,6 +49,18 @@ Exemple : un personnage d'un streamer, une emote, un petit panneau avec un messa
  
 ### Afficher des overlays sur le site https://place.zevent.fr
 
+C'est dans le diaporama "use-overlays.pdf" avec beaucoup de screenshots.
+
+https://github.com/ludolpif/overlay-zevent-place/raw/main/documentation/use-overlays.pdf
+
 ### Créer et gérer un overlay avec GIMP
 
+Cette doc n'est pas encore écrite. Un brouillon adressé à une personne qui a béta-testé : 
+
+Sur https://github.com/ludolpif/overlay-zevent-place tu peux récupérer le code source avec le bouton vert "code" puis Download ZIP. Il te faut avoir ouvert GIMP au moins une fois depuis que tu l'as installé pour qu'il crée tous les dossiers utiles.
+Dans le ZIP téléchargé, il y a un dossier GIMP et un sous dessosier 2.10. Dedans 3 dossiers patterns, scripts, palettes. Il faut fusionner ces 3 là avec les dossiers du meme nom dans C:\Users\toncompte\AppData\Roaming\GIMP\2.10. Après ça il suffit de lancer GIMP et constater que dans le Menu Filtres il y a un élément de menu "Export ZEvent/place overlay (v1)" 
+si tu utilise linux et pas windows c'est pareil mais le chemin est : ~/.config/GIMP/2.10/ 
+sur mac je ne connais pas le chemin... mais ça pourrait être intéressant si qqun a gimp sous mac parmis sous pour test.
+si l'isntall est ok, un test du'tilisation c'est de sortir du ZIP le fichier demo-overlay2.xcf, le mettre par ex sur le bureau, l'ouvrir avec gimp, cliquer sur Filtres -> Export ZEvent/place overlay (v1) et voir si ça a bien créé un fichier demo-overylay2.png sur le bureau.
+le fichier contient 2 yoshi qui se regardent, ils devraient paraitre très transparents quand on ouvre le png dans Aperçu (pour chaque bloc d'image de 3x3, il y a 1 pixel opaque de la couleur du yoshi, et 8 pixel transparent autour.
 
