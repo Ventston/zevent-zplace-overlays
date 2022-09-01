@@ -23,8 +23,8 @@ Ce dépot contient des scripts pour faciliter de production et l'affichage de ca
 
 ### S'organiser sur le Discord inter-commu ZEvent/Place
 
-Si vous voulez, pour la fresque ZEvent/Place (au choix) :
-- juste un guide pour dépenser vos crédits/pixels
+Si vous voulez, pour la fresque ZEvent/Place, vous pouvez (au choix) :
+- afficher un guide (overlay) pour aider à dessiner avec vos crédits/pixels
 - proposer des artworks à dessiner à plusieurs
 - gérer un overlay (calque, ensemble d'artworks) d'une commu
 
