@@ -50,5 +50,5 @@ Exemple : un personnage d'un streamer, une emote, un petit panneau avec un messa
 
 - Créatif : prépare des artworks en couleur indexées et les suggère à un gestionnaire d'overlay
 - Facilitateur/Diplomate : personne qui va sur les discord des streamers informer de l'existence du Discord inter-commu (https://discord.gg/SbqEHZ47) et le cas échéant signaler des contradictions : 2 overlays suggèrent de dessiner 2 artworks différent au moment endroit
-- Gestionnaire d'overlay : personne qui utilise le 🎨-plugin-gimp ou le 🧰-webtool-overlays  et publie régulièrement un export de cet overlay (sans changer l'url à chaque version, par exemple via github ou un drive et pas des sites de GIF ou CDN discord).
+- Gestionnaire d'overlay : personne qui reçoit des artworks en couleurs indexées et qui les place sur un overlay. Elle utilise le 🎨-plugin-gimp ou le 🧰-webtool-overlays et publie régulièrement un export de cet overlay (sans changer l'url à chaque version, par exemple via github ou un drive et pas des sites de GIF ou CDN discord).
 
