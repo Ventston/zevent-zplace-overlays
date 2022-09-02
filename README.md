@@ -32,7 +32,7 @@ Si vous voulez, pour la fresque ZEvent/Place, vous pouvez (au choix) :
 - Proposer des artworks à dessiner à plusieurs à un gestionnaire d'overlay
 - Gérer un overlay (calque, ensemble d'artworks) d'une commu
 
-C'est ICI pour collaborer : https://discord.gg/SbqEHZ47
+C'est ICI pour collaborer : https://discord.gg/sXe5aVW2jV
 
 **Important** : Il y a 50 commus, il faut absolument rester en dessous de 100 overlays. Idéal : 1 seul overlay par commu, 3 personnes qui se relaient pour être gestionnaire d'overlay durant l'évènement. @ludolpif va gérer un "overlay de secours" commun à toutes les commus qui n'ont pas assez de volontaires. 
 
