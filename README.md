@@ -1,27 +1,29 @@
-# Scripts pour la fresque pixel art ZEvent /place 2022
+# Scripts pour la fresque pixel art ZEvent Place 2022
 
 Remarque: ceci n'est pas adapté à la fresque du zUnivers de Zerator (z/place), relisez le titre.
 
 Ce dépot contient des scripts pour faciliter de production et l'affichage de calques (overlays) sur https://place.zevent.fr.
 
-## Liens directs (si vous avez déjà lu la doc en bas de page)
+## Liens directs (lisez Vocabulaire en bas avant SVP)
 
-### Script d'affichage des calques (overlays)
-- pré-requis avant de cliquer : installer l'extension TamperMonkey
+### Afficher des overlays sur le site https://place.zevent.fr
+- Diaporama détaillé : https://github.com/ludolpif/overlay-zevent-place/raw/main/documentation/use-overlays.pdf
+- pré-requis avant de cliquer ci-après: installer l'extension TamperMonkey
 - https://github.com/ludolpif/overlay-zevent-place/raw/main/browser-script/zevent-place-overlay.user.js
 - si ça affiche du code sans aucun bouton "Install" ou "Update", vérifier l'installation de l'extension TamperMonkey
 
-### ZIP pour installer le script GIMP d'export d'overlay
+### Créer et gérer un overlay avec GIMP
+
+- Diaporama détaillé : https://github.com/ludolpif/overlay-zevent-place/raw/main/documentation/manage-overlays-with-gimp.pdf
 - il faut avoir installé et lancé GIMP 2.10.XX une premère fois (crée des répertoires au lancement)
 - https://github.com/ludolpif/overlay-zevent-place/archive/refs/heads/main.zip
 - fusionner depuis le ZIP overlay-zevent-place-main\GIMP\2.10 dans C:\Users\votrenom\AppData\Roaming\GIMP\2.10
 
-### Alternative à GIMP (en ligne) pour les exports d'overlay
+### Alternative web pour gérer un overlay
 - https://overlay-zplace.4each.dev/
+- très simple, moins adapté pour gérer beaucoup d'artworks sur la durée
 
-## Documentation
-
-### S'organiser sur le Discord inter-commu ZEvent/Place
+## S'organiser sur le Discord inter-commu ZEvent/Place
 
 Si vous voulez, pour la fresque ZEvent/Place, vous pouvez (au choix) :
 - afficher un guide (overlay) pour aider à dessiner avec vos crédits/pixels
@@ -47,10 +49,4 @@ Exemple : un personnage d'un streamer, une emote, un petit panneau avec un messa
 - gestionnaire d'overlay : personne qui utilise le 🎨-plugin-gimp ou le 🧰-webtool-overlays  et publie régulièrement un export de cet overlay (sans changer l'url à chaque version, par exemple via github ou un drive et pas des sites de GIF ou CDN discord).
 
  
-### Afficher des overlays sur le site https://place.zevent.fr
 
-Diaporama détaillé : https://github.com/ludolpif/overlay-zevent-place/raw/main/documentation/use-overlays.pdf
-
-### Créer et gérer un overlay avec GIMP
-
-Diaporama détaillé : https://github.com/ludolpif/overlay-zevent-place/raw/main/documentation/manage-overlays-with-gimp.pdf
