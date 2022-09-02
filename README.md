@@ -6,7 +6,7 @@ Ce dépot contient des scripts pour faciliter de production et l'affichage de ca
 
 ## Liens directs (lisez Vocabulaire en bas avant SVP)
 
-### Afficher des overlays sur le site https://place.zevent.fr
+### Afficher des overlays sur le site https://place.zevent.fr avec le 🌐-browser-script
 
 - Pré-requis avant de cliquer ci-après: installer l'extension TamperMonkey
 - https://github.com/ludolpif/overlay-zevent-place/raw/main/browser-script/zevent-place-overlay.user.js
