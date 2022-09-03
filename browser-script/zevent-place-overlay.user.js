@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6
+// @version      1.6.1
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       MinusKube & ludolpif (questions or bugs: ludolpif#4419 on Discord)
 // @match        https://place.zevent.fr/
@@ -94,7 +94,7 @@
             }
         });
     }
-    function loadOurUI(origUI) {
+    function appendOurUI(origUI) {
         const ourUI = document.createElement("div");
         ourUI.id = "zevent-place-overlay-ui";
         ourUI.className = "user";
@@ -118,18 +118,40 @@
         let ourUI = document.querySelector('#zevent-place-overlay-ui');
         if ( origUI && !ourUI ) {
             console.log("zevent-place-overlay: keepOurselfInDOM() origUI: " + !!origUI + ", ourUI: " + !!ourUI);
-            loadOurUI(origUI);
+            appendOurUI(origUI);
+            fetchKnownOverlays1();
+            fetchKnownOverlays2();
         }
     }
+    function reloadUIKnownOverlays() {
+        //TODO stub
+        console.log("DEBUG reloadUIKnownOverlays()", knownOverlays);
+    }
+    function fetchKnownOverlays1() {
+        //TODO stub use fetch API
+    }
+    function fetchKnownOverlays2() {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var data = JSON.parse(this.responseText);
+                //TODO sanity checks
+                knownOverlays = data;
+                reloadUIKnownOverlays();
+            }
+        };
+        xmlhttp.open("GET", overlayJSON, true);
+        xmlhttp.send();
+    }
 
-    /* Following JSON embed from overlayJSON
-     *  in case of problems during getting it at runtime.
+    /* Following JSON is from URL you can found in global const overlayJSON
+     * It is embed here in case of problems during getting it at runtime.
      * Use the bot commands on Discord mentionned in @description to publicly register an overlay in this json
      */
     let knownOverlays = {
-        "89af8563-6ed2-4669-84be-2a83406bc128" : {"admin":"name", "url": "https://github.com/ludolpif/overlay-zevent-place/blob/main/examples/demo-overlay.png", "lastmodified": "2022-01-01T01:01:01", "title": "test"},
-        "17d494c3-fee2-4b0a-9d8f-f66b6de175b4" : {"admin":"name", "url": "https://github.com/ludolpif/overlay-zevent-place/blob/main/examples/demo-overlay2.png", "lastmodified": "2022-01-01T01:01:01", "title": "test2"},
-        "4ec23db8-49ad-4b1d-803d-20be63ccab71" : {"admin":"name", "url": "https://s8.gifyu.com/images/Overlay-ZPlace-2.071936ce620f59ca0.png", "lastmodified": "2022-01-01T01:01:01", "title":"test3"}
+        "89af8563-6ed2-4669-84be-2a83406bc128" : {"admin":"ludolpif", "url": "https://github.com/ludolpif/overlay-zevent-place/blob/main/examples/demo-overlay.png", "lastmodified": "2022-01-01T01:01:01", "title": "test"},
+        "17d494c3-fee2-4b0a-9d8f-f66b6de175b4" : {"admin":"ludolpif", "url": "https://github.com/ludolpif/overlay-zevent-place/blob/main/examples/demo-overlay2.png", "lastmodified": "2022-01-01T01:01:01", "title": "test2"},
+        "4ec23db8-49ad-4b1d-803d-20be63ccab71" : {"admin":"minuskube", "url": "https://s8.gifyu.com/images/Overlay-ZPlace-2.071936ce620f59ca0.png", "lastmodified": "2022-01-01T01:01:01", "title":"test3"}
     };
 
 })();
