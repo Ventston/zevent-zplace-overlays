@@ -2,9 +2,9 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.4
+// @version      1.6.5
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
-// @author       MinusKube & ludolpif (questions or bugs: ludolpif#4419 on Discord)
+// @author       MinusKube, ludolpif, ventston (questions or bugs: ludolpif#4419 on Discord)
 // @match        https://place.zevent.fr/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=zevent.fr
 // @grant        none
@@ -14,14 +14,17 @@
 
 // Script I (ludolpif) used as base : https://greasyfork.org/fr/scripts/444833-z-place-overlay/code
 // Original and this code licence : MIT
-// Copyright 2021-2022 MinusKube & ludolpif
+// Copyright 2021-2022 MinusKube, ludolpif, ventston
+// Thanks to : grewa for help on CSS
 (function() {
     'use strict';
-    const version = "1.6.4";
+    const version = "1.6.5";
     console.log("zevent-place-overlay: version " + version);
     // Global variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
-    let intervalID = setInterval(keepOurselfInDOM, 2000);
+
+    let intervalID1 = setTimeout(keepOurselfInDOM, 200);
+    let intervalID2 = setInterval(keepOurselfInDOM, 2000);
     let refreshOverlays = true;
     let wantedOverlayURLs = [];
     /*
@@ -116,14 +119,91 @@
             </div>
             <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; height: 0vh; transition: all 0.2s ease 0s;">
                 <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-x:hidden; overflow-y: auto;">
-                    Actif&nbsp;
-                    <ul id="zevent-place-overlay-ui-list-wanted-overlays"></ul>
+<br />
+Actif&nbsp;
+                    <table id="zevent-place-overlay-ui-list-wanted-overlays"></table>
+
+                    <br />
+                    <hr />
+                    <br />
                     Disponible&nbsp;
-                    <ul id="zevent-place-overlay-ui-list-known-overlays"></ul>
+                    <table id="zevent-place-overlay-ui-list-known-overlays"></table>
                 </div>
             </div>
         `;
         origUI.appendChild(ourUI);
+
+       const style = document.createElement("style");
+        style.innerHTML = `td.community_name, td.community_discord, td.thread_url {padding:5px } .twitch_logo,.discord_logo,.thread_logo { max-height:2vh}
+         /* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 17px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(13px);
+  -ms-transform: translateX(13px);
+  transform: translateX(13px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 17px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+
+tr { text-align:center}
+`;
+        ourUI.appendChild(style);
+
+
         const versionSpan = document.querySelector('#zevent-place-overlay-ui-version');
         if ( versionSpan) { versionSpan.innerHTML = 'v' + version };
     }
@@ -131,18 +211,49 @@
         const knownOverlaysIds = Object.keys(knownOverlays);
         console.log("zevent-place-overlay: reloadUIKnownOverlays() for " + knownOverlaysIds.length + " overlays");
         let ulKnownOverlays = document.querySelector('#zevent-place-overlay-ui-list-known-overlays');
+        const twitch_logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Twitch_Glitch_Logo_Purple.svg/878px-Twitch_Glitch_Logo_Purple.svg.png";
+        const discord_logo_url = "https://upload.wikimedia.org/wikipedia/fr/thumb/4/4f/Discord_Logo_sans_texte.svg/1818px-Discord_Logo_sans_texte.svg.png";
+        const thread_logo_url = "https://cdn.discordapp.com/attachments/1013061504599334915/1016019919458029628/logo2.png";
 
         ulKnownOverlays.innerHTML = "";
         knownOverlaysIds.forEach(function(id) {
             const data = knownOverlays[id];
             console.log("DEBUG", id, data);
-            const li = document.createElement("li");
-            const a1 = document.createElement("a");
-            a1.href = data.url;
+            const tr = document.createElement("tr");
+
+            tr.innerHTML=
+                `
+                <td>
+                <label class="switch">
+  <input type="checkbox">
+  <span class="slider round"></span>
+</label>
+                </td>
+                `+
+
+                `
+<td>
+                `+
+                data.community_name +
+                                `
+                               </td>
+                `+
+
+                "<td class='community_name'><a href='"+data.community_twitch+"'><img class='twitch_logo' src='"+twitch_logo_url+"' /></a></td>"+
+"<td class='community_discord'><a href='"+data.community_discord+"'><img class='discord_logo' src='"+discord_logo_url+"' /></a></td>" +
+"<td class='thread_url'><a href='"+data.thread_url+"'><img class='twitch_logo' src='"+thread_logo_url+"' /></a></td>";
+
+            /*
+            const td_community_name = document.createElement("td");
+            const td_community_name_a = document.createElement("a");
+
+
+            td_community_name_a.href = data.url;
             a1.innerHTML = "<i>" + data.community_name + "</i>&nbsp;" + data.description + "&nbsp;<i>(" + data.author + ", " + data.managers + ")</i>";
             a1.target = "_blank";
             li.appendChild(a1);
-            ulKnownOverlays.appendChild(li);
+*/
+            ulKnownOverlays.appendChild(tr);
         });
     }
     function keepOurselfInDOM() {
@@ -185,6 +296,6 @@
      * It is embed here in case of problems during getting it at runtime.
      * Use the bot commands on Discord mentionned in @description to publicly register an overlay in this json
      */
-    let knownOverlays = {}
+    let knownOverlays = {};
 
 })();
