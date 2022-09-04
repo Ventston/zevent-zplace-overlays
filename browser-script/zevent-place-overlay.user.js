@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.1
+// @version      1.6.2
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       MinusKube & ludolpif (questions or bugs: ludolpif#4419 on Discord)
 // @match        https://place.zevent.fr/
@@ -17,16 +17,16 @@
 // Copyright 2021-2022 MinusKube & ludolpif
 (function() {
     'use strict';
-    console.log("zevent-place-overlay: started");
+    console.log("zevent-place-overlay: version 1.6.2");
     // Global variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
     let intervalID = setInterval(keepOurselfInDOM, 2000);
     let refreshOverlays = true;
     let wantedOverlayURLs = [];
     /*
-     * FR: Utilisateurs du script: trouvez une ou des URL d'overlay (calques) sur les serveurs Discord des Streamers,
-     *      et utilisez les ci-dessous (et supprimez la ligne avec demo-overlay.png).
-     * Pour activer un nouveau calque (overlay) :
+     * FR: Utilisateurs du script: vous pouvez éditer les lignes loadOverlay() ci-après pour mémoriser dans votre navigateur
+     *      vos choix d'overlay sans utiliser le menu "Overlays" proposé par ce script sur https://place.zevent.fr/
+     * Pour ce faire :
      *  0) S'assurer que vous lisez ça depuis un onglet de l'extension TamperMonkey dans votre navigateur
      *    (sinon vous avez manqué des étapes de la documentation sous README.md: https://github.com/ludolpif/overlay-zevent-place )
      *  1) Utilisez une ligne //loadOveray(...); laissée en exemple
@@ -97,11 +97,88 @@
     function appendOurUI(origUI) {
         const ourUI = document.createElement("div");
         ourUI.id = "zevent-place-overlay-ui";
-        ourUI.className = "user";
         ourUI.style = `
-	        display: inline-flex; height: 40px; align-items: center; padding: 0 16px; border-radius: 999px;
-			background: #1f1f1f; position: fixed; top: 16px; left: 16px; z-index: 999;`
-        ourUI.innerHTML = "Overlays (soon)";
+	        padding: 0 8px; border-radius: 20px; background: #1f1f1f;
+			position: fixed; top: 16px; left: 16px; z-index: 999;`
+        ourUI.innerHTML = `
+            <div id="zevent-place-overlay-ui-head" style="display: flex; align-items: center; height: 40px;">
+		    	<button
+                    onClick="const n = document.querySelector('#zevent-place-overlay-ui-body'); if (  n.hidden ) { n.hidden = false; n.style.height='95vh'; n.style.width='20rem'; } else { n.hidden = true; n.style.height='0'; n.style.width='0'; }"
+                    style="width:40px; height:40px; display:flex; border-radius:40px; border:none; background-color:#050505; justify-content:center; align-items:center; cursor:pointer"
+                    >
+		    	    <svg height="24px" viewBox="0 0 32 32">
+			            <path fill="white" d="M4,10h24c1.104,0,2-0.896,2-2s-0.896-2-2-2H4C2.896,6,2,6.896,2,8S2.896,10,4,10z M28,14H4c-1.104,0-2,0.896-2,2  s0.896,2,2,2h24c1.104,0,2-0.896,2-2S29.104,14,28,14z M28,22H4c-1.104,0-2,0.896-2,2s0.896,2,2,2h24c1.104,0,2-0.896,2-2  S29.104,22,28,22z"/>
+			        </svg>
+			    </button>
+        	    Overlays
+            </div>
+            <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; padding: 8px; height: 0vh;">
+            <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-y: auto;">
+Actif&nbsp:
+                <ul>
+                    <li>Some stuff</li>
+                    <li>Some stuff 2</li>
+                </ul>
+Disponible&nbsp:
+                <ul>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                    <li>Some stuff 4</li>
+                    <li>Some stuff 5</li>
+                </ul>
+            </div>
+            </div>
+        `;
         origUI.appendChild(ourUI);
     }
     function keepOurselfInDOM() {
