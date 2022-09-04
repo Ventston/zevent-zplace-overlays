@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.2
+// @version      1.6.3
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       MinusKube & ludolpif (questions or bugs: ludolpif#4419 on Discord)
 // @match        https://place.zevent.fr/
@@ -17,7 +17,7 @@
 // Copyright 2021-2022 MinusKube & ludolpif
 (function() {
     'use strict';
-    console.log("zevent-place-overlay: version 1.6.2");
+    console.log("zevent-place-overlay: version 1.6.3");
     // Global variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
     let intervalID = setInterval(keepOurselfInDOM, 2000);
@@ -103,7 +103,7 @@
         ourUI.innerHTML = `
             <div id="zevent-place-overlay-ui-head" style="display: flex; align-items: center; height: 40px;">
 		    	<button
-                    onClick="const n = document.querySelector('#zevent-place-overlay-ui-body'); if (  n.hidden ) { n.hidden = false; n.style.height='95vh'; n.style.width='20rem'; } else { n.hidden = true; n.style.height='0'; n.style.width='0'; }"
+                    onClick="const n = document.querySelector('#zevent-place-overlay-ui-body'); if ( n.hidden ) { n.hidden=false; n.style.height='calc(100vh - 72px)'; n.style.width='20rem'; } else { n.hidden=true; n.style.height='0'; n.style.width='0'; }"
                     style="width:40px; height:40px; display:flex; border-radius:40px; border:none; background-color:#050505; justify-content:center; align-items:center; cursor:pointer"
                     >
 		    	    <svg height="24px" viewBox="0 0 32 32">
@@ -112,19 +112,19 @@
 			    </button>
         	    Overlays
             </div>
-            <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; padding: 8px; height: 0vh;">
-            <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-y: auto;">
+            <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; height: 0vh; transition: all 0.2s ease 0s;">
+            <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-x:hidden; overflow-y: auto;">
 Actif&nbsp:
-                <ul>
+                <ul id="zevent-place-overlay-ui-list-wanted-overlays">
                     <li>Some stuff</li>
                     <li>Some stuff 2</li>
                 </ul>
 Disponible&nbsp:
-                <ul>
+                <ul id="zevent-place-overlay-ui-list-known-overlays">
                     <li>Some stuff 4</li>
                     <li>Some stuff 5</li>
                     <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
+                    <li>Some very very very very very very very very very long stuff 5</li>
                     <li>Some stuff 4</li>
                     <li>Some stuff 5</li>
                     <li>Some stuff 4</li>
@@ -202,6 +202,12 @@ Disponible&nbsp:
     }
     function reloadUIKnownOverlays() {
         //TODO stub
+        let ulKnownOverlays = document.querySelector('.zevent-place-overlay-ui-list-known-overlays');
+        ulKnownOverlays.innerhtml = "";
+        knownOverlays.forEach(function (e) {
+            const li = document.createElement("li");
+            li.innerhtml = e.title;
+        });
         console.log("DEBUG reloadUIKnownOverlays()", knownOverlays);
     }
     function fetchKnownOverlays1() {
