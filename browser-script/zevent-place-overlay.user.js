@@ -17,7 +17,7 @@
 // Copyright 2021-2022 MinusKube & ludolpif
 (function() {
     'use strict';
-    const version = 1.6.4;
+    const version = "1.6.4";
     console.log("zevent-place-overlay: version " + version);
     // Global variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
