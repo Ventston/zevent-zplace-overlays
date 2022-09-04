@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.3
+// @version      1.6.4
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       MinusKube & ludolpif (questions or bugs: ludolpif#4419 on Discord)
 // @match        https://place.zevent.fr/
@@ -17,7 +17,8 @@
 // Copyright 2021-2022 MinusKube & ludolpif
 (function() {
     'use strict';
-    console.log("zevent-place-overlay: version 1.6.3");
+    const version = 1.6.4;
+    console.log("zevent-place-overlay: version " + version);
     // Global variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
     let intervalID = setInterval(keepOurselfInDOM, 2000);
@@ -31,7 +32,7 @@
      *    (sinon vous avez manqué des étapes de la documentation sous README.md: https://github.com/ludolpif/overlay-zevent-place )
      *  1) Utilisez une ligne //loadOveray(...); laissée en exemple
      *  2) SÉCURITÉ: ne tentez pas de charger autre chose qu'une image .png
-     *  3) Remplacez l'URL d'exemple par l'URL trouvée sur le Discord de votre Streamer
+     *  3) Remplacez l'URL d'exemple par l'URL de l'overlay de voter choix
      *  4) Enlevez le double-slash // avant loadOverlay(...); pour activer cette ligne de code
      *  5) Sauvez le script (Ctrl+S)
      *  6) Fermez cet onglet (editeur Tampermonkey)
@@ -44,14 +45,14 @@
     loadOverlay("https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay2.png" );
     //loadOverlay("https://s8.gifyu.com/images/Overlay-someother-cool-streamer.png" );
     /*
-     * EN: Script users: find overlays URL on Streamer's discord servers
-     *      and use them just above (and remove the line with demo-overlay.png).
-     * To enable a new overlay :
+     * EN: Script users: you can edit loadOverlay(...) lines above to memorize in your browser
+     *      your overlay choices without using the "Overlays" menu from this script on https://place.zevent.fr/
+     * To do that:
      *  0) Make sure you read this from a web browser's tab, from the TamperMonkey extension
      *    (if not, you have missed steps in the documentation below README.md: https://github.com/ludolpif/overlay-zevent-place )
      *  1) Use an line of code left as example like //loadOveray(...);
      *  2) SECURITY: don't try to load anything but a .png file
-     *  3) Replace the example URL by the URL found on your Streamer's Discord
+     *  3) Replace the example URL by the URL the the overlay of your choice
      *  4) Remove the double-slash // before loadOverlay(...); to enable this line of code
      *  5) Save the script (Ctrl+S)
      *  6) Close this tab (Tampermonkey editor)
@@ -111,75 +112,38 @@
 			        </svg>
 			    </button>
         	    Overlays
+                <span id="zevent-place-overlay-ui-version" style="color:gray; font-size:70%; padding-left:1em;"></span>
             </div>
             <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; height: 0vh; transition: all 0.2s ease 0s;">
-            <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-x:hidden; overflow-y: auto;">
-Actif&nbsp:
-                <ul id="zevent-place-overlay-ui-list-wanted-overlays">
-                    <li>Some stuff</li>
-                    <li>Some stuff 2</li>
-                </ul>
-Disponible&nbsp:
-                <ul id="zevent-place-overlay-ui-list-known-overlays">
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some very very very very very very very very very long stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                    <li>Some stuff 4</li>
-                    <li>Some stuff 5</li>
-                </ul>
-            </div>
+                <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-x:hidden; overflow-y: auto;">
+                    Actif&nbsp;
+                    <ul id="zevent-place-overlay-ui-list-wanted-overlays"></ul>
+                    Disponible&nbsp;
+                    <ul id="zevent-place-overlay-ui-list-known-overlays"></ul>
+                </div>
             </div>
         `;
         origUI.appendChild(ourUI);
+        const versionSpan = document.querySelector('#zevent-place-overlay-ui-version');
+        if ( versionSpan) { versionSpan.innerHTML = 'v' + version };
+    }
+    function reloadUIKnownOverlays() {
+        const knownOverlaysIds = Object.keys(knownOverlays);
+        console.log("zevent-place-overlay: reloadUIKnownOverlays() for " + knownOverlaysIds.length + " overlays");
+        let ulKnownOverlays = document.querySelector('#zevent-place-overlay-ui-list-known-overlays');
+
+        ulKnownOverlays.innerHTML = "";
+        knownOverlaysIds.forEach(function(id) {
+            const data = knownOverlays[id];
+            console.log("DEBUG", id, data);
+            const li = document.createElement("li");
+            const a1 = document.createElement("a");
+            a1.href = data.url;
+            a1.innerHTML = "<i>" + data.community_name + "</i>&nbsp;" + data.description + "&nbsp;<i>(" + data.author + ", " + data.managers + ")</i>";
+            a1.target = "_blank";
+            li.appendChild(a1);
+            ulKnownOverlays.appendChild(li);
+        });
     }
     function keepOurselfInDOM() {
         let origCanvas = document.querySelector('#place-canvas');
@@ -200,22 +164,13 @@ Disponible&nbsp:
             fetchKnownOverlays2();
         }
     }
-    function reloadUIKnownOverlays() {
-        //TODO stub
-        let ulKnownOverlays = document.querySelector('.zevent-place-overlay-ui-list-known-overlays');
-        ulKnownOverlays.innerhtml = "";
-        knownOverlays.forEach(function (e) {
-            const li = document.createElement("li");
-            li.innerhtml = e.title;
-        });
-        console.log("DEBUG reloadUIKnownOverlays()", knownOverlays);
-    }
     function fetchKnownOverlays1() {
         //TODO stub use fetch API
     }
     function fetchKnownOverlays2() {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
+            console.log("zevent-place-overlay: fetchKnownOverlays2() xmlhttp state: " + this.readyState + " status: " + this.status);
             if (this.readyState == 4 && this.status == 200) {
                 var data = JSON.parse(this.responseText);
                 //TODO sanity checks
@@ -226,15 +181,10 @@ Disponible&nbsp:
         xmlhttp.open("GET", overlayJSON, true);
         xmlhttp.send();
     }
-
     /* Following JSON is from URL you can found in global const overlayJSON
      * It is embed here in case of problems during getting it at runtime.
      * Use the bot commands on Discord mentionned in @description to publicly register an overlay in this json
      */
-    let knownOverlays = {
-        "89af8563-6ed2-4669-84be-2a83406bc128" : {"admin":"ludolpif", "url": "https://github.com/ludolpif/overlay-zevent-place/blob/main/examples/demo-overlay.png", "lastmodified": "2022-01-01T01:01:01", "title": "test"},
-        "17d494c3-fee2-4b0a-9d8f-f66b6de175b4" : {"admin":"ludolpif", "url": "https://github.com/ludolpif/overlay-zevent-place/blob/main/examples/demo-overlay2.png", "lastmodified": "2022-01-01T01:01:01", "title": "test2"},
-        "4ec23db8-49ad-4b1d-803d-20be63ccab71" : {"admin":"minuskube", "url": "https://s8.gifyu.com/images/Overlay-ZPlace-2.071936ce620f59ca0.png", "lastmodified": "2022-01-01T01:01:01", "title":"test3"}
-    };
+    let knownOverlays = {}
 
 })();
