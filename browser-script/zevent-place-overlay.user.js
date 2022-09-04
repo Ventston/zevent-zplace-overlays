@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.6
+// @version      1.6.7
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -19,13 +19,13 @@
  */
 (function() {
     'use strict';
-    const version = "1.6.6";
+    const version = "1.6.7";
     console.log("zevent-place-overlay: version " + version);
     // Global constants and variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
-    const twitch_logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Twitch_Glitch_Logo_Purple.svg/878px-Twitch_Glitch_Logo_Purple.svg.png";
-    const discord_logo_url = "https://upload.wikimedia.org/wikipedia/fr/thumb/4/4f/Discord_Logo_sans_texte.svg/1818px-Discord_Logo_sans_texte.svg.png";
     const thread_logo_url = "https://cdn.discordapp.com/attachments/1013061504599334915/1016050954191245322/logo2.png";
+    const twitchLogoSVG = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24"><path fill="#ffffff" d="M21 3v11.74l-4.696 4.695h-3.913l-2.437 2.348H6.913v-2.348H3V6.13L4.227 3H21zm-1.565 1.565H6.13v11.74h3.13v2.347l2.349-2.348h4.695l3.13-3.13V4.565zm-3.13 3.13v4.696h-1.566V7.696h1.565zm-3.914 0v4.696h-1.565V7.696h1.565z"></path></svg>'
+    const discordLogoSVG= '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 71 80"><path fill="#5865f2" d="M60.1045 13.8978C55.5792 11.8214 50.7265 10.2916 45.6527 9.41542C45.5603 9.39851 45.468 9.44077 45.4204 9.52529C44.7963 10.6353 44.105 12.0834 43.6209 13.2216C38.1637 12.4046 32.7345 12.4046 27.3892 13.2216C26.905 12.0581 26.1886 10.6353 25.5617 9.52529C25.5141 9.44359 25.4218 9.40133 25.3294 9.41542C20.2584 10.2888 15.4057 11.8186 10.8776 13.8978C10.8384 13.9147 10.8048 13.9429 10.7825 13.9795C1.57795 27.7309 -0.943561 41.1443 0.293408 54.3914C0.299005 54.4562 0.335386 54.5182 0.385761 54.5576C6.45866 59.0174 12.3413 61.7249 18.1147 63.5195C18.2071 63.5477 18.305 63.5139 18.3638 63.4378C19.7295 61.5728 20.9469 59.6063 21.9907 57.5383C22.0523 57.4172 21.9935 57.2735 21.8676 57.2256C19.9366 56.4931 18.0979 55.6 16.3292 54.5858C16.1893 54.5041 16.1781 54.304 16.3068 54.2082C16.679 53.9293 17.0513 53.6391 17.4067 53.3461C17.471 53.2926 17.5606 53.2813 17.6362 53.3151C29.2558 58.6202 41.8354 58.6202 53.3179 53.3151C53.3935 53.2785 53.4831 53.2898 53.5502 53.3433C53.9057 53.6363 54.2779 53.9293 54.6529 54.2082C54.7816 54.304 54.7732 54.5041 54.6333 54.5858C52.8646 55.6197 51.0259 56.4931 49.0921 57.2228C48.9662 57.2707 48.9102 57.4172 48.9718 57.5383C50.038 59.6034 51.2554 61.5699 52.5959 63.435C52.6519 63.5139 52.7526 63.5477 52.845 63.5195C58.6464 61.7249 64.529 59.0174 70.6019 54.5576C70.6551 54.5182 70.6887 54.459 70.6943 54.3942C72.1747 39.0791 68.2147 25.7757 60.1968 13.9823C60.1772 13.9429 60.1437 13.9147 60.1045 13.8978ZM23.7259 46.3253C20.2276 46.3253 17.3451 43.1136 17.3451 39.1693C17.3451 35.225 20.1717 32.0133 23.7259 32.0133C27.308 32.0133 30.1626 35.2532 30.1066 39.1693C30.1066 43.1136 27.28 46.3253 23.7259 46.3253ZM47.3178 46.3253C43.8196 46.3253 40.9371 43.1136 40.9371 39.1693C40.9371 35.225 43.7636 32.0133 47.3178 32.0133C50.9 32.0133 53.7545 35.2532 53.6986 39.1693C53.6986 43.1136 50.9 46.3253 47.3178 46.3253Z"/></svg>';
     let refreshOverlays = true;
     let wantedOverlayURLs = [];
     // Run the script with delay, MutationObservable fail in some config (race condition between this script and the original app)
@@ -157,14 +157,13 @@
         if ( versionSpan) { versionSpan.innerHTML = 'v' + version };
     }
     function appendUIKnownOverlays(ulKnownOverlays, data) {
-        const twitchLogoSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"></path><path fill="#fff" d="M21 3v11.74l-4.696 4.695h-3.913l-2.437 2.348H6.913v-2.348H3V6.13L4.227 3H21zm-1.565 1.565H6.13v11.74h3.13v2.347l2.349-2.348h4.695l3.13-3.13V4.565zm-3.13 3.13v4.696h-1.566V7.696h1.565zm-3.914 0v4.696h-1.565V7.696h1.565z"></path></svg>'
         const tr = document.createElement("tr");
         tr.style = "padding: 5px";
         tr.innerHTML= '<td></td>' //'<td><label class="switch"><input type="checkbox"><span class="slider round"></span></label></td>'
             + '<td class="community_name" style="justify-content:center; align-items:center;">' + data.community_name + '</td>'
             + '<td class="community_twitch"><a  href="' + data.community_twitch + '">' + twitchLogoSVG + '</a></td>' // '<img class="twitch_logo"  src="' + twitch_logo_url + '"/></a></td>'
-            + '<td class="community_discord"><a href="' + data.community_discord+ '"><img height="24px" src="' + discord_logo_url+ '"/></a></td>'
-            + '<td class="thread_url"><a        href="' + data.thread_url + '"      ><img height="24px" src="' + thread_logo_url + '"/></a></td>'
+            + '<td class="community_discord"><a href="' + data.community_discord+ '">' + discordLogoSVG+ '</a></td>'
+            + '<td class="thread_url"><a href="' + data.thread_url + '"><img height="24px" src="' + thread_logo_url + '" alt="Fil Discord Commu ZEvent/Place"/></a></td>'
             + `<td class="description" style="justify-content:center; align-items:center;">
                    <button onClick="const n = this.parentElement.querySelector('.description'); console.log('DEBUG', n); n.hidden = !! n.hidden;"
                        style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;  cursor:pointer"
