@@ -2,31 +2,35 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.5
+// @version      1.6.6
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
-// @author       MinusKube, ludolpif, ventston (questions or bugs: ludolpif#4419 on Discord)
+// @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=zevent.fr
 // @grant        none
 // @downloadURL  https://github.com/ludolpif/overlay-zevent-place/raw/main/browser-script/zevent-place-overlay.user.js
 // @updateURL    https://github.com/ludolpif/overlay-zevent-place/raw/main/browser-script/zevent-place-overlay.user.js
 // ==/UserScript==
-
-// Script I (ludolpif) used as base : https://greasyfork.org/fr/scripts/444833-z-place-overlay/code
-// Original and this code licence : MIT
-// Copyright 2021-2022 MinusKube, ludolpif, ventston
-// Thanks to : grewa for help on CSS
+/*
+ * Script used as base, form MinusKube: https://greasyfork.org/fr/scripts/444833-z-place-overlay/code
+ * Original and this code licence: MIT
+ * Copyright 2021-2022 ludolpif, ventston
+ * Thanks to : grewa for help on CSS
+ */
 (function() {
     'use strict';
-    const version = "1.6.5";
+    const version = "1.6.6";
     console.log("zevent-place-overlay: version " + version);
-    // Global variables for our script
+    // Global constants and variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
-
-    let intervalID1 = setTimeout(keepOurselfInDOM, 200);
-    let intervalID2 = setInterval(keepOurselfInDOM, 2000);
+    const twitch_logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Twitch_Glitch_Logo_Purple.svg/878px-Twitch_Glitch_Logo_Purple.svg.png";
+    const discord_logo_url = "https://upload.wikimedia.org/wikipedia/fr/thumb/4/4f/Discord_Logo_sans_texte.svg/1818px-Discord_Logo_sans_texte.svg.png";
+    const thread_logo_url = "https://cdn.discordapp.com/attachments/1013061504599334915/1016050954191245322/logo2.png";
     let refreshOverlays = true;
     let wantedOverlayURLs = [];
+    // Run the script with delay, MutationObservable fail in some config (race condition between this script and the original app)
+    let intervalID1 = setTimeout (keepOurselfInDOM, 200);
+    let intervalID2 = setInterval(keepOurselfInDOM, 2000);
     /*
      * FR: Utilisateurs du script: vous pouvez éditer les lignes loadOverlay() ci-après pour mémoriser dans votre navigateur
      *      vos choix d'overlay sans utiliser le menu "Overlays" proposé par ce script sur https://place.zevent.fr/
@@ -46,7 +50,7 @@
      */
     loadOverlay("https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay.png" );
     loadOverlay("https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay2.png" );
-    //loadOverlay("https://s8.gifyu.com/images/Overlay-someother-cool-streamer.png" );
+    //loadOverlay("https://somewebsite.com/someoverlay.png" );
     /*
      * EN: Script users: you can edit loadOverlay(...) lines above to memorize in your browser
      *      your overlay choices without using the "Overlays" menu from this script on https://place.zevent.fr/
@@ -85,6 +89,14 @@
         wantedOverlayURLs.forEach(function (url) { appendOverlayInDOM(origCanvas, parentDiv, left, top, width, height, url) });
         refreshOverlays = false;
     }
+    function reloadUIKnownOverlays() {
+        const knownOverlaysIds = Object.keys(knownOverlays);
+        console.log("zevent-place-overlay: reloadUIKnownOverlays() for " + knownOverlaysIds.length + " overlays");
+        let ulKnownOverlays = document.querySelector('#zevent-place-overlay-ui-list-known-overlays');
+
+        ulKnownOverlays.innerHTML = "";
+        knownOverlaysIds.forEach(function (id) { appendUIKnownOverlays(ulKnownOverlays, knownOverlays[id]); });
+    }
     function appendOverlayInDOM(origCanvas, parentDiv, left, top, width, height, url) {
         const image = document.createElement("img");
         image.className = "zevent-place-overlay-img";
@@ -119,10 +131,18 @@
             </div>
             <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; height: 0vh; transition: all 0.2s ease 0s;">
                 <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-x:hidden; overflow-y: auto;">
-<br />
-Actif&nbsp;
+                    <br />
+                    Actif&nbsp;
                     <table id="zevent-place-overlay-ui-list-wanted-overlays"></table>
-
+                    <br />
+                    <hr />
+                    <br />
+                    <label for="zevent-place-overlay-ui-input-url">Ajout via URL</label>
+                    <input id="zevent-place-overlay-ui-input-url" name="zevent-place-overlay-ui-input-url" type="text" size=30 value="https://somewebsite.com/someoverlay.png"></input>
+                    <button
+                        onClick="const n = document.querySelector('#zevent-place-overlay-ui-input-url'); loadOverlay(n.value);"
+                    >OK</button>
+                    <table id="zevent-place-overlay-ui-list-wanted-overlays"></table>
                     <br />
                     <hr />
                     <br />
@@ -133,132 +153,107 @@ Actif&nbsp;
         `;
         origUI.appendChild(ourUI);
 
-       const style = document.createElement("style");
-        style.innerHTML = `td.community_name, td.community_discord, td.thread_url {padding:5px } .twitch_logo,.discord_logo,.thread_logo { max-height:2vh}
-         /* The switch - the box around the slider */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 30px;
-  height: 17px;
-}
-
-/* Hide default HTML checkbox */
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* The slider */
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 13px;
-  width: 13px;
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(13px);
-  -ms-transform: translateX(13px);
-  transform: translateX(13px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 17px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
-
-
-tr { text-align:center}
-`;
-        ourUI.appendChild(style);
-
-
         const versionSpan = document.querySelector('#zevent-place-overlay-ui-version');
         if ( versionSpan) { versionSpan.innerHTML = 'v' + version };
     }
-    function reloadUIKnownOverlays() {
-        const knownOverlaysIds = Object.keys(knownOverlays);
-        console.log("zevent-place-overlay: reloadUIKnownOverlays() for " + knownOverlaysIds.length + " overlays");
-        let ulKnownOverlays = document.querySelector('#zevent-place-overlay-ui-list-known-overlays');
-        const twitch_logo_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Twitch_Glitch_Logo_Purple.svg/878px-Twitch_Glitch_Logo_Purple.svg.png";
-        const discord_logo_url = "https://upload.wikimedia.org/wikipedia/fr/thumb/4/4f/Discord_Logo_sans_texte.svg/1818px-Discord_Logo_sans_texte.svg.png";
-        const thread_logo_url = "https://cdn.discordapp.com/attachments/1013061504599334915/1016019919458029628/logo2.png";
+    function appendUIKnownOverlays(ulKnownOverlays, data) {
+        const twitchLogoSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"></path><path fill="#fff" d="M21 3v11.74l-4.696 4.695h-3.913l-2.437 2.348H6.913v-2.348H3V6.13L4.227 3H21zm-1.565 1.565H6.13v11.74h3.13v2.347l2.349-2.348h4.695l3.13-3.13V4.565zm-3.13 3.13v4.696h-1.566V7.696h1.565zm-3.914 0v4.696h-1.565V7.696h1.565z"></path></svg>'
+        const tr = document.createElement("tr");
+        tr.style = "padding: 5px";
+        tr.innerHTML= '<td></td>' //'<td><label class="switch"><input type="checkbox"><span class="slider round"></span></label></td>'
+            + '<td class="community_name" style="justify-content:center; align-items:center;">' + data.community_name + '</td>'
+            + '<td class="community_twitch"><a  href="' + data.community_twitch + '">' + twitchLogoSVG + '</a></td>' // '<img class="twitch_logo"  src="' + twitch_logo_url + '"/></a></td>'
+            + '<td class="community_discord"><a href="' + data.community_discord+ '"><img height="24px" src="' + discord_logo_url+ '"/></a></td>'
+            + '<td class="thread_url"><a        href="' + data.thread_url + '"      ><img height="24px" src="' + thread_logo_url + '"/></a></td>'
+            + `<td class="description" style="justify-content:center; align-items:center;">
+                   <button onClick="const n = this.parentElement.querySelector('.description'); console.log('DEBUG', n); n.hidden = !! n.hidden;"
+                       style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;  cursor:pointer"
+                       >?</button>`
+            + '<div class="description" hidden>' + data.description + '</div></td>';
+        ulKnownOverlays.appendChild(tr);
+    }
+    function appendOurCSS(origHead) {
+        const style = document.createElement("style");
+        style.id = 'zevent-place-overlay-css';
+        style.innerHTML = `
+            // CSS for the sliders
+            /* The switch - the box around the slider */
+            .switch {
+              position: relative;
+              display: inline-block;
+              width: 30px;
+              height: 17px;
+            }
 
-        ulKnownOverlays.innerHTML = "";
-        knownOverlaysIds.forEach(function(id) {
-            const data = knownOverlays[id];
-            console.log("DEBUG", id, data);
-            const tr = document.createElement("tr");
+            /* Hide default HTML checkbox */
+            .switch input {
+              opacity: 0;
+              width: 0;
+              height: 0;
+            }
 
-            tr.innerHTML=
-                `
-                <td>
-                <label class="switch">
-  <input type="checkbox">
-  <span class="slider round"></span>
-</label>
-                </td>
-                `+
+            /* The slider */
+            .slider {
+              position: absolute;
+              cursor: pointer;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background-color: #ccc;
+              -webkit-transition: .4s;
+              transition: .4s;
+            }
 
-                `
-<td>
-                `+
-                data.community_name +
-                                `
-                               </td>
-                `+
+            .slider:before {
+              position: absolute;
+              content: "";
+              height: 13px;
+              width: 13px;
+              left: 2px;
+              bottom: 2px;
+              background-color: white;
+              -webkit-transition: .4s;
+              transition: .4s;
+            }
 
-                "<td class='community_name'><a href='"+data.community_twitch+"'><img class='twitch_logo' src='"+twitch_logo_url+"' /></a></td>"+
-"<td class='community_discord'><a href='"+data.community_discord+"'><img class='discord_logo' src='"+discord_logo_url+"' /></a></td>" +
-"<td class='thread_url'><a href='"+data.thread_url+"'><img class='twitch_logo' src='"+thread_logo_url+"' /></a></td>";
+            input:checked + .slider {
+              background-color: #2196F3;
+            }
 
-            /*
-            const td_community_name = document.createElement("td");
-            const td_community_name_a = document.createElement("a");
+            input:focus + .slider {
+              box-shadow: 0 0 1px #2196F3;
+            }
 
+            input:checked + .slider:before {
+              -webkit-transform: translateX(13px);
+              -ms-transform: translateX(13px);
+              transform: translateX(13px);
+            }
 
-            td_community_name_a.href = data.url;
-            a1.innerHTML = "<i>" + data.community_name + "</i>&nbsp;" + data.description + "&nbsp;<i>(" + data.author + ", " + data.managers + ")</i>";
-            a1.target = "_blank";
-            li.appendChild(a1);
-*/
-            ulKnownOverlays.appendChild(tr);
-        });
+            /* Rounded sliders */
+            .slider.round {
+              border-radius: 17px;
+            }
+
+            .slider.round:before {
+              border-radius: 50%;
+            }
+
+            tr { text-align:center }
+            `;
+        origHead.appendChild(style);
     }
     function keepOurselfInDOM() {
+        let origHead = document.querySelector('head');
+        if ( !origHead ) console.log("zevent-place-overlay: keepOurselfInDOM() origHead: " + !!origHead);
+        let ourCSS = document.querySelector('#zevent-place-overlay-css');
+        if ( origHead && !ourCSS ) {
+            console.log("zevent-place-overlay: keepOurselfInDOM() origHead: " + !!origHead + ", ourCSS: " + !!ourCSS);
+            appendOurCSS(origHead);
+        }
         let origCanvas = document.querySelector('#place-canvas');
-        if ( !origCanvas ) console.log("zevent-place-overlay: keepOurselfInDOM() origOanvas: " + origCanvas);
+        if ( !origCanvas ) console.log("zevent-place-overlay: keepOurselfInDOM() origCanvas: " + origCanvas);
 
         let ourOverlays = document.querySelector('.zevent-place-overlay-img');
         if ( origCanvas && (!ourOverlays || refreshOverlays ) ) {
@@ -271,17 +266,13 @@ tr { text-align:center}
         if ( origUI && !ourUI ) {
             console.log("zevent-place-overlay: keepOurselfInDOM() origUI: " + !!origUI + ", ourUI: " + !!ourUI);
             appendOurUI(origUI);
-            fetchKnownOverlays1();
-            fetchKnownOverlays2();
+            fetchKnownOverlays();
         }
     }
-    function fetchKnownOverlays1() {
-        //TODO stub use fetch API
-    }
-    function fetchKnownOverlays2() {
+    function fetchKnownOverlays() {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            console.log("zevent-place-overlay: fetchKnownOverlays2() xmlhttp state: " + this.readyState + " status: " + this.status);
+            console.log("zevent-place-overlay: fetchKnownOverlays() xmlhttp state: " + this.readyState + " status: " + this.status);
             if (this.readyState == 4 && this.status == 200) {
                 var data = JSON.parse(this.responseText);
                 //TODO sanity checks
