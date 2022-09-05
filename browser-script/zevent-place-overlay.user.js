@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.12
+// @version      1.6.13
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -19,7 +19,7 @@
  */
 (function() {
     'use strict';
-    const version = "1.6.12";
+    const version = "1.6.13";
     console.log("zevent-place-overlay: version " + version);
     // Global constants and variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
@@ -272,8 +272,8 @@
         tr2.style = "padding: 5px; height: 0px";
         tr2.hidden = true;
         const td2 = document.createElement("td");
-        td2.colspan = 6;
-        td2.style = "padding: 5px;";
+        td2.colSpan = "6";
+        td2.style = "padding: 16px;";
         tr2.appendChild(td2);
         if ( typeof data.community_discord === "string" ) {
             const nodeDescription = document.createTextNode(data.description);
