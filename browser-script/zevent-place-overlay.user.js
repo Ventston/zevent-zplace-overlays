@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.9
+// @version      1.6.10
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -19,13 +19,13 @@
  */
 (function() {
     'use strict';
-    const version = "1.6.9";
+    const version = "1.6.10";
     console.log("zevent-place-overlay: version " + version);
     // Global constants and variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
     let refreshOverlays = true;
     let safeModeDisableUI = false;
-    let wantedOverlayURLs = [];
+    let wantedOverlayURLs = []; // TODO should be id or URL for manual/custom or known overlay
     /*
      * FR: Utilisateurs du script: vous pouvez éditer les lignes loadOverlay() ci-après pour mémoriser dans votre navigateur
      *      vos choix d'overlay sans utiliser le menu "Overlays" proposé par ce script sur https://place.zevent.fr/
@@ -91,13 +91,39 @@
         wantedOverlayURLs.forEach(function (url) { appendOverlayInDOM(origCanvas, parentDiv, left, top, width, height, url) });
         refreshOverlays = false;
     }
+    function reloadUIWantedOverlays() {
+        console.log("zevent-place-overlay: reloadUIWantedOverlays() for " + wantedOverlayURLs.length + " overlays");
+        const ulWantedOverlays = document.querySelector('#zevent-place-overlay-ui-list-wanted-overlays');
+        if (ulWantedOverlays) {
+            ulWantedOverlays.innerHTML = "";
+            let i=0;
+            wantedOverlayURLs.forEach(function (id_or_url) {
+                if ( typeof id_or_url === "string" ) {
+                    let id, data;
+                    if ( knownOverlays[id_or_url] ) {
+                        data = knownOverlays[id_or_url];
+                        id = data.id;
+                    } else {
+                        id = 'custom-' + i;
+                        data = {
+                            url: id_or_url,
+                            community_name: id
+                        }
+                    }
+                    appendUIWantedOverlays(ulWantedOverlays, id, data);
+                }
+                i = i+1;
+            });
+        }
+    }
     function reloadUIKnownOverlays() {
         const knownOverlaysIds = Object.keys(knownOverlays);
         console.log("zevent-place-overlay: reloadUIKnownOverlays() for " + knownOverlaysIds.length + " overlays");
-        let ulKnownOverlays = document.querySelector('#zevent-place-overlay-ui-list-known-overlays');
-
-        ulKnownOverlays.innerHTML = "";
-        knownOverlaysIds.forEach(function (id) { appendUIKnownOverlays(ulKnownOverlays, id, knownOverlays[id]); });
+        const ulKnownOverlays = document.querySelector('#zevent-place-overlay-ui-list-known-overlays');
+        if (ulKnownOverlays) {
+            ulKnownOverlays.innerHTML = "";
+            knownOverlaysIds.forEach(function (id) { appendUIKnownOverlays(ulKnownOverlays, id, knownOverlays[id]); });
+        }
     }
     function appendOverlayInDOM(origCanvas, parentDiv, left, top, width, height, url) {
         const image = document.createElement("img");
@@ -135,7 +161,7 @@
             <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; height: 0vh; transition: all 0.2s ease 0s;">
                 <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-x:hidden; overflow-y: auto;">
                     <label for="zevent-place-overlay-ui-input-url">Ajout via URL</label><br />
-                    <input id="zevent-place-overlay-ui-input-url" name="zevent-place-overlay-ui-input-url" type="text" size="48" style="width: 280px" value="https://somesite.com/someoverlay.png"></input>
+                    <input id="zevent-place-overlay-ui-input-url" name="zevent-place-overlay-ui-input-url" type="text" size="48" style="width: 270px" value="https://somesite.com/someoverlay.png"></input>
                     <button
                         onClick="const n = document.querySelector('#zevent-place-overlay-ui-input-url'); loadOverlay(n.value);"
                     >OK</button>
@@ -143,7 +169,6 @@
                     Overlay actifs&nbsp;
                     <table id="zevent-place-overlay-ui-list-wanted-overlays"></table>
                     <br /><hr />
-                    <table id="zevent-place-overlay-ui-list-wanted-overlays"></table>
                     Overlay disponibles&nbsp;
                     <table id="zevent-place-overlay-ui-list-known-overlays"></table>
                 </div>
@@ -151,11 +176,44 @@
         `;
         const versionSpan = ourUI.querySelector('#zevent-place-overlay-ui-version');
         if (versionSpan) { versionSpan.innerHTML = 'v' + version };
-
         origUI.appendChild(ourUI);
+        // wantedOverlayURLs may have already values if set with loadOverlay() in script, so display them
+        reloadUIWantedOverlays();
+    }
+    function appendUIWantedOverlays(ulWantedOverlays, id, data) {
+        const btnRemoveOnClick = "eventAddKnownOverlay('" + id + "')";
+        const btnPreviewOnClick = "";
+        const tr = document.createElement("tr");
+        tr.id = 'wanted-node-'+id;
+        tr.style = "padding: 5px";
+        tr.innerHTML= `
+            <td class="action_del" style="justify-content:center; align-items:center;">
+                <button onClick="` + btnRemoveOnClick + `"
+                    style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;cursor:pointer"
+                    >-</button>
+            </td>
+            <td class="community_name"    style="padding: 5px; justify-content:center; align-items:center; width: 160px;"></td>
+            <td class="community_twitch"  style="padding: 2px; justify-content:center; align-items:center;"></td>
+            <td class="community_discord" style="padding: 2px; justify-content:center; align-items:center;"></td>
+            <td class="thread_url"        style="padding: 2px; justify-content:center; align-items:center;"></td>
+            <td class="preview_btn"       style="padding: 2px; justify-content:center; align-items:center;"></td>
+        `;
+        if ( typeof data.community_name === "string" ) {
+            const nodeCommunityName = document.createTextNode(data.community_name);
+            tr.querySelector('.community_name').appendChild(nodeCommunityName);
+        }
+        if ( typeof data.url === "string" ) {
+            const aPreview = document.createElement("a");
+            aPreview.href = data.url;
+            aPreview.target="_blank";
+            aPreview.alt = "Aperçu";
+            aPreview.innerHTML = '<button style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505; cursor:pointer">👁</button>';
+            tr.querySelector('.preview_btn').appendChild(aPreview);
+        }
+        ulWantedOverlays.appendChild(tr);
     }
     function appendUIKnownOverlays(ulKnownOverlays, id, data) {
-        //TODO get rid of table and if community_name to 160px wide, whatever the content (white-space: nowrap; overflow: hidden; text-overflow: ellipsis; don't work with <td>)
+        //TODO get rid of table, use <ul> and if community_name to 160px wide, whatever the content (white-space: nowrap; overflow: hidden; text-overflow: ellipsis; don't work with <td>)
         // Don't concat json data directly in innerHTML (prevent some injection attacks)
         const btnAddOnClick = "eventAddKnownOverlay('" + id + "')";
         const btnDescriptionClick = "eventToggleKnownOverlayDescription('" + id + "')";
@@ -248,6 +306,7 @@
         if ( origCanvas && (!ourOverlays || refreshOverlays ) ) {
             console.log("zevent-place-overlay: keepOurselfInDOM() origCanvas: " + !!origCanvas + ", ourOverlays: " + !!ourOverlays + ", refreshOverlays:" + refreshOverlays );
             reloadOverlays(origCanvas, ourOverlays);
+            reloadUIWantedOverlays();
         }
         if ( !safeModeDisableUI ) {
             /* Nothing for now
@@ -264,8 +323,7 @@
             if ( origUI && !ourUI ) {
                 console.log("zevent-place-overlay: keepOurselfInDOM() origUI: " + !!origUI + ", ourUI: " + !!ourUI);
                 appendOurUI(origUI);
-                //TODO fetchKnownOverlays();
-                reloadUIKnownOverlays();
+                fetchKnownOverlays(); //XXX alternative call to test with local knownOverlays : reloadUIKnownOverlays();
             }
         }
     }
@@ -286,62 +344,17 @@
         //TODO sanity checks
         return data;
     }
-    /* Following embed data to not depend or generate trafic to external webservers */
+    // Following embed data to not depend or generate trafic to external webservers
     const threadLogoB64 = "data:image/png;base64, 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";
     const twitchLogoSVG = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24"><path fill="#ffffff" d="M21 3v11.74l-4.696 4.695h-3.913l-2.437 2.348H6.913v-2.348H3V6.13L4.227 3H21zm-1.565 1.565H6.13v11.74h3.13v2.347l2.349-2.348h4.695l3.13-3.13V4.565zm-3.13 3.13v4.696h-1.566V7.696h1.565zm-3.914 0v4.696h-1.565V7.696h1.565z"></path></svg>'
     const discordLogoSVG= '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 71 80"><path fill="#5865f2" d="M60.1045 13.8978C55.5792 11.8214 50.7265 10.2916 45.6527 9.41542C45.5603 9.39851 45.468 9.44077 45.4204 9.52529C44.7963 10.6353 44.105 12.0834 43.6209 13.2216C38.1637 12.4046 32.7345 12.4046 27.3892 13.2216C26.905 12.0581 26.1886 10.6353 25.5617 9.52529C25.5141 9.44359 25.4218 9.40133 25.3294 9.41542C20.2584 10.2888 15.4057 11.8186 10.8776 13.8978C10.8384 13.9147 10.8048 13.9429 10.7825 13.9795C1.57795 27.7309 -0.943561 41.1443 0.293408 54.3914C0.299005 54.4562 0.335386 54.5182 0.385761 54.5576C6.45866 59.0174 12.3413 61.7249 18.1147 63.5195C18.2071 63.5477 18.305 63.5139 18.3638 63.4378C19.7295 61.5728 20.9469 59.6063 21.9907 57.5383C22.0523 57.4172 21.9935 57.2735 21.8676 57.2256C19.9366 56.4931 18.0979 55.6 16.3292 54.5858C16.1893 54.5041 16.1781 54.304 16.3068 54.2082C16.679 53.9293 17.0513 53.6391 17.4067 53.3461C17.471 53.2926 17.5606 53.2813 17.6362 53.3151C29.2558 58.6202 41.8354 58.6202 53.3179 53.3151C53.3935 53.2785 53.4831 53.2898 53.5502 53.3433C53.9057 53.6363 54.2779 53.9293 54.6529 54.2082C54.7816 54.304 54.7732 54.5041 54.6333 54.5858C52.8646 55.6197 51.0259 56.4931 49.0921 57.2228C48.9662 57.2707 48.9102 57.4172 48.9718 57.5383C50.038 59.6034 51.2554 61.5699 52.5959 63.435C52.6519 63.5139 52.7526 63.5477 52.845 63.5195C58.6464 61.7249 64.529 59.0174 70.6019 54.5576C70.6551 54.5182 70.6887 54.459 70.6943 54.3942C72.1747 39.0791 68.2147 25.7757 60.1968 13.9823C60.1772 13.9429 60.1437 13.9147 60.1045 13.8978ZM23.7259 46.3253C20.2276 46.3253 17.3451 43.1136 17.3451 39.1693C17.3451 35.225 20.1717 32.0133 23.7259 32.0133C27.308 32.0133 30.1626 35.2532 30.1066 39.1693C30.1066 43.1136 27.28 46.3253 23.7259 46.3253ZM47.3178 46.3253C43.8196 46.3253 40.9371 43.1136 40.9371 39.1693C40.9371 35.225 43.7636 32.0133 47.3178 32.0133C50.9 32.0133 53.7545 35.2532 53.6986 39.1693C53.6986 43.1136 50.9 46.3253 47.3178 46.3253Z"/></svg>';
-    /* Following JSON is from URL you can found in global const overlayJSON
+    /*
+     * Following JSON is from URL you can found in global const overlayJSON
      * It is embed here in case of problems during getting it at runtime.
      * Use the bot commands on Discord mentionned in @description to publicly register an overlay in this json
      */
-    let knownOverlays =
-{
-	"89af8563-6ed2-4669-84be-2a83406bc128" : {
-		"id":"89af8563-6ed2-4669-84be-2a83406bc128",
-		"community_name" : "Community 1",
-		"community_twitch" : "https://www.twitch.tv/moman",
-		"community_discord" : "https://discord.gg/littlebigwhale",
-		"thread_url" : "https://discord.com/channels/1013061504599334912/1013061504599334915/1013372975438893087",
-		"overlay_url": "https://github.com/ludolpif/overlay-zevent-place/blob/main/examples/demo-overlay2.png",
-		"description" : "Communauté du marteau",
-		"author": "name",
-		"managers" : ["pseudo", "pseudo 2"],
-		"last_modified": "2022-01-01T01:01:01",
-		"reactions":256,
-		"x" : 0,
-		"y": 0
-	},
-	"17d494c3-fee2-4b0a-9d8f-f66b6de175b4" : {
-		"id":"89af8563-6ed2-4669-84be-2a83406bc128",
-		"community_name" : "Community 2",
-		"community_twitch" : "https://www.twitch.tv/moman",
-		"community_discord" : "https://discord.gg/littlebigwhale",
-		"thread_url" : "https://discord.com/channels/1013061504599334912/1013061504599334915/1013372975438893087",
-		"overlay_url": "https://github.com/ludolpif/overlay-zevent-place/blob/main/examples/demo-overlay.png",
-		"description" : "Communauté du marteau",
-		"author": "name",
-		"managers" : ["pseudo", "pseudo 2"],
-		"last_modified": "2022-01-01T01:01:01",
-		"reactions":8437,
-		"x" : 0,
-		"y": 0
-	},
-	"4ec23db8-49ad-4b1d-803d-20be63ccab71" : {
-		"id":"89af8563-6ed2-4669-84be-2a83406bc128",
-		"community_name" : "Community 3 loong!",
-		"community_twitch" : "https://www.twitch.tv/moman",
-		"community_discord" : "https://discord.gg/littlebigwhale",
-		"thread_url" : "https://discord.com/channels/1013061504599334912/1013061504599334915/1013372975438893087",
-		"overlay_url": "https://s8.gifyu.com/images/Overlay-ZPlace-2.071936ce620f59ca0.png",
-		"description" : "Communauté du marteau",
-		"author": "name",
-		"managers" : ["pseudo", "pseudo 2"],
-		"last_modified": "2022-01-01T01:01:01",
-		"reactions":43,
-		"x" : 0,
-		"y": 0
-	}
-};
+    let knownOverlays = {};
+
     // Run the script with delay, MutationObserver fail in some configs (race condition between this script and the original app)
     let intervalID = setInterval(keepOurselfInDOM, 1000);
 })();
