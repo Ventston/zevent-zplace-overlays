@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.11
+// @version      1.6.12
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -15,11 +15,11 @@
  * Script used as base, form MinusKube: https://greasyfork.org/fr/scripts/444833-z-place-overlay/code
  * Original and this code licence: MIT
  * Copyright 2021-2022 ludolpif, ventston
- * Thanks to : grewa for help on CSS
+ * Thanks to : grewa, BunlanG|Baron for help on CSS
  */
 (function() {
     'use strict';
-    const version = "1.6.11";
+    const version = "1.6.12";
     console.log("zevent-place-overlay: version " + version);
     // Global constants and variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
@@ -193,7 +193,7 @@
                     style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;cursor:pointer"
                     >-</button>
             </td>
-            <td class="title"    style="padding: 5px; justify-content:center; align-items:center; width: 160px;"></td>
+            <td class="title"    style="padding: 5px; justify-content:center; align-items:center; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></td>
             <td class="preview_btn"       style="padding: 2px; justify-content:center; align-items:center;"></td>
         `;
         let btnDel = tr.querySelector('#btn-del-'+id);
@@ -226,7 +226,7 @@
                     style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;cursor:pointer"
                     >+</button>
             </td>
-            <td class="community_name"    style="padding: 5px; justify-content:center; align-items:center; width: 160px;"></td>
+            <td class="community_name"    style="padding: 5px; justify-content:center; align-items:center; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></td>
             <td class="community_twitch"  style="padding: 2px; justify-content:center; align-items:center;"></td>
             <td class="community_discord" style="padding: 2px; justify-content:center; align-items:center;"></td>
             <td class="thread_url"        style="padding: 2px; justify-content:center; align-items:center;"></td>
