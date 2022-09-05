@@ -1,9 +1,7 @@
 # TODO List
 ## Fonctionnalités nécessaires
-- avoir les boutons qui marchent (bugs sur le '-' ?)
 - gérer le problème de 500,500 en dur ( new Image(...) ou img.onload() ? )
 - afficher la date de la dernière génération du fichier des overlays
-- avoir un bouton avec le lien du script pour update dans Tampermonkey
 - avoir un lien d'invitation sur le discord dans l'UI
 
 ## Sécurisation :
