@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.8
+// @version      1.6.9
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -19,7 +19,7 @@
  */
 (function() {
     'use strict';
-    const version = "1.6.8";
+    const version = "1.6.9";
     console.log("zevent-place-overlay: version " + version);
     // Global constants and variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
@@ -44,7 +44,7 @@
      * - Ne touchez pas / préservez les point-virgules en fin de ligne de code, le script tombe en panne sinon.
      * Mode sans échec :
      * - Si vous avez un bug avec l'UI, mettez vos URL dans des lignes loadOverlay(...);
-     *     et enlevez le // devant la ligne ////safeModeDisableUI...
+     *     et enlevez le // devant la ligne //safeModeDisableUI...
      */
     //safeModeDisableUI = true;
     loadOverlay("https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay.png" );
@@ -122,7 +122,7 @@
         ourUI.innerHTML = `
             <div id="zevent-place-overlay-ui-head" style="display: flex; align-items: center; height: 40px;">
                 <button
-                    onClick="const n = document.querySelector('#zevent-place-overlay-ui-body'); if ( n.hidden ) { n.hidden=false; n.style.height='calc(100vh - 72px)'; n.style.width='20rem'; } else { n.hidden=true; n.style.height='0'; n.style.width='0'; }"
+                    onClick="const n = document.querySelector('#zevent-place-overlay-ui-body'); if ( n.hidden ) { n.hidden=false; n.style.height='calc(100vh - 72px)'; } else { n.hidden=true; n.style.height='0'; }"
                     style="width:40px; height:40px; display:flex; border-radius:40px; border:none; background-color:#050505; justify-content:center; align-items:center; cursor:pointer"
                     >
                     <svg height="24px" viewBox="0 0 32 32">
@@ -135,7 +135,7 @@
             <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; height: 0vh; transition: all 0.2s ease 0s;">
                 <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-x:hidden; overflow-y: auto;">
                     <label for="zevent-place-overlay-ui-input-url">Ajout via URL</label><br />
-                    <input id="zevent-place-overlay-ui-input-url" name="zevent-place-overlay-ui-input-url" type="text" size=28 value="https://somesite.com/someoverlay.png"></input>
+                    <input id="zevent-place-overlay-ui-input-url" name="zevent-place-overlay-ui-input-url" type="text" size="48" style="width: 280px" value="https://somesite.com/someoverlay.png"></input>
                     <button
                         onClick="const n = document.querySelector('#zevent-place-overlay-ui-input-url'); loadOverlay(n.value);"
                     >OK</button>
@@ -149,31 +149,34 @@
                 </div>
             </div>
         `;
-        origUI.appendChild(ourUI);
+        const versionSpan = ourUI.querySelector('#zevent-place-overlay-ui-version');
+        if (versionSpan) { versionSpan.innerHTML = 'v' + version };
 
-        const versionSpan = document.querySelector('#zevent-place-overlay-ui-version');
-        if ( versionSpan) { versionSpan.innerHTML = 'v' + version };
+        origUI.appendChild(ourUI);
     }
     function appendUIKnownOverlays(ulKnownOverlays, id, data) {
+        //TODO get rid of table and if community_name to 160px wide, whatever the content (white-space: nowrap; overflow: hidden; text-overflow: ellipsis; don't work with <td>)
         // Don't concat json data directly in innerHTML (prevent some injection attacks)
+        const btnAddOnClick = "eventAddKnownOverlay('" + id + "')";
+        const btnDescriptionClick = "eventToggleKnownOverlayDescription('" + id + "')";
         const tr = document.createElement("tr");
+        tr.id = 'avail-node-'+id;
         tr.style = "padding: 5px";
         tr.innerHTML= `
             <td class="action_add" style="justify-content:center; align-items:center;">
-                <button onClick=""
+                <button onClick="` + btnAddOnClick + `"
                     style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;cursor:pointer"
                     >+</button>
             </td>
-            <td class="community_name"    style="padding: 5px; justify-content:center; align-items:center;"></td>
-            <td class="community_twitch"  style="padding: 5px; justify-content:center; align-items:center;"></td>
-            <td class="community_discord" style="padding: 5px; justify-content:center; align-items:center;"></td>
-            <td class="thread_url"        style="padding: 5px; justify-content:center; align-items:center;"></td>
-            <td class="description_btn"   style="padding: 5px; justify-content:center; align-items:center;">
-                   <button onClick="const n = this.parentElement.querySelector('.description'); console.log('DEBUG', n); n.hidden = !! n.hidden;"
+            <td class="community_name"    style="padding: 5px; justify-content:center; align-items:center; width: 160px;"></td>
+            <td class="community_twitch"  style="padding: 2px; justify-content:center; align-items:center;"></td>
+            <td class="community_discord" style="padding: 2px; justify-content:center; align-items:center;"></td>
+            <td class="thread_url"        style="padding: 2px; justify-content:center; align-items:center;"></td>
+            <td class="description_btn"   style="padding: 2px; justify-content:center; align-items:center;">
+                   <button onClick="` + btnDescriptionClick + `"
                        style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505; cursor:pointer"
                        >?</button>
             </td>`;
-
         if ( typeof data.community_name === "string" ) {
             const nodeCommunityName = document.createTextNode(data.community_name);
             tr.querySelector('.community_name').appendChild(nodeCommunityName);
@@ -183,7 +186,6 @@
             aTwitch.href = data.community_twitch;
             aTwitch.alt = "Twitch";
             aTwitch.innerHTML = twitchLogoSVG;
-            console.log("DEBUG3", tr.querySelector('.community_twitch'));
             tr.querySelector('.community_twitch').appendChild(aTwitch);
         }
         if ( typeof data.community_discord === "string" ) {
@@ -202,14 +204,35 @@
         ulKnownOverlays.appendChild(tr);
 
         const tr2 = document.createElement("tr");
-        tr2.style = "padding: 5px";
+        tr2.id = 'desc-node-'+id;
+        tr2.style = "padding: 5px; height: 0px";
         tr2.hidden = true;
-        tr2.height = 0;
         if ( typeof data.community_discord === "string" ) {
             const nodeDescription = document.createTextNode(data.description);
             tr2.appendChild(nodeDescription);
         }
         ulKnownOverlays.appendChild(tr2);
+    }
+    // TODO pb portée : onClick et fonction anonyme
+    function eventAddKnownOverlay(id) {
+        console.log("zevent-place-overlay: eventAddKnownOverlay(id)", id);
+        const availNode = document.querySelector('#avail-node-'+id);
+        console.log("DEBUG availNode", availNode);
+        if (availNode) { availNode.style.height = "0px" };
+        loadOverlay(knownOverlays[id]);
+    }
+    function eventToggleKnownOverlayDescription(id) {
+        console.log("zevent-place-overlay: eventToggleKnownOverlayDescription(id)", id);
+        const descriptionNode = document.querySelector('#desc-node-'+id);
+        console.log("DEBUG descriptionNode", descriptionNode);
+        if (descriptionNode) {
+            if ( descriptionNode.hidden ) {
+                descriptionNode.style.height = '';
+            } else {
+                descriptionNode.style.height = '0px';
+            }
+            descriptionNode.hidden = !descriptionNode.hidden;
+        }
     }
     function appendOurCSS(origHead) {
         const style = document.createElement("style");
@@ -241,7 +264,8 @@
             if ( origUI && !ourUI ) {
                 console.log("zevent-place-overlay: keepOurselfInDOM() origUI: " + !!origUI + ", ourUI: " + !!ourUI);
                 appendOurUI(origUI);
-                fetchKnownOverlays();
+                //TODO fetchKnownOverlays();
+                reloadUIKnownOverlays();
             }
         }
     }
@@ -270,8 +294,54 @@
      * It is embed here in case of problems during getting it at runtime.
      * Use the bot commands on Discord mentionned in @description to publicly register an overlay in this json
      */
-    let knownOverlays = {};
-
+    let knownOverlays =
+{
+	"89af8563-6ed2-4669-84be-2a83406bc128" : {
+		"id":"89af8563-6ed2-4669-84be-2a83406bc128",
+		"community_name" : "Community 1",
+		"community_twitch" : "https://www.twitch.tv/moman",
+		"community_discord" : "https://discord.gg/littlebigwhale",
+		"thread_url" : "https://discord.com/channels/1013061504599334912/1013061504599334915/1013372975438893087",
+		"overlay_url": "https://github.com/ludolpif/overlay-zevent-place/blob/main/examples/demo-overlay2.png",
+		"description" : "Communauté du marteau",
+		"author": "name",
+		"managers" : ["pseudo", "pseudo 2"],
+		"last_modified": "2022-01-01T01:01:01",
+		"reactions":256,
+		"x" : 0,
+		"y": 0
+	},
+	"17d494c3-fee2-4b0a-9d8f-f66b6de175b4" : {
+		"id":"89af8563-6ed2-4669-84be-2a83406bc128",
+		"community_name" : "Community 2",
+		"community_twitch" : "https://www.twitch.tv/moman",
+		"community_discord" : "https://discord.gg/littlebigwhale",
+		"thread_url" : "https://discord.com/channels/1013061504599334912/1013061504599334915/1013372975438893087",
+		"overlay_url": "https://github.com/ludolpif/overlay-zevent-place/blob/main/examples/demo-overlay.png",
+		"description" : "Communauté du marteau",
+		"author": "name",
+		"managers" : ["pseudo", "pseudo 2"],
+		"last_modified": "2022-01-01T01:01:01",
+		"reactions":8437,
+		"x" : 0,
+		"y": 0
+	},
+	"4ec23db8-49ad-4b1d-803d-20be63ccab71" : {
+		"id":"89af8563-6ed2-4669-84be-2a83406bc128",
+		"community_name" : "Community 3 loong!",
+		"community_twitch" : "https://www.twitch.tv/moman",
+		"community_discord" : "https://discord.gg/littlebigwhale",
+		"thread_url" : "https://discord.com/channels/1013061504599334912/1013061504599334915/1013372975438893087",
+		"overlay_url": "https://s8.gifyu.com/images/Overlay-ZPlace-2.071936ce620f59ca0.png",
+		"description" : "Communauté du marteau",
+		"author": "name",
+		"managers" : ["pseudo", "pseudo 2"],
+		"last_modified": "2022-01-01T01:01:01",
+		"reactions":43,
+		"x" : 0,
+		"y": 0
+	}
+};
     // Run the script with delay, MutationObserver fail in some configs (race condition between this script and the original app)
     let intervalID = setInterval(keepOurselfInDOM, 1000);
 })();
