@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.10
+// @version      1.6.11
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -19,13 +19,14 @@
  */
 (function() {
     'use strict';
-    const version = "1.6.10";
+    const version = "1.6.11";
     console.log("zevent-place-overlay: version " + version);
     // Global constants and variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
     let refreshOverlays = true;
     let safeModeDisableUI = false;
-    let wantedOverlayURLs = []; // TODO should be id or URL for manual/custom or known overlay
+    let wantedOverlays = {}; // Same format as knownOverlays : the format of overlay.json
+    let lastCustomId = 0;
     /*
      * FR: Utilisateurs du script: vous pouvez éditer les lignes loadOverlay() ci-après pour mémoriser dans votre navigateur
      *      vos choix d'overlay sans utiliser le menu "Overlays" proposé par ce script sur https://place.zevent.fr/
@@ -68,11 +69,22 @@
      * - Don't mess up any semi-colon (;) at end of code lines, it will break the script.
      * Safe mode :
      * - If you have a bug with the UI, put your URLs in some loadOverlay(...); lines
-     *     and rmove the double-slash // before //safeModeDisableUI... line
+     *     and remove the double-slash // before //safeModeDisableUI... line
      */
-    function loadOverlay(url) {
-        // TODO don't push multiple times the same URL
-        wantedOverlayURLs.unshift(url); // <img> will be appended in wantedOverlayURLs order
+    function loadOverlay(url, title, id) {
+        console.log("zevent-place-overlay: loadOverlay(" + url + ", " + title + ", " + id + ")");
+        if (typeof url !== "string") {
+            console.log("zevent-place-overlay: loadOverlay() url is not string");
+            return;
+        }
+        if (typeof title !== "string" || !title) {
+            title = url.replace(/^.*\/([^%?<>&]+)$/, '$1');
+        }
+        if (typeof id !== "string" || !id) {
+            id = "custom-" + lastCustomId++;
+        }
+        // TODO detect image size
+        wantedOverlays[id] = { id:id, url: url, title:title,left: 0, top:0, width:500, height:500 };
         refreshOverlays = true;
     }
     function reloadOverlays(origCanvas, ourOverlays) {
@@ -87,32 +99,21 @@
         if ( !Array.isArray(ourOverlays) ) ourOverlays = [ ourOverlays ];
         ourOverlays.forEach(function (e) { e.remove() });
         // Insert them again
-        let left=0, top=0, width=500, height=500; //TODO detect size
-        wantedOverlayURLs.forEach(function (url) { appendOverlayInDOM(origCanvas, parentDiv, left, top, width, height, url) });
+        const wantedOverlaysIds = Object.keys(wantedOverlays);
+        wantedOverlaysIds.forEach(function (id) {
+            const data = wantedOverlays[id];
+            appendOverlayInDOM(origCanvas, parentDiv, data.left, data.top, data.width, data.height, data.url);
+        });
         refreshOverlays = false;
     }
     function reloadUIWantedOverlays() {
-        console.log("zevent-place-overlay: reloadUIWantedOverlays() for " + wantedOverlayURLs.length + " overlays");
+        console.log("zevent-place-overlay: reloadUIWantedOverlays() for " + wantedOverlays.length + " overlays");
         const ulWantedOverlays = document.querySelector('#zevent-place-overlay-ui-list-wanted-overlays');
         if (ulWantedOverlays) {
             ulWantedOverlays.innerHTML = "";
-            let i=0;
-            wantedOverlayURLs.forEach(function (id_or_url) {
-                if ( typeof id_or_url === "string" ) {
-                    let id, data;
-                    if ( knownOverlays[id_or_url] ) {
-                        data = knownOverlays[id_or_url];
-                        id = data.id;
-                    } else {
-                        id = 'custom-' + i;
-                        data = {
-                            url: id_or_url,
-                            community_name: id
-                        }
-                    }
-                    appendUIWantedOverlays(ulWantedOverlays, id, data);
-                }
-                i = i+1;
+            const wantedOverlaysIds = Object.keys(wantedOverlays);
+            wantedOverlaysIds.forEach(function (id) {
+                appendUIWantedOverlays(ulWantedOverlays, id, wantedOverlays[id]);
             });
         }
     }
@@ -162,45 +163,45 @@
                 <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-x:hidden; overflow-y: auto;">
                     <label for="zevent-place-overlay-ui-input-url">Ajout via URL</label><br />
                     <input id="zevent-place-overlay-ui-input-url" name="zevent-place-overlay-ui-input-url" type="text" size="48" style="width: 270px" value="https://somesite.com/someoverlay.png"></input>
-                    <button
-                        onClick="const n = document.querySelector('#zevent-place-overlay-ui-input-url'); loadOverlay(n.value);"
-                    >OK</button>
+                    <button id="btn-custom-add">OK</button>
                     <br /><hr />
-                    Overlay actifs&nbsp;
+                    Overlays actifs&nbsp;
                     <table id="zevent-place-overlay-ui-list-wanted-overlays"></table>
                     <br /><hr />
-                    Overlay disponibles&nbsp;
+                    Overlays disponibles&nbsp;
                     <table id="zevent-place-overlay-ui-list-known-overlays"></table>
                 </div>
             </div>
         `;
+        let btnAdd = ourUI.querySelector('#btn-custom-add');
+        if (btnAdd) btnAdd.onclick = eventAddCustomOverlay;
+
         const versionSpan = ourUI.querySelector('#zevent-place-overlay-ui-version');
         if (versionSpan) { versionSpan.innerHTML = 'v' + version };
+
         origUI.appendChild(ourUI);
         // wantedOverlayURLs may have already values if set with loadOverlay() in script, so display them
         reloadUIWantedOverlays();
     }
     function appendUIWantedOverlays(ulWantedOverlays, id, data) {
-        const btnRemoveOnClick = "eventAddKnownOverlay('" + id + "')";
-        const btnPreviewOnClick = "";
         const tr = document.createElement("tr");
         tr.id = 'wanted-node-'+id;
         tr.style = "padding: 5px";
         tr.innerHTML= `
             <td class="action_del" style="justify-content:center; align-items:center;">
-                <button onClick="` + btnRemoveOnClick + `"
+                <button id="btn-del-`+id+`"
                     style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;cursor:pointer"
                     >-</button>
             </td>
-            <td class="community_name"    style="padding: 5px; justify-content:center; align-items:center; width: 160px;"></td>
-            <td class="community_twitch"  style="padding: 2px; justify-content:center; align-items:center;"></td>
-            <td class="community_discord" style="padding: 2px; justify-content:center; align-items:center;"></td>
-            <td class="thread_url"        style="padding: 2px; justify-content:center; align-items:center;"></td>
+            <td class="title"    style="padding: 5px; justify-content:center; align-items:center; width: 160px;"></td>
             <td class="preview_btn"       style="padding: 2px; justify-content:center; align-items:center;"></td>
         `;
-        if ( typeof data.community_name === "string" ) {
-            const nodeCommunityName = document.createTextNode(data.community_name);
-            tr.querySelector('.community_name').appendChild(nodeCommunityName);
+        let btnDel = tr.querySelector('#btn-del-'+id);
+        if (btnDel) btnDel.onclick = eventDelOverlay;
+
+        if ( typeof data.title === "string" ) {
+            const nodeTitle = document.createTextNode(data.title);
+            tr.querySelector('.title').appendChild(nodeTitle);
         }
         if ( typeof data.url === "string" ) {
             const aPreview = document.createElement("a");
@@ -215,14 +216,13 @@
     function appendUIKnownOverlays(ulKnownOverlays, id, data) {
         //TODO get rid of table, use <ul> and if community_name to 160px wide, whatever the content (white-space: nowrap; overflow: hidden; text-overflow: ellipsis; don't work with <td>)
         // Don't concat json data directly in innerHTML (prevent some injection attacks)
-        const btnAddOnClick = "eventAddKnownOverlay('" + id + "')";
         const btnDescriptionClick = "eventToggleKnownOverlayDescription('" + id + "')";
         const tr = document.createElement("tr");
         tr.id = 'avail-node-'+id;
         tr.style = "padding: 5px";
         tr.innerHTML= `
             <td class="action_add" style="justify-content:center; align-items:center;">
-                <button onClick="` + btnAddOnClick + `"
+                <button id="btn-add-`+id+`"
                     style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;cursor:pointer"
                     >+</button>
             </td>
@@ -230,11 +230,17 @@
             <td class="community_twitch"  style="padding: 2px; justify-content:center; align-items:center;"></td>
             <td class="community_discord" style="padding: 2px; justify-content:center; align-items:center;"></td>
             <td class="thread_url"        style="padding: 2px; justify-content:center; align-items:center;"></td>
-            <td class="description_btn"   style="padding: 2px; justify-content:center; align-items:center;">
-                   <button onClick="` + btnDescriptionClick + `"
+            <td class="description_btn"   style="padding: 2px 16px 2px 2px; justify-content:center; align-items:center;">
+                   <button id="btn-description-`+id+`"
                        style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505; cursor:pointer"
                        >?</button>
             </td>`;
+        let btnAdd = tr.querySelector('#btn-add-'+id);
+        if (btnAdd) btnAdd.onclick = eventAddKnownOverlay;
+
+        let btnDescription = tr.querySelector('#btn-description-'+id);
+        if (btnDescription) btnDescription.onclick = eventToggleKnownOverlayDescription;
+
         if ( typeof data.community_name === "string" ) {
             const nodeCommunityName = document.createTextNode(data.community_name);
             tr.querySelector('.community_name').appendChild(nodeCommunityName);
@@ -265,24 +271,43 @@
         tr2.id = 'desc-node-'+id;
         tr2.style = "padding: 5px; height: 0px";
         tr2.hidden = true;
+        const td2 = document.createElement("td");
+        td2.colspan = 6;
+        td2.style = "padding: 5px;";
+        tr2.appendChild(td2);
         if ( typeof data.community_discord === "string" ) {
             const nodeDescription = document.createTextNode(data.description);
-            tr2.appendChild(nodeDescription);
+            td2.appendChild(nodeDescription);
         }
         ulKnownOverlays.appendChild(tr2);
     }
-    // TODO pb portée : onClick et fonction anonyme
-    function eventAddKnownOverlay(id) {
-        console.log("zevent-place-overlay: eventAddKnownOverlay(id)", id);
-        const availNode = document.querySelector('#avail-node-'+id);
-        console.log("DEBUG availNode", availNode);
+    function eventAddKnownOverlay(event) {
+        console.log("zevent-place-overlay: eventAddKnownOverlay(event)", event);
+        let btnId = event.target.id;
+        let id = btnId.replace(/^btn-add-/, '');
+        const availNode = document.querySelector('#avail-node-' + id);
         if (availNode) { availNode.style.height = "0px" };
-        loadOverlay(knownOverlays[id]);
+        const data = knownOverlays[id];
+        loadOverlay(data.overlay_url, data.community_name, id);
     }
-    function eventToggleKnownOverlayDescription(id) {
-        console.log("zevent-place-overlay: eventToggleKnownOverlayDescription(id)", id);
-        const descriptionNode = document.querySelector('#desc-node-'+id);
-        console.log("DEBUG descriptionNode", descriptionNode);
+    function eventAddCustomOverlay(event) {
+        console.log("zevent-place-overlay: eventAddCustomOverlay(event)", event);
+        const nodeInput = document.querySelector('#zevent-place-overlay-ui-input-url');
+        const url = nodeInput.value;
+        loadOverlay(url);
+    }
+    function eventDelOverlay(event) {
+        console.log("zevent-place-overlay: eventDelOverlay(event)", event);
+        let btnId = event.target.id;
+        let id = btnId.replace(/^btn-del-/, '');
+        delete wantedOverlays[id];
+        refreshOverlays = true;
+    }
+    function eventToggleKnownOverlayDescription(event) {
+        console.log("zevent-place-overlay: eventToggleKnownOverlayDescription(event)", event);
+        let btnId = event.target.id;
+        let id = btnId.replace(/^btn-description-/, '');
+        const descriptionNode = document.querySelector('#desc-node-' + id);
         if (descriptionNode) {
             if ( descriptionNode.hidden ) {
                 descriptionNode.style.height = '';
@@ -356,5 +381,6 @@
     let knownOverlays = {};
 
     // Run the script with delay, MutationObserver fail in some configs (race condition between this script and the original app)
+    setTimeout(keepOurselfInDOM, 100);
     let intervalID = setInterval(keepOurselfInDOM, 1000);
 })();
