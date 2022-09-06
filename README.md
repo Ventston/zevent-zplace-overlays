@@ -51,6 +51,11 @@ Exemple : un personnage d'un streamer, une emote, un petit panneau avec un messa
 
 ## Capture d'écran des outils
 
+### browser-script
+
 ![browser-script demo](/documentation/browser-script-demo.png?raw=true "Capture d'écran du browser-script")
+
+### Plugin GIMP
+
 ![plugin-gimp-demo](/documentation/plugin-gimp-demo.png?raw=true "Capture d'écran du plugin GIMP")
 
