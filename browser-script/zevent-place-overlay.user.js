@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.17
+// @version      1.6.18
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -19,7 +19,7 @@
  */
 (function() {
     'use strict';
-    const version = "1.6.17";
+    const version = "1.6.18";
     const scriptUpdateURL = "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/browser-script/zevent-place-overlay.user.js"
     // Global constants and variables for our script
     const overlayJSON1 = "https://timeforzevent.fr/overlay.json"; // TODO define other URL
@@ -493,8 +493,38 @@
     }
     function jsonSanityCheck(data) {
         zpoLog("jsonSanityCheck(data)");
-        // TODO sanity checks
-        return data;
+        let checkedData = {};
+        if ( typeof data !== "object") return false;
+
+        const dataIds = Object.keys(data);
+        dataIds.forEach(function (id) {
+            if ( typeof id !== "string" ) return;
+            if ( !id.match(/^[0-9a-z-]+$/) ) return;
+            const item = data[id];
+            checkedData[id] = {
+                id: id,
+                community_name: textSanityFilter(item.community_name),
+                community_twitch: urlSanityCheck(item.community_twitch),
+                community_discord: urlSanityCheck(item.community_discord),
+                thread_url: urlSanityCheck(item.thread_url),
+                overlay_url: urlSanityCheck(item.overlay_url),
+                description: textSanityFilter(item.description),
+            }
+        });
+        return checkedData;
+    }
+    function urlSanityCheck(url) {
+        if ( typeof url !== "string" ) return '#nonstring';
+        let trimmedURL = url.replaceAll(/\s/g, '');
+        if ( !trimmedURL.match(/^https?:\/\/[A-Za-z0-9\/_.-]+$/) ) {
+            zpoLog("urlSanityCheck(url) invalid : " + url);
+            return '#invalid';
+        }
+        return trimmedURL;
+    }
+    function textSanityFilter(text) {
+        if ( typeof text !== "string" ) return '(invalid)';
+        return text.replaceAll(/[^A-Za-z0-9çéèàêùûôÇÉÈÊÀùÛÔ ,;.:*!()?+-]/g, '');
     }
     function finishRefreshKnownOverlays(xmlhttpToCancel) {
         // We have successfully got and process the JSON, abort the other xmlhttp if it was running
