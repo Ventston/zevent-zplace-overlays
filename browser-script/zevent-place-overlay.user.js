@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.15
+// @version      1.6.16
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -19,9 +19,8 @@
  */
 (function() {
     'use strict';
-    const version = "1.6.15";
+    const version = "1.6.16";
     const scriptUpdateURL = "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/browser-script/zevent-place-overlay.user.js"
-    console.log("zevent-place-overlay: version " + version);
     // Global constants and variables for our script
     const overlayJSON = "https://timeforzevent.fr/overlay.json";
     let refreshOverlays = true;
@@ -29,6 +28,11 @@
     let safeModeDisableGetJSON = false;
     let wantedOverlays = {}; // Same format as knownOverlays : the format of overlay.json
     let lastCustomId = 0;
+    function zpoLog(msg) {
+        const ts = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit'});
+        console.log(ts + " zevent-place-overlay: " + msg);
+    }
+    zpoLog("version " + version);
     /*
      * FR: Utilisateurs du script: vous pouvez éditer les lignes loadOverlay() ci-après pour mémoriser dans votre navigateur
      *      vos choix d'overlay sans utiliser le menu "Overlays" proposé par ce script sur https://place.zevent.fr/
@@ -75,9 +79,9 @@
      *     and remove the double-slash // before //safeModeDisableUI... line
      */
     function loadOverlay(url, title, id) {
-        console.log("zevent-place-overlay: loadOverlay(" + url + ", " + title + ", " + id + ")");
+        zpoLog("loadOverlay(" + url + ", " + title + ", " + id + ")");
         if (typeof url !== "string") {
-            console.log("zevent-place-overlay: loadOverlay() url is not string");
+            zpoLog("loadOverlay() url is not string");
             return;
         }
         if (typeof title !== "string" || !title) {
@@ -91,7 +95,7 @@
         refreshOverlays = true;
     }
     function reloadOverlays(origCanvas, ourOverlays) {
-        console.log("zevent-place-overlay: reloadOverlays(origCanvas, ourOverlays)", origCanvas, ourOverlays);
+        zpoLog("reloadOverlays()");
         const parentDiv = origCanvas.parentElement;
         // CSS fix for firefox ESR 91 ('pixellated' needs >=93)
         if (navigator.userAgent.replace(/^Mozilla.* rv:(\d+).*$/, '$1') < 93) {
@@ -111,11 +115,11 @@
     }
     function reloadUIWantedOverlays() {
         if (!wantedOverlays) {
-            console.log("zevent-place-overlay: reloadUIWantedOverlays() for undefined wantedOverlays");
+            zpoLog("reloadUIWantedOverlays() for undefined wantedOverlays");
             return;
         }
         const wantedOverlaysIds = Object.keys(wantedOverlays);
-        console.log("zevent-place-overlay: reloadUIWantedOverlays() for " + wantedOverlaysIds.length + " wantedOverlays");
+        zpoLog("reloadUIWantedOverlays() for " + wantedOverlaysIds.length + " wantedOverlays");
         const ulWantedOverlays = document.querySelector('#zevent-place-overlay-ui-list-wanted-overlays');
         if (!ulWantedOverlays) return;
         ulWantedOverlays.innerHTML = "";
@@ -123,11 +127,11 @@
     }
     function reloadUIKnownOverlays() {
         if (!knownOverlays) {
-            console.log("zevent-place-overlay: reloadUIKnownOverlays() for undefined knownOverlays");
+            zpoLog("reloadUIKnownOverlays() for undefined knownOverlays");
             return;
         }
         const knownOverlaysIds = Object.keys(knownOverlays);
-        console.log("zevent-place-overlay: reloadUIKnownOverlays() for " + knownOverlaysIds.length + " knownOverlays");
+        zpoLog("reloadUIKnownOverlays() for " + knownOverlaysIds.length + " knownOverlays");
         const ulKnownOverlays = document.querySelector('#zevent-place-overlay-ui-list-known-overlays');
         if (!ulKnownOverlays) return;
         ulKnownOverlays.innerHTML = "";
@@ -138,7 +142,7 @@
         image.className = "zevent-place-overlay-img";
         image.width = width; image.height = height; image.src = url;
         image.style = "background: none; position: absolute; left: " + left + "px; top: " + top + "px;";
-        console.log("zevent-place-overlay: loadOverlay(), inserting img: " + url + " at " + left + ", " + top + " size " + width + ", " + height);
+        zpoLog("loadOverlay(), inserting img: " + url + " at " + left + ", " + top + " size " + width + ", " + height);
         parentDiv.appendChild(image);
         document.addEventListener('keypress', function(event) {
             if (event.code == 'KeyH') {
@@ -147,6 +151,7 @@
         });
     }
     function appendOurUI(origUI) {
+        zpoLog("appendOurUI()");
         const ourUI = document.createElement("div");
         ourUI.id = "zevent-place-overlay-ui";
         ourUI.style = `
@@ -199,6 +204,7 @@
         reloadUIWantedOverlays();
     }
     function appendUIWantedOverlays(ulWantedOverlays, id, data) {
+        zpoLog("appendUIWantedOverlays()");
         const tr = document.createElement("tr");
         tr.id = 'wanted-node-'+id;
         tr.style = "padding: 5px";
@@ -230,7 +236,7 @@
     }
     function appendUIKnownOverlays(ulKnownOverlays, id, data) {
         // Don't concat json data directly in innerHTML (prevent some injection attacks)
-        // TODO get rid of table
+        zpoLog("appendUIKnownOverlays()");
         const btnDescriptionClick = "eventToggleKnownOverlayDescription('" + id + "')";
         const tr = document.createElement("tr");
         tr.id = 'avail-node-'+id;
@@ -300,7 +306,7 @@
         ulKnownOverlays.appendChild(tr2);
     }
     function eventAddKnownOverlay(event) {
-        console.log("zevent-place-overlay: eventAddKnownOverlay(event)");
+        zpoLog("eventAddKnownOverlay(event)");
         let btnId = event.target.id;
         let id = btnId.replace(/^btn-add-/, '');
         const availNode = document.querySelector('#avail-node-' + id);
@@ -309,20 +315,20 @@
         loadOverlay(data.overlay_url, data.community_name, id);
     }
     function eventAddCustomOverlay(event) {
-        console.log("zevent-place-overlay: eventAddCustomOverlay(event)");
+        zpoLog("eventAddCustomOverlay(event)");
         const nodeInput = document.querySelector('#zevent-place-overlay-ui-input-url');
         const url = nodeInput.value;
         loadOverlay(url);
     }
     function eventDelOverlay(event) {
-        console.log("zevent-place-overlay: eventDelOverlay(event)");
+        zpoLog("eventDelOverlay(event)");
         let btnId = event.target.id;
         let id = btnId.replace(/^btn-del-/, '');
         delete wantedOverlays[id];
         refreshOverlays = true;
     }
     function eventToggleKnownOverlayDescription(event) {
-        console.log("zevent-place-overlay: eventToggleKnownOverlayDescription(event)");
+        zpoLog("eventToggleKnownOverlayDescription(event)");
         let btnId = event.target.id;
         let id = btnId.replace(/^btn-description-/, '');
         const descriptionNode = document.querySelector('#desc-node-' + id);
@@ -336,6 +342,7 @@
         }
     }
     function appendOurCSS(origHead) {
+        zpoLog("appendOurCSS()");
         const style = document.createElement("style");
         style.id = 'zevent-place-overlay-css';
         style.innerHTML = `/* nothing for now */`;
@@ -343,28 +350,31 @@
     }
     function keepOurselfInDOM() {
         let origCanvas = document.querySelector('#place-canvas');
-        if ( !origCanvas ) console.log("zevent-place-overlay: keepOurselfInDOM() origCanvas: " + origCanvas);
+        if ( !origCanvas ) zpoLog("keepOurselfInDOM() origCanvas: " + origCanvas);
 
         let ourOverlays = document.querySelectorAll('.zevent-place-overlay-img');
         if ( origCanvas && (!ourOverlays.length || refreshOverlays ) ) {
-            console.log("zevent-place-overlay: keepOurselfInDOM() origCanvas: " + !!origCanvas + ", ourOverlays: " + ourOverlays.length + ", refreshOverlays:" + refreshOverlays );
-            reloadOverlays(origCanvas, ourOverlays);
-            reloadUIWantedOverlays();
+            // Special skip case skip : if there is no wantedOverlay and no currently displayed overlay
+            if ( !(wantedOverlays && Object.keys(wantedOverlays)==0 && ourOverlays.length == 0) ) {
+                zpoLog("keepOurselfInDOM() origCanvas: " + !!origCanvas + ", ourOverlays: " + ourOverlays.length + ", refreshOverlays:" + refreshOverlays );
+                reloadOverlays(origCanvas, ourOverlays);
+                reloadUIWantedOverlays();
+            }
         }
         if ( !safeModeDisableUI ) {
             /* Nothing for now
             let origHead = document.querySelector('head');
-            if ( !origHead ) console.log("zevent-place-overlay: keepOurselfInDOM() origHead: " + !!origHead);
+            if ( !origHead ) zpoLog("keepOurselfInDOM() origHead: " + !!origHead);
             let ourCSS = document.querySelector('#zevent-place-overlay-css');
             if ( origHead && !ourCSS ) {
-                console.log("zevent-place-overlay: keepOurselfInDOM() origHead: " + !!origHead + ", ourCSS: " + !!ourCSS);
+                zpoLog("keepOurselfInDOM() origHead: " + !!origHead + ", ourCSS: " + !!ourCSS);
                 appendOurCSS(origHead);
             }*/
             let origUI = document.querySelector('.place');
-            if ( !origUI ) console.log("zevent-place-overlay: keepOurselfInDOM() origCanvas: " + origCanvas);
+            if ( !origUI )zpoLog("keepOurselfInDOM() origUI: " + origUI);
             let ourUI = document.querySelector('#zevent-place-overlay-ui');
             if ( origUI && !ourUI ) {
-                console.log("zevent-place-overlay: keepOurselfInDOM() origUI: " + !!origUI + ", ourUI: " + !!ourUI);
+                zpoLog("keepOurselfInDOM() origUI: " + !!origUI + ", ourUI: " + !!ourUI);
                 appendOurUI(origUI);
                 if ( !safeModeDisableGetJSON ) {
                     fetchKnownOverlays();
@@ -377,7 +387,7 @@
     function fetchKnownOverlays() {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            console.log("zevent-place-overlay: fetchKnownOverlays() xmlhttp state: " + this.readyState + " status: " + this.status);
+            zpoLog("fetchKnownOverlays() xmlhttp state: " + this.readyState + " status: " + this.status);
             if (this.readyState == 4 && this.status == 200) {
                 var data = JSON.parse(this.responseText);
                 knownOverlays = jsonSanityCheck(data);
