@@ -49,3 +49,8 @@ Exemple : un personnage d'un streamer, une emote, un petit panneau avec un messa
 - Un **export d'overlay** : fichier .png spécial qui fait 9 fois la taille de la fresque complète (par ex 1500x1500). Chaque pixel initial est remplacé par 3x3 pixels, le pixel central est opaque de la couleur à dessiner, les 8 autour sont 100% transparents. (c'est pour voir plus facilement les pixels à modifier)
 - Le **browser-script** : script fourni pour afficher les exports d'overlay sur ZEvent/Place, pour guider les gens qui veulent dessiner 
 
+## Capture d'écran des outils
+
+![browser-script demo](/documentation/browser-script-demo.png?raw=true "Capture d'écran du browser-script")
+![plugin-gimp-demo](/documentation/plugin-gimp-demo.png?raw=true "Capture d'écran du plugin GIMP")
+
