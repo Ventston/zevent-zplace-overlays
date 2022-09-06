@@ -1,6 +1,6 @@
 # Scripts pour la fresque pixel art ZEvent Place 2022
 
-*English: detailed documentation have been translated, see "documentation" folder above. Download the PDF instead of viewing in a web preview, page scrool is poor.*
+*English: detailed documentation have been translated, see "documentation" folder above. Download the PDF instead of viewing in a web preview, else the page scroll is poor.*
 
 Ce dépot contient des scripts pour faciliter de production et l'affichage de calques (overlays) sur https://place.zevent.fr.
 
@@ -9,10 +9,10 @@ Ce dépot contient des scripts pour faciliter de production et l'affichage de ca
 ### Afficher des overlays sur le site https://place.zevent.fr avec le 🌐-browser-script
 
 - Sécurité : dédiez un navigateur secondaire uniquement pour ça
-- Exemple : Twitch+dons sur Chrome ; ZEvent/Place sur Firefox
+  - exemple : Twitch+dons sur Chrome ; ZEvent/Place sur Firefox
 - Pré-requis avant de cliquer ci-après: installer l'extension TamperMonkey
-- Puis : https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/browser-script/zevent-place-overlay.user.js
-- Si ça affiche du code sans aucun bouton "Install" ou "Update", vérifier l'installation de l'extension TamperMonkey
+- https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/browser-script/zevent-place-overlay.user.js
+- Si ça affiche du code sans aucun bouton "Installer", vérifier l'installation de l'extension TamperMonkey
 - Diaporama détaillé (à télécharger) : https://github.com/ludolpif/overlay-zevent-place/raw/main/documentation/use-overlays.pdf
 
 ### Créer et gérer un overlay avec le 🎨-plugin-gimp
@@ -51,7 +51,11 @@ Exemple : un personnage d'un streamer, une emote, un petit panneau avec un messa
 
 ## Capture d'écran des outils
 
-### browser-script
+### browser-script (installation)
+
+![browser-script install](/documentation/browser-script-install.png?raw=true "Installation de l'extension browser-script")
+
+### browser-script (utilisation)
 
 ![browser-script demo](/documentation/browser-script-demo.png?raw=true "Capture d'écran du browser-script")
 
