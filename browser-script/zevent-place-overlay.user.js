@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.6.18
+// @version      1.7
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -19,11 +19,11 @@
  */
 (function() {
     'use strict';
-    const version = "1.6.18";
+    const version = "1.7";
     const scriptUpdateURL = "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/browser-script/zevent-place-overlay.user.js"
     // Global constants and variables for our script
-    const overlayJSON1 = "https://timeforzevent.fr/overlay.json"; // TODO define other URL
-    const overlayJSON2 = "https://timeforzevent.fr/overlay.json"; // Need CORS header (Access-Control-Allow-Origin: https://place.zevent.fr)
+    const overlayJSON1 = "https://timeforzevent.fr/overlay.json"; // Need CORS header (Access-Control-Allow-Origin: https://place.zevent.fr)
+    const overlayJSON2 = "https://rescue-overlay.timeforzevent.fr/overlay.json";
     const inviteDiscordURL = "https://discord.gg/sXe5aVW2jV";
     let refreshOverlays = true;
     let safeModeDisableUI = false;
@@ -60,7 +60,7 @@
     //safeModeDisableUI = true;
     //loadOverlay("https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay.png" );
     //loadOverlay("https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/examples/demo-overlay2.png" );
-    //loadOverlay("https://somewebsite.com/someoverlay.png" );
+    //loadOverlay("https://somewebsite.com/someoverlay.png","A short title" );
     /*
      * EN: Script users: you can edit loadOverlay(...) lines above to memorize in your browser
      *      your overlay choices without using the "Overlays" menu from this script on https://place.zevent.fr/
@@ -83,18 +83,17 @@
      */
     function loadOverlay(url, title, id) {
         zpoLog("loadOverlay(" + url + ", " + title + ", " + id + ")");
-        if (typeof url !== "string") {
-            zpoLog("loadOverlay() url is not string");
-            return;
+        const checkedURL = urlSanityCheck(url);
+        let checkedTitle = textSanityFilter(title);
+        if (checkedTitle === '(invalid)') {
+            checkedTitle = checkedURL.replace(/^.*\/([^%?<>&]+)$/, '$1');
         }
-        if (typeof title !== "string" || !title) {
-            title = url.replace(/^.*\/([^%?<>&]+)$/, '$1');
-        }
-        if (typeof id !== "string" || !id) {
-            id = "custom-" + lastCustomId++;
+        let checkedId = idSanityCheck(id);
+        if (checkedId === false) {
+            checkedId = "custom-" + lastCustomId++;
         }
         // TODO detect image size
-        wantedOverlays[id] = { id:id, url: url, title:title,left: 0, top:0, width:500, height:500 };
+        wantedOverlays[checkedId] = { id:checkedId, url: checkedURL, title:checkedTitle };
         refreshOverlays = true;
     }
     function reloadOverlays(origCanvas, ourOverlays) {
@@ -112,7 +111,7 @@
         const wantedOverlaysIds = Object.keys(wantedOverlays);
         wantedOverlaysIds.forEach(function (id) {
             const data = wantedOverlays[id];
-            appendOverlayInDOM(origCanvas, parentDiv, data.left, data.top, data.width, data.height, data.url);
+            appendOverlayInDOM(origCanvas, parentDiv, data.url);
         });
         // Refresh displayed time
         const spanTs = document.querySelector('#zevent-place-overlay-wanted-ts');
@@ -146,18 +145,41 @@
         ulKnownOverlays.innerHTML = "";
         knownOverlaysIds.forEach(function (id) { appendUIKnownOverlays(ulKnownOverlays, id, knownOverlays[id]); });
     }
-    function appendOverlayInDOM(origCanvas, parentDiv, left, top, width, height, url) {
+    function appendOverlayInDOM(origCanvas, parentDiv, url) {
+        zpoLog("appendOverlayInDOM() url: " + url);
         const image = document.createElement("img");
         image.className = "zevent-place-overlay-img";
-        image.width = width; image.height = height; image.src = url;
-        image.style = "background: none; position: absolute; left: " + left + "px; top: " + top + "px;";
-        zpoLog("loadOverlay(), inserting img: " + url + " at " + left + ", " + top + " size " + width + ", " + height);
+        image.src = url;
+        image.style = "background: none; position: absolute; left: 0px; top: 0px;";
+        image.onload = function (event) {
+            fitOverlayOnCanvas(origCanvas, event.target);
+        }
+        // Append the image on the document, it could change in size a bit later because of image.decode() Promise above
         parentDiv.appendChild(image);
         document.addEventListener('keypress', function(event) {
             if (event.code == 'KeyH') {
                 image.hidden = !image.hidden;
             }
         });
+    }
+    function fitOverlayOnCanvas(origCanvas, image) {
+        zpoLog("fitOverlayOnCanvas()");
+        const nw = event.target.naturalWidth;
+        const nh = event.target.naturalHeight;
+        if ( !nw || !nh ) {
+            zpoLog("fitOverlayOnCanvas() WARNING: no nw or nh: " + nw + ',' + nh);
+            return;
+        }
+        if ( (nw%300) || (nh%300) ) {
+            zpoLog("fitOverlayOnCanvas() WARNING: adding image size that is not multiple of 300, badly exported overlay");
+            image.width = origCanvas.width;
+            image.height = origCanvas.height;
+        } else {
+            zpoLog("fitOverlayOnCanvas() nw,nh: " + nw + "," + nh);
+            image.width = nw/3;
+            image.height = nh/3;
+        }
+        zpoLog("fitOverlayOnCanvas() width,height: " + image.width + "," + image.height);
     }
     function appendOurUI(origUI) {
         zpoLog("appendOurUI()");
@@ -498,11 +520,11 @@
 
         const dataIds = Object.keys(data);
         dataIds.forEach(function (id) {
-            if ( typeof id !== "string" ) return;
-            if ( !id.match(/^[0-9a-z-]+$/) ) return;
+            const checkedId = idSanityCheck(id);
+            if ( checkedId === false ) return;
             const item = data[id];
-            checkedData[id] = {
-                id: id,
+            checkedData[checkedId] = {
+                id: checkedId,
                 community_name: textSanityFilter(item.community_name),
                 community_twitch: urlSanityCheck(item.community_twitch),
                 community_discord: urlSanityCheck(item.community_discord),
@@ -512,6 +534,15 @@
             }
         });
         return checkedData;
+    }
+    function idSanityCheck(id) {
+        if ( typeof id !== "string" ) return false;
+        let trimmedId = id.replaceAll(/\s/g, '');
+        if ( !trimmedId.match(/^[A-Za-z0-9-]+$/) ) {
+            zpoLog("idSanityCheck(id) invalid : " + id);
+            return false;
+        }
+        return trimmedId;
     }
     function urlSanityCheck(url) {
         if ( typeof url !== "string" ) return '#nonstring';

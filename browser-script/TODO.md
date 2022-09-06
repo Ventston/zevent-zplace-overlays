@@ -1,6 +1,6 @@
 # TODO List
 ## Fonctionnalités nécessaires
-- gérer le problème de 500,500 en dur ( new Image(...) ou img.onload() ? )
+- fini
 
 ## Sécurisation :
 - mettre une url JSON bkp viable (qui a le header CORS)
