@@ -5,9 +5,10 @@
 ## Fonctionnalités nécessaires
 - fini
 
-## Fonctionnaités importantes
+## Fonctionnalités importantes
 - ne pas conserver dans overlay actif une vielle version d'une url si on a reload les knownOverlays (for v1.7.2)
 - impémenter le event pour le boutons refresh sur wantedOverlays (for v1.7.2)
+- Ajouter un cache void pour les png ? "?"+ts
 
 ## Sécurisation :
 - sanityChecking

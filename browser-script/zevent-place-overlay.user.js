@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.7.1
+// @version      1.7.2
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -19,13 +19,13 @@
  */
 (function() {
     'use strict';
-    const version = "1.7.1";
+    const version = "1.7.2";
     const scriptUpdateURL = "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/browser-script/zevent-place-overlay.user.js"
     // Global constants and variables for our script
     const overlayJSON1 = "https://timeforzevent.fr/overlay.json"; // Need CORS header (Access-Control-Allow-Origin: https://place.zevent.fr)
     const overlayJSON2 = "https://backup.place.timeforzevent.fr/overlay.json";
     const inviteDiscordURL = "https://discord.gg/sXe5aVW2jV";
-    let refreshOverlays = true;
+    let refreshOverlaysState = true; // state false: idle, true: asked, (no cooldown: throttled by keepOurselfInDOM())
     let safeModeDisableUI = false;
     let safeModeDisableGetJSON = false;
     let wantedOverlays = {}; // Same format as knownOverlays : the format of overlay.json
@@ -93,7 +93,7 @@
             checkedId = "custom-" + lastCustomId++;
         }
         wantedOverlays[checkedId] = { id:checkedId, url: checkedURL, title:checkedTitle };
-        refreshOverlays = true;
+        refreshOverlaysState = true;
     }
     function reloadOverlays(origCanvas, ourOverlays) {
         zpoLog("reloadOverlays()");
@@ -102,24 +102,32 @@
         if (navigator.userAgent.replace(/^Mozilla.* rv:(\d+).*$/, '$1') < 93) {
             parentDiv.style.setProperty('image-rendering', 'crisp-edges');
         }
+        const wantedOverlaysIds = Object.keys(wantedOverlays);
+        // Update wantedOverlays URL from knownOverlays when the wantedOverlay came from there
+        // id could be "custom-N" for manually added URL, it won't match in knownOverlays
+        wantedOverlaysIds.forEach(function (id) {
+            const data = wantedOverlays[id];
+            if ( knownOverlays[id] && ( typeof knownOverlays[id].overlay_url === "string" ) ) {
+                const newURL = knownOverlays[id].overlay_url;
+                // newURL assumed already sanitized (done when inserted in knownOverlays at first place)
+                if ( newURL.startsWith("https://") && ( data.url != newURL ) ) {
+                    zpoLog("reloadOverlays() updating url for id:" + id + " from: " + data.url + "to: " + newURL);
+                    data.url = newURL;
+                }
+            }
+        });
         // Remove all our <img>
         // TODO remove all addEventListener before deleting <img> ?
         if ( !ourOverlays ) ourOverlays = [];
         ourOverlays.forEach(function (e) { e.remove() });
         // Insert them again
-        const wantedOverlaysIds = Object.keys(wantedOverlays);
         wantedOverlaysIds.forEach(function (id) {
             const data = wantedOverlays[id];
             appendOverlayInDOM(origCanvas, parentDiv, data.url);
         });
-        // Refresh displayed time
-        const spanTs = document.querySelector('#zevent-place-overlay-wanted-ts');
-        if ( spanTs ) {
-            const now = new Date();
-            spanTs.innerHTML = "màj." + now.getHours() + "h" + now.getMinutes();
-        }
+        refreshDisplayTime(document.querySelector('#zevent-place-overlay-wanted-ts'));
         // Mark job done for keepOurselfInDOM
-        refreshOverlays = false;
+        refreshOverlaysState = false;
     }
     function reloadUIWantedOverlays() {
         if (!wantedOverlays) {
@@ -362,6 +370,12 @@
         }
         ulKnownOverlays.appendChild(tr2);
     }
+    function refreshDisplayTime(domNode) {
+        if ( domNode ) {
+            const now = new Date();
+            domNode.innerHTML = "màj." + now.getHours() + "h" + String(now.getMinutes()).padStart(2, "0");
+        }
+    }
     function eventAddKnownOverlay(event) {
         zpoLog("eventAddKnownOverlay(event)");
         let btnId = event.target.id;
@@ -382,7 +396,7 @@
         let btnId = event.target.id;
         let id = btnId.replace(/^btn-del-/, '');
         delete wantedOverlays[id];
-        refreshOverlays = true;
+        refreshOverlaysState = true;
     }
     function eventToggleKnownOverlayDescription(event) {
         zpoLog("eventToggleKnownOverlayDescription(event)");
@@ -398,9 +412,8 @@
             descriptionNode.hidden = !descriptionNode.hidden;
         }
     }
-    function eventAskRefreshKnownOverlays(event, reloadAll=false) {
-        zpoLog("eventAskRefreshKnownOverlays() reloadAll:" + reloadAll);
-        //TODO implement reloadAll (reload all wantedOverlays with up-to-date URLs
+    function eventAskRefreshKnownOverlays(event) {
+        zpoLog("eventAskRefreshKnownOverlays()");
         if ( !safeModeDisableGetJSON && refreshKnownOverlaysState == 0) {
             zpoLog("eventAskRefreshKnownOverlays() refreshKnownOverlaysState before:" + refreshKnownOverlaysState);
             refreshKnownOverlaysState = 1;
@@ -408,7 +421,8 @@
         }
     }
     function eventAskRefreshWantedOverlays(event) {
-        eventAskRefreshKnownOverlays(event, true);
+        zpoLog("eventAskRefreshWantedOverlays()");
+        refreshOverlaysState = true;
     }
     function appendOurCSS(origHead) {
         zpoLog("appendOurCSS()");
@@ -422,10 +436,10 @@
         if ( !origCanvas ) zpoLog("keepOurselfInDOM() origCanvas: " + origCanvas);
 
         let ourOverlays = document.querySelectorAll('.zevent-place-overlay-img');
-        if ( origCanvas && (!ourOverlays.length || refreshOverlays ) ) {
+        if ( origCanvas && (!ourOverlays.length || refreshOverlaysState ) ) {
             // Special skip case skip : if there is no wantedOverlay and no currently displayed overlay
             if ( !(wantedOverlays && Object.keys(wantedOverlays)==0 && ourOverlays.length == 0) ) {
-                zpoLog("keepOurselfInDOM() origCanvas: " + !!origCanvas + ", ourOverlays: " + ourOverlays.length + ", refreshOverlays:" + refreshOverlays );
+                zpoLog("keepOurselfInDOM() origCanvas: " + !!origCanvas + ", ourOverlays: " + ourOverlays.length + ", refreshOverlaysState:" + refreshOverlaysState );
                 reloadOverlays(origCanvas, ourOverlays);
                 reloadUIWantedOverlays();
             }
@@ -484,7 +498,7 @@
                 zpoLog("fetchKnownOverlays() xmlhttp2 Exception");
                 console.error(error);
             }
-        }, 5000);
+        }, 1000);
         // Start the request from the main url
         xmlhttp1.onreadystatechange = function() {
             zpoLog("fetchKnownOverlays() xmlhttp1 state: " + this.readyState + " status: " + this.status);
@@ -519,12 +533,7 @@
         // Take the new data into account
         knownOverlays = checkedData;
         reloadUIKnownOverlays();
-        // Refresh displayed time
-        const spanTs = document.querySelector('#zevent-place-overlay-known-ts');
-        if ( spanTs ) {
-            const now = new Date();
-            spanTs.innerHTML = "màj." + now.getHours() + "h" + now.getMinutes();
-        }
+        refreshDisplayTime(document.querySelector('#zevent-place-overlay-known-ts'));
         return true;
     }
     function jsonSanityCheck(data) {
@@ -561,7 +570,7 @@
     function urlSanityCheck(url) {
         if ( !url ) return null;
         if ( typeof url !== "string" ) return '#nonstring';
-        let trimmedURL = url.replaceAll(/\s/g, '');
+        let trimmedURL = url.substring(0,260).replaceAll(/\s/g, '');
         if ( !trimmedURL.match(/^https?:\/\/[A-Za-z0-9\/_.-]+$/) ) {
             zpoLog("urlSanityCheck(url) invalid : " + url);
             return '#invalid';
@@ -570,7 +579,7 @@
     }
     function textSanityFilter(text) {
         if ( typeof text !== "string" ) return '(invalid)';
-        return text.replaceAll(/[^A-Za-z0-9çéèàêùûôÇÉÈÊÀùÛÔ ',;.:*!()?+-]/g, ' ');
+        return text.substring(0,260).replaceAll(/[^A-Za-z0-9çéèàêùûôÇÉÈÊÀùÛÔ ',;.:*!()?+-]/g, ' ');
     }
     function finishRefreshKnownOverlays(xmlhttpToCancel) {
         // We have successfully got and process the JSON, abort the other xmlhttp if it was running
@@ -579,6 +588,9 @@
         zpoLog("fetchKnownOverlays() refreshKnownOverlaysState before:" + refreshKnownOverlaysState);
         refreshKnownOverlaysState = 4;
         zpoLog("fetchKnownOverlays() refreshKnownOverlaysState after:" + refreshKnownOverlaysState);
+        // Refresh wantedOverlay too, in case of URL change
+        refreshOverlaysState = true;
+        // Start a timer to trigger the cooldown end (ratelimiting)
         setTimeout(function () {
             if ( refreshKnownOverlaysState == 4 ) {
                 zpoLog("finishRefreshKnownOverlays() anon() refreshKnownOverlaysState before:" + refreshKnownOverlaysState);
