@@ -6,19 +6,14 @@
 - fini
 
 ## Fonctionnalités importantes
-- ne pas conserver dans overlay actif une vielle version d'une url si on a reload les knownOverlays (for v1.7.2)
-- impémenter le event pour le boutons refresh sur wantedOverlays (for v1.7.2)
 - Ajouter un cache void pour les png ? "?"+ts
 
 ## Sécurisation :
-- sanityChecking
-  - limiter la longueur des chaines (description = 260 dans form discord) (for v1.7.2)
 - test de hack du serveur
 
 ## Bonus :
-
-- ❓ pouvoir choisir de faire un tri en ordre alphabétique/ou en nombre de réactions (pour soutenir les petites communautés ?)
 - afficher un message fourni par le json (communication de secours)
+- ❓ pouvoir choisir de faire un tri en ordre alphabétique/ou en nombre de réactions (pour soutenir les petites communautés ?)
 - faire un schéma flux de données (pour vérifier qu'on sanitize bien dans tous les points d'entrée)
 - faire un schéma interactions (user, events, calls + states)
 - (Tri) (mais pas si important que ça je pense)
