@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.7
+// @version      1.7.1
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -19,11 +19,11 @@
  */
 (function() {
     'use strict';
-    const version = "1.7";
+    const version = "1.7.1";
     const scriptUpdateURL = "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/browser-script/zevent-place-overlay.user.js"
     // Global constants and variables for our script
     const overlayJSON1 = "https://timeforzevent.fr/overlay.json"; // Need CORS header (Access-Control-Allow-Origin: https://place.zevent.fr)
-    const overlayJSON2 = "https://rescue-overlay.timeforzevent.fr/overlay.json";
+    const overlayJSON2 = "https://backup.place.timeforzevent.fr/overlay.json";
     const inviteDiscordURL = "https://discord.gg/sXe5aVW2jV";
     let refreshOverlays = true;
     let safeModeDisableUI = false;
@@ -92,7 +92,6 @@
         if (checkedId === false) {
             checkedId = "custom-" + lastCustomId++;
         }
-        // TODO detect image size
         wantedOverlays[checkedId] = { id:checkedId, url: checkedURL, title:checkedTitle };
         refreshOverlays = true;
     }
@@ -115,7 +114,10 @@
         });
         // Refresh displayed time
         const spanTs = document.querySelector('#zevent-place-overlay-wanted-ts');
-        if ( spanTs ) spanTs.innerHTML = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit'});
+        if ( spanTs ) {
+            const now = new Date();
+            spanTs.innerHTML = "màj." + now.getHours() + "h" + now.getMinutes();
+        }
         // Mark job done for keepOurselfInDOM
         refreshOverlays = false;
     }
@@ -204,7 +206,9 @@
             <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; height: 0vh; transition: all 0.2s ease 0s;">
                 <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-x:hidden; overflow-y: auto;">
                     <label for="zevent-place-overlay-ui-input-url">Ajout via URL</label><br />
-                    <input id="zevent-place-overlay-ui-input-url" name="zevent-place-overlay-ui-input-url" type="text" size="48" style="width: 270px" value="https://somesite.com/someoverlay.png"></input>
+                    <input id="zevent-place-overlay-ui-input-url" name="zevent-place-overlay-ui-input-url"
+                        type="text" size="48" style="width: 270px" placeholder="https://un-site.com/un-lien-permanent.png">
+                    </input>
                     <button id="btn-custom-add">OK</button>
                     <br /><hr />
                     Overlays actifs
@@ -214,13 +218,16 @@
                     >↺</button>
                     <table id="zevent-place-overlay-ui-list-wanted-overlays"></table>
                     <br /><hr />
-                    Overlays disponibles
+                    Overlays gérés sur le
                     <span id="zevent-place-overlay-known-ts" style="color:gray; font-size:70%; padding-left:1em;"></span>
                     <button id="btn-refresh-known"
                        style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;cursor:pointer"
                     >↺</button>
-                    </br>
-                    <a href="`+inviteDiscordURL+`" alt="Discord Invite" target="_blank" style="text-decoration: underline; color: #8ab4f8">Discord Commu ZEvent/Place</a><br/>
+                    <br />
+                    <a href="`+inviteDiscordURL+`" alt="Invitation Discord" target="_blank"
+                       style="text-decoration: underline; color: #8ab4f8">discord Commu ZEvent/Place
+                    </a><br/>
+                    <br />
                     <table id="zevent-place-overlay-ui-list-known-overlays"></table>
                 </div>
             </div>
@@ -306,8 +313,10 @@
         let btnAdd = tr.querySelector('#btn-add-'+id);
         if (btnAdd) btnAdd.onclick = eventAddKnownOverlay;
 
-        let btnDescription = tr.querySelector('#btn-description-'+id);
-        if (btnDescription) btnDescription.onclick = eventToggleKnownOverlayDescription;
+        if ( typeof data.description === "string" ) {
+            let btnDescription = tr.querySelector('#btn-description-'+id);
+            if (btnDescription) btnDescription.onclick = eventToggleKnownOverlayDescription;
+        }
 
         if ( typeof data.community_name === "string" ) {
             const nodeCommunityName = document.createTextNode(data.community_name);
@@ -329,13 +338,14 @@
             aDiscord.innerHTML = discordLogoSVG;
             tr.querySelector('.community_discord').appendChild(aDiscord);
         }
-        const aThread = document.createElement("a");
-        aThread.href = data.thread_url;
-        aThread.target="_blank";
-        aThread.alt = "Fil";
-        aThread.innerHTML = '<img height="24px" src="' + threadLogoB64 + '" alt="Fil Discord Commu ZEvent/Place"/></a></td>';
-        tr.querySelector('.thread_url').appendChild(aThread);
-
+        if ( typeof data.thread_url === "string" ) {
+            const aThread = document.createElement("a");
+            aThread.href = data.thread_url;
+            aThread.target="_blank";
+            aThread.alt = "Fil";
+            aThread.innerHTML = '<img height="24px" src="' + threadLogoB64 + '" alt="Fil Discord Commu ZEvent/Place"/></a></td>';
+            tr.querySelector('.thread_url').appendChild(aThread);
+        }
         ulKnownOverlays.appendChild(tr);
 
         const tr2 = document.createElement("tr");
@@ -346,7 +356,7 @@
         td2.colSpan = "6";
         td2.style = "padding: 16px;";
         tr2.appendChild(td2);
-        if ( typeof data.community_discord === "string" ) {
+        if ( typeof data.description === "string" ) {
             const nodeDescription = document.createTextNode(data.description);
             td2.appendChild(nodeDescription);
         }
@@ -388,7 +398,9 @@
             descriptionNode.hidden = !descriptionNode.hidden;
         }
     }
-    function eventAskRefreshKnownOverlays(event) {
+    function eventAskRefreshKnownOverlays(event, reloadAll=false) {
+        zpoLog("eventAskRefreshKnownOverlays() reloadAll:" + reloadAll);
+        //TODO implement reloadAll (reload all wantedOverlays with up-to-date URLs
         if ( !safeModeDisableGetJSON && refreshKnownOverlaysState == 0) {
             zpoLog("eventAskRefreshKnownOverlays() refreshKnownOverlaysState before:" + refreshKnownOverlaysState);
             refreshKnownOverlaysState = 1;
@@ -396,8 +408,7 @@
         }
     }
     function eventAskRefreshWantedOverlays(event) {
-        // TODO stub eventAskRefreshWantedOverlays()
-        zpoLog("eventAskRefreshWantedOverlays() STUB");
+        eventAskRefreshKnownOverlays(event, true);
     }
     function appendOurCSS(origHead) {
         zpoLog("appendOurCSS()");
@@ -510,7 +521,10 @@
         reloadUIKnownOverlays();
         // Refresh displayed time
         const spanTs = document.querySelector('#zevent-place-overlay-known-ts');
-        if ( spanTs ) spanTs.innerHTML = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit'});
+        if ( spanTs ) {
+            const now = new Date();
+            spanTs.innerHTML = "màj." + now.getHours() + "h" + now.getMinutes();
+        }
         return true;
     }
     function jsonSanityCheck(data) {
@@ -545,6 +559,7 @@
         return trimmedId;
     }
     function urlSanityCheck(url) {
+        if ( !url ) return null;
         if ( typeof url !== "string" ) return '#nonstring';
         let trimmedURL = url.replaceAll(/\s/g, '');
         if ( !trimmedURL.match(/^https?:\/\/[A-Za-z0-9\/_.-]+$/) ) {
@@ -555,7 +570,7 @@
     }
     function textSanityFilter(text) {
         if ( typeof text !== "string" ) return '(invalid)';
-        return text.replaceAll(/[^A-Za-z0-9çéèàêùûôÇÉÈÊÀùÛÔ ,;.:*!()?+-]/g, '');
+        return text.replaceAll(/[^A-Za-z0-9çéèàêùûôÇÉÈÊÀùÛÔ ',;.:*!()?+-]/g, ' ');
     }
     function finishRefreshKnownOverlays(xmlhttpToCancel) {
         // We have successfully got and process the JSON, abort the other xmlhttp if it was running

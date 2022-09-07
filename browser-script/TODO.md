@@ -1,6 +1,6 @@
 # TODO List
 ## bug fix
-- La description manque si champ commu_discord vide (for 1.7.1)
+- nouveaux bugs à chercher
 
 ## Fonctionnalités nécessaires
 - fini
@@ -12,16 +12,10 @@
 ## Sécurisation :
 - sanityChecking
   - limiter la longueur des chaines (description = 260 dans form discord) (for v1.7.2)
-  - les meta-caractères champ textes sont remplacés par '', mettre ' ' (for 1.7.1)
-  - la quote simple est interdite, fréquente en français (description) (for 1.7.1)
-- mettre une url JSON bkp viable (qui a le header CORS, backup.place.timeforzevent.fr) (for 1.7.1)
 - test de hack du serveur
 
 ## Bonus :
 
-- "maj : 20h30" plutôt que "20:30" (for v1.7.1)
-- placeholder="https://somesite.com/someoverlay.png"  plutot que value="..." (for v1.7.1)
-- ne pas afficher le lien discord ou twitch si sa valeur est null (for v1.7.1)
 - ❓ pouvoir choisir de faire un tri en ordre alphabétique/ou en nombre de réactions (pour soutenir les petites communautés ?)
 - afficher un message fourni par le json (communication de secours)
 - faire un schéma flux de données (pour vérifier qu'on sanitize bien dans tous les points d'entrée)
