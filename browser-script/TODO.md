@@ -6,7 +6,7 @@
 - fini
 
 ## Fonctionnalités importantes
-- Ajouter un cache void pour les png ? "?"+ts
+- fini
 
 ## Sécurisation :
 - test de hack du serveur
