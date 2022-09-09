@@ -25,7 +25,7 @@ Ce dépot contient des scripts pour faciliter de production et l'affichage de ca
 ### Alternative pour gérer un overlay, le 🧰-webtool-overlays
 
 - Juste aller sur : https://overlay-zplace.4each.dev/
-- Très simple, moins adapté pour gérer beaucoup d'artworks sur la durée
+- Pas de logiciel à installer, permet d'afficher les autres overlays pour aider au placement des artworks
 
 ## S'organiser sur le Discord inter-commu ZEvent/Place
 
