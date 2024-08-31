@@ -7,7 +7,7 @@
 // @author       ludolpif, ventston, PiRDub
 // @match        https://place.zevent.fr/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=zevent.fr
-// @grant        none
+// @grant        GM_addStyle
 // @downloadURL  https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js
 // @updateURL    https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js
 // ==/UserScript==
@@ -26,9 +26,9 @@
     const overlayJSON2 = "https://backup.place.timeforzevent.fr/overlay.json";
     const inviteDiscordURL = "https://discord.gg/sXe5aVW2jV";
     let refreshOverlaysState = true; // state false: idle, true: asked, (no cooldown: throttled by keepOurselfInDOM())
-    let safeModeDisableUI = false;
-    let safeModeDisableGetJSON = false;
-    let wantedOverlays = {}; // Same format as knownOverlays : the format of overlay.json
+    const safeModeDisableUI = false;
+    const safeModeDisableGetJSON = false;
+    const wantedOverlays = {}; // Same format as knownOverlays : the format of overlay.json
     let refreshKnownOverlaysState = 0; // state 0: idle, 1: asked, 2: in progress (main url), 3: in progress (bkp url), 4: cooldown (rate limiting)
     let lastCustomId = 0;
     function zpoLog(msg) {
@@ -213,41 +213,51 @@
                 <span id="zevent-place-overlay-ui-version" style="color:gray; font-size:70%; padding-left:1em;"></span>
             </div>
             <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; height: 0vh; transition: all 0.2s ease 0s;">
-                <div id="zevent-place-overlay-ui-overlaylist" style="flex: 1; overflow-x:hidden; overflow-y: auto;">
-                    <label for="zevent-place-overlay-ui-input-url">Ajout via URL</label><br />
-                    <input id="zevent-place-overlay-ui-input-url" name="zevent-place-overlay-ui-input-url"
-                        type="text" size="48" style="width: 270px" placeholder="https://un-site.com/un-lien-permanent.png">
-                    </input>
-                    <button id="btn-custom-add">OK</button>
-                    <br /><hr />
+                <div id="zevent-place-overlay-ui-overlaylist"
+                     style="flex: 1; overflow-x:hidden; overflow-y: auto;padding-top: 20px; box-sizing: border-box;">
+                    <label for="zevent-place-overlay-ui-input-url">Ajout via URL</label><br/>
+                    <div style="width: 100%;box-sizing: border-box;padding: 5px">
+                        <input id="zevent-place-overlay-ui-input-url" name="zevent-place-overlay-ui-input-url"
+                               type="text" size="48" style="width: 270px" placeholder="https://un-site.com/un-lien-permanent.png"/>
+                        <button id="btn-custom-add">OK</button>
+                    </div>
+            
+                    <br/>
+                    <hr/>
                     Overlays actifs
                     <span id="zevent-place-overlay-wanted-ts" style="color:gray; font-size:70%; padding-left:1em;"></span>
                     <button id="btn-refresh-wanted"
-                       style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;cursor:pointer"
-                    >↺</button>
+                            style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;cursor:pointer"
+                    >↺
+                    </button>
                     <table id="zevent-place-overlay-ui-list-wanted-overlays"></table>
-                    <br /><hr />
+                    <br/>
+                    <hr/>
                     Overlays gérés sur le
                     <span id="zevent-place-overlay-known-ts" style="color:gray; font-size:70%; padding-left:1em;"></span>
                     <button id="btn-refresh-known"
-                       style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;cursor:pointer"
-                    >↺</button>
-                    <br />
-                    <a href="`+inviteDiscordURL+`" alt="Invitation Discord" target="_blank"
+                            style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505;cursor:pointer"
+                    >↺
+                    </button>
+                    <br/>
+                    <a href="` + inviteDiscordURL + `" alt="Invitation Discord" target="_blank"
                        style="text-decoration: underline; color: #8ab4f8">Discord Commu ZEvent/Place
                     </a><br/>
-                    <br />
+                    <br/>
+                    <div style="width: 100%;box-sizing: border-box;padding: 5px">
+                        <input id="zevent-place-overlay-search" placeholder="Chercher des overlays"/>
+                    </div>
                     <table id="zevent-place-overlay-ui-list-known-overlays"></table>
                 </div>
             </div>
         `;
-        let btnAdd = ourUI.querySelector('#btn-custom-add');
+        const btnAdd = ourUI.querySelector('#btn-custom-add');
         if (btnAdd) btnAdd.onclick = eventAddCustomOverlay;
 
-        let btnAskRefreshWantedOverlays = ourUI.querySelector('#btn-refresh-wanted');
+        const btnAskRefreshWantedOverlays = ourUI.querySelector('#btn-refresh-wanted');
         if (btnAskRefreshWantedOverlays) btnAskRefreshWantedOverlays.onclick = eventAskRefreshWantedOverlays;
 
-        let btnAskRefreshKnownOverlays = ourUI.querySelector('#btn-refresh-known');
+        const btnAskRefreshKnownOverlays = ourUI.querySelector('#btn-refresh-known');
         if (btnAskRefreshKnownOverlays) btnAskRefreshKnownOverlays.onclick = eventAskRefreshKnownOverlays;
 
         const versionSpan = ourUI.querySelector('#zevent-place-overlay-ui-version');
@@ -262,6 +272,12 @@
             aScriptUpdate.innerHTML = '<button style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505; cursor:pointer">↺</button>';
             nodeUIHead.appendChild(aScriptUpdate);
         }
+
+        const searchInput = ourUI.querySelector('#zevent-place-overlay-search');
+        if (searchInput) {
+            searchInput.oninput = searchOverlays;
+        }
+
         origUI.appendChild(ourUI);
         // wantedOverlayURLs may have already values if set with loadOverlay() in script, so display them
         reloadUIWantedOverlays();
@@ -280,7 +296,7 @@
             <td class="title"    style="padding: 5px; justify-content:center; align-items:center; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></td>
             <td class="preview_btn"       style="padding: 2px; justify-content:center; align-items:center;"></td>
         `;
-        let btnDel = tr.querySelector('#btn-del-'+id);
+        const btnDel = tr.querySelector('#btn-del-' + id);
         if (btnDel) btnDel.onclick = eventDelOverlay;
 
         if ( typeof data.title === "string" ) {
@@ -300,7 +316,6 @@
     function appendUIKnownOverlays(ulKnownOverlays, id, data) {
         // Don't concat json data directly in innerHTML (prevent some injection attacks)
         zpoLog("appendUIKnownOverlays()");
-        const btnDescriptionClick = "eventToggleKnownOverlayDescription('" + id + "')";
         const tr = document.createElement("tr");
         tr.id = 'avail-node-'+id;
         tr.style = "padding: 5px";
@@ -319,11 +334,11 @@
                        style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505; cursor:pointer; max-width: 200px;"
                        >?</button>
             </td>`;
-        let btnAdd = tr.querySelector('#btn-add-'+id);
+        const btnAdd = tr.querySelector('#btn-add-' + id);
         if (btnAdd) btnAdd.onclick = eventAddKnownOverlay;
 
         if ( typeof data.description === "string" ) {
-            let btnDescription = tr.querySelector('#btn-description-'+id);
+            const btnDescription = tr.querySelector('#btn-description-' + id);
             if (btnDescription) btnDescription.onclick = eventToggleKnownOverlayDescription;
         }
 
@@ -379,8 +394,8 @@
     }
     function eventAddKnownOverlay(event) {
         zpoLog("eventAddKnownOverlay(event)");
-        let btnId = event.target.id;
-        let id = btnId.replace(/^btn-add-/, '');
+        const btnId = event.target.id;
+        const id = btnId.replace(/^btn-add-/, '');
         const availNode = document.querySelector('#avail-node-' + id);
         if (availNode) { availNode.style.height = "0px" };
         const data = knownOverlays[id];
@@ -394,15 +409,15 @@
     }
     function eventDelOverlay(event) {
         zpoLog("eventDelOverlay(event)");
-        let btnId = event.target.id;
-        let id = btnId.replace(/^btn-del-/, '');
+        const btnId = event.target.id;
+        const id = btnId.replace(/^btn-del-/, '');
         delete wantedOverlays[id];
         refreshOverlaysState = true;
     }
     function eventToggleKnownOverlayDescription(event) {
         zpoLog("eventToggleKnownOverlayDescription(event)");
-        let btnId = event.target.id;
-        let id = btnId.replace(/^btn-description-/, '');
+        const btnId = event.target.id;
+        const id = btnId.replace(/^btn-description-/, '');
         const descriptionNode = document.querySelector('#desc-node-' + id);
         if (descriptionNode) {
             if ( descriptionNode.hidden ) {
@@ -433,13 +448,13 @@
         origHead.appendChild(style);
     }
     function keepOurselfInDOM() {
-        let origCanvas = document.querySelector('#place-canvas');
+        const origCanvas = document.querySelector('#place-canvas');
         if ( !origCanvas ) zpoLog("keepOurselfInDOM() origCanvas: " + origCanvas);
 
         let ourOverlays = document.querySelectorAll('.zevent-place-overlay-img');
         if ( origCanvas && (!ourOverlays.length || refreshOverlaysState ) ) {
             // Special skip case skip : if there is no wantedOverlay and no currently displayed overlay
-            if ( !(wantedOverlays && Object.keys(wantedOverlays)==0 && ourOverlays.length == 0) ) {
+            if ( !(wantedOverlays && Object.keys(wantedOverlays) === 0 && ourOverlays.length === 0) ) {
                 zpoLog("keepOurselfInDOM() origCanvas: " + !!origCanvas + ", ourOverlays: " + ourOverlays.length + ", refreshOverlaysState:" + refreshOverlaysState );
                 reloadOverlays(origCanvas, ourOverlays);
                 reloadUIWantedOverlays();
@@ -454,9 +469,9 @@
                 zpoLog("keepOurselfInDOM() origHead: " + !!origHead + ", ourCSS: " + !!ourCSS);
                 appendOurCSS(origHead);
             }*/
-            let origUI = document.querySelector('.place');
+            const origUI = document.querySelector('.place');
             if ( !origUI )zpoLog("keepOurselfInDOM() origUI: " + origUI);
-            let ourUI = document.querySelector('#zevent-place-overlay-ui');
+            const ourUI = document.querySelector('#zevent-place-overlay-ui');
             if ( origUI && (!ourUI || ( refreshKnownOverlaysState == 1 ) ) ) {
                 zpoLog("keepOurselfInDOM() origUI: " + !!origUI + ", ourUI: " + !!ourUI);
                 appendOurUI(origUI);
@@ -473,8 +488,8 @@
     }
     function fetchKnownOverlays() {
         // Try to load json from main url
-        let xmlhttp1 = new XMLHttpRequest();
-        let xmlhttp2 = new XMLHttpRequest();
+        const xmlhttp1 = new XMLHttpRequest();
+        const xmlhttp2 = new XMLHttpRequest();
         // Set a differed try from backup url
         setTimeout(function () {
             // If job already done while waiting this backup request to start, don't do anything
@@ -539,7 +554,7 @@
     }
     function jsonSanityCheck(data) {
         zpoLog("jsonSanityCheck(data)");
-        let checkedData = {};
+        const checkedData = {};
         if ( typeof data !== "object") return false;
 
         const dataIds = Object.keys(data);
@@ -561,7 +576,7 @@
     }
     function idSanityCheck(id) {
         if ( typeof id !== "string" ) return false;
-        let trimmedId = id.replaceAll(/\s/g, '');
+        const trimmedId = id.replaceAll(/\s/g, '');
         if ( !trimmedId.match(/^[A-Za-z0-9-]+$/) ) {
             zpoLog("idSanityCheck(id) invalid : " + id);
             return false;
@@ -571,7 +586,7 @@
     function urlSanityCheck(url) {
         if ( !url ) return null;
         if ( typeof url !== "string" ) return '#nonstring';
-        let trimmedURL = url.substring(0,260).replaceAll(/\s/g, '');
+        const trimmedURL = url.substring(0, 260).replaceAll(/\s/g, '');
         if ( !trimmedURL.match(/^https?:\/\/[A-Za-z0-9\/_.-]+$/) ) {
             zpoLog("urlSanityCheck(url) invalid : " + url);
             return '#invalid';
@@ -600,6 +615,19 @@
             }
         }, 5000);
     }
+    function searchOverlays(e) {
+        const search = e.target.value.toLowerCase();
+        zpoLog("searchOverlays :" + search);
+        const wantedOverlaysIds = Object.keys(knownOverlays);
+        wantedOverlaysIds.forEach(function (id) {
+            const data = knownOverlays[id];
+            if ( data.community_name.toLowerCase().includes(search) || data.description.toLowerCase().includes(search) ) {
+                document.querySelector('#avail-node-'+id).hidden = false;
+            } else {
+                document.querySelector('#avail-node-'+id).hidden = true;
+            }
+        });
+    }
 
     // Following embed data to not depend or generate trafic to external webservers
     const threadLogoB64 = "data:image/png;base64, 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";
@@ -616,3 +644,21 @@
     //setTimeout(keepOurselfInDOM, 100);
     let intervalID = setInterval(keepOurselfInDOM, 1000);
 })();
+
+const css = `
+    
+    /* ZEvent Place Overlay UI */
+    #zevent-place-overlay-ui input {
+        width: 100%;
+                          box-sizing: border-box;
+                          padding: 5px;
+                          border-radius: 4px;
+                          border: none;
+                          background-color: #2b2b2b;
+                          color: #fff;
+                          font-size: 16px;
+    }
+    `;
+
+GM_addStyle(css);
+
