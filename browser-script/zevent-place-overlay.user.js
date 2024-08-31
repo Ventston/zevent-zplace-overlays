@@ -2,27 +2,27 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      1.8
+// @version      2.0
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
-// @author       ludolpif, ventston
+// @author       ludolpif, ventston, PiRDub
 // @match        https://place.zevent.fr/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=zevent.fr
 // @grant        none
-// @downloadURL  https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/browser-script/zevent-place-overlay.user.js
-// @updateURL    https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/browser-script/zevent-place-overlay.user.js
+// @downloadURL  https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js
+// @updateURL    https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js
 // ==/UserScript==
 /*
  * Script used as base, form MinusKube: https://greasyfork.org/fr/scripts/444833-z-place-overlay/code
  * Original and this code licence: MIT
- * Copyright 2021-2022 ludolpif, ventston
+ * Copyright 2021-2024 ludolpif, ventston, PiRDub
  * Thanks to : grewa, BunlanG|Baron for help on CSS
  */
 (function() {
     'use strict';
-    const version = "1.8";
-    const scriptUpdateURL = "https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/browser-script/zevent-place-overlay.user.js"
+    const version = "2.0-alpha-1";
+    const scriptUpdateURL = "https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js"
     // Global constants and variables for our script
-    const overlayJSON1 = "https://timeforzevent.fr/overlay.json"; // Need CORS header (Access-Control-Allow-Origin: https://place.zevent.fr)
+    const overlayJSON1 = "https://pixels-solidaires.fr/overlays.json"; // Need CORS header (Access-Control-Allow-Origin: https://place.zevent.fr)
     const overlayJSON2 = "https://backup.place.timeforzevent.fr/overlay.json";
     const inviteDiscordURL = "https://discord.gg/sXe5aVW2jV";
     let refreshOverlaysState = true; // state false: idle, true: asked, (no cooldown: throttled by keepOurselfInDOM())
@@ -41,7 +41,7 @@
      *      vos choix d'overlay sans utiliser le menu "Overlays" proposé par ce script sur https://place.zevent.fr/
      * Pour ce faire :
      *  0) S'assurer que vous lisez ça depuis un onglet de l'extension TamperMonkey dans votre navigateur
-     *    (sinon vous avez manqué des étapes de la documentation sous README.md: https://github.com/ludolpif/overlay-zevent-place )
+     *    (sinon vous avez manqué des étapes de la documentation sous README.md: https://github.com/Ventston/overlay-zevent-place )
      *  1) Utilisez une ligne //loadOveray(...); laissée en exemple
      *  2) SÉCURITÉ: ne tentez pas de charger autre chose qu'une image .png
      *  3) Remplacez l'URL d'exemple par l'URL de l'overlay de voter choix
@@ -197,7 +197,7 @@
         const ourUI = document.createElement("div");
         ourUI.id = "zevent-place-overlay-ui";
         ourUI.style = `
-            padding: 0 8px; border-radius: 20px; background: #1f1f1f;
+            padding: 0 12px; border-radius: 20px; background: #1f1f1f; color: #fff;
             position: fixed; top: 16px; left: 16px; z-index: 999;`
         ourUI.innerHTML = `
             <div id="zevent-place-overlay-ui-head" style="display: flex; align-items: center; height: 40px;">
@@ -234,7 +234,7 @@
                     >↺</button>
                     <br />
                     <a href="`+inviteDiscordURL+`" alt="Invitation Discord" target="_blank"
-                       style="text-decoration: underline; color: #8ab4f8">discord Commu ZEvent/Place
+                       style="text-decoration: underline; color: #8ab4f8">Discord Commu ZEvent/Place
                     </a><br/>
                     <br />
                     <table id="zevent-place-overlay-ui-list-known-overlays"></table>
@@ -316,7 +316,7 @@
             <td class="thread_url"        style="padding: 2px; justify-content:center; align-items:center;"></td>
             <td class="description_btn"   style="padding: 2px 16px 2px 2px; justify-content:center; align-items:center;">
                    <button id="btn-description-`+id+`"
-                       style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505; cursor:pointer"
+                       style="width:24px; height:24px; border-radius:12px; border:none; color: #fff; background-color:#050505; cursor:pointer; max-width: 200px;"
                        >?</button>
             </td>`;
         let btnAdd = tr.querySelector('#btn-add-'+id);
@@ -352,7 +352,7 @@
             aThread.href = data.thread_url;
             aThread.target="_blank";
             aThread.alt = "Fil";
-            aThread.innerHTML = '<img height="24px" src="' + threadLogoB64 + '" alt="Fil Discord Commu ZEvent/Place"/></a></td>';
+            aThread.innerHTML = '<img height="24px" src="' + threadLogoB64 + '" alt="Fil Discord Commu ZEvent/Place" title="Fil Discord Commu ZEvent/Place"/></a></td>';
             tr.querySelector('.thread_url').appendChild(aThread);
         }
         ulKnownOverlays.appendChild(tr);

@@ -1,4 +1,4 @@
-# Scripts pour la fresque pixel art ZEvent Place 2022
+# Scripts pour la fresque pixel art ZEvent Place 2024
 
 *English: detailed documentation have been translated, see "documentation" folder above. Download the PDF instead of viewing in a web preview, else the page scroll is poor.*
 
@@ -11,16 +11,16 @@ Ce dépot contient des scripts pour faciliter de production et l'affichage de ca
 - Sécurité : dédiez un navigateur secondaire uniquement pour ça
   - exemple : Twitch+dons sur Chrome ; ZEvent/Place sur Firefox
 - Pré-requis avant de cliquer ci-après: installer l'extension TamperMonkey
-- https://raw.githubusercontent.com/ludolpif/overlay-zevent-place/main/browser-script/zevent-place-overlay.user.js
+- https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js
 - Si ça affiche du code sans aucun bouton "Installer", vérifier l'installation de l'extension TamperMonkey
-- Diaporama détaillé (à télécharger) : https://github.com/ludolpif/overlay-zevent-place/raw/main/documentation/use-overlays.pdf
+- Diaporama détaillé (à télécharger) : https://github.com/Ventston/zevent-zplace-overlays/raw/main/documentation/use-overlays.pdf
 
 ### Créer et gérer un overlay avec le 🎨-plugin-gimp
 
 - Il faut avoir installé et lancé GIMP 2.10.XX une premère fois (crée des répertoires au lancement)
-- https://github.com/ludolpif/overlay-zevent-place/archive/refs/heads/main.zip
+- https://github.com/Ventston/zevent-zplace-overlays/archive/refs/heads/main.zip
 - Fusionner depuis le ZIP overlay-zevent-place-main\GIMP\2.10 dans C:\Users\votrenom\AppData\Roaming\GIMP\2.10
-- Diaporama détaillé (à télécharger) : https://github.com/ludolpif/overlay-zevent-place/raw/main/documentation/manage-overlays-with-gimp.pdf
+- Diaporama détaillé (à télécharger) : https://github.com/Ventston/zevent-zplace-overlays/raw/main/documentation/manage-overlays-with-gimp.pdf
 
 ### Alternative pour gérer un overlay, le 🧰-webtool-overlays
 
