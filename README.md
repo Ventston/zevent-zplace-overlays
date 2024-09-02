@@ -11,6 +11,9 @@ Ce dépot contient des scripts pour faciliter de production et l'affichage de ca
 - Sécurité : dédiez un navigateur secondaire uniquement pour ça
   - exemple : Twitch+dons sur Chrome ; ZEvent/Place sur Firefox
 - Pré-requis avant de cliquer ci-après: installer l'extension TamperMonkey
+  - Chrome: https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
+    - Vous devez activer le mode développeur pour installer cette extension: https://www.tampermonkey.net/faq.php#Q209
+  - Firefox: https://addons.mozilla.org/fr/firefox/addon/tampermonkey/
 - https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js
 - Si ça affiche du code sans aucun bouton "Installer", vérifier l'installation de l'extension TamperMonkey
 - Diaporama détaillé (à télécharger) : https://github.com/Ventston/zevent-zplace-overlays/raw/main/documentation/use-overlays.pdf
