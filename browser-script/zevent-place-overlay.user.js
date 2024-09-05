@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      2.0
+// @version      2.0.1
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston, PiRDub
 // @match        https://place.zevent.fr/
@@ -19,7 +19,7 @@
  */
 (function () {
     'use strict';
-    const version = "2.0-alpha-1";
+    const version = "2.0.1";
     const scriptUpdateURL = "https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js"
     // Global constants and variables for our script
     const overlayJSON1 = "https://pixels-solidaires.fr/overlays.json"; // Need CORS header (Access-Control-Allow-Origin: https://place.zevent.fr)
@@ -170,9 +170,14 @@
     function appendOverlayInDOM(origCanvas, parentDiv, url) {
         zpoLog("appendOverlayInDOM() url: " + url);
         const image = document.createElement("img");
+        if (url.split("/").pop().includes("?")) {
+            url = url + "&t=" + Math.random();
+        } else {
+            url = url + "?t=" + Math.random();
+        }
         image.className = "zevent-place-overlay-img";
         // Add ?ts= and a timestamp to skip browser cache, overlays will be hosted at various places, with various Expires: headers
-        image.src = url + "?ts=" + new Date().getTime();
+        image.src = url;
         image.style = "background: none; position: absolute; left: 0px; top: 0px;";
         image.onload = function (event) {
             fitOverlayOnCanvas(origCanvas, event.target);
