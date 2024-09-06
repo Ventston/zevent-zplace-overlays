@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      2.0.1
+// @version      2.0.2
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston, PiRDub
 // @match        https://place.zevent.fr/
@@ -543,7 +543,7 @@
             }
         };
         try {
-            xmlhttp1.open("GET", overlayJSON1, true);
+            xmlhttp1.open("GET", overlayJSON1+"?ts="+Math.random(), true);
             xmlhttp1.send();
         } catch (error) {
             zpoLog("fetchKnownOverlays() xmlhttp1 Exception");
