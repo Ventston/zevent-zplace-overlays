@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      2.1.0
+// @version      2.2.0
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston, PiRDub
 // @match        https://place.zevent.fr/
@@ -17,17 +17,21 @@
  * Copyright 2021-2024 ludolpif, ventston, PiRDub
  * Thanks to : grewa, BunlanG|Baron for help on CSS
  */
+
+const version = GM_info.script.version;
+const scriptUpdateURL = GM_info.script.updateURL;
+// Global constants and variables for our script
+const overlayJSON1 = "https://pixels-solidaires.fr/overlays.json"; // Need CORS header (Access-Control-Allow-Origin: https://place.zevent.fr)
+const overlayJSON2 = "https://backup.place.timeforzevent.fr/overlay.json";
+const versionJsonUrl = "https://raw.githubusercontent.com/Ventston/zevent-zplace-overlays/main/browser-script/version.json";
+const inviteDiscordURL = "https://discord.gg/sXe5aVW2jV";
+let refreshOverlaysState = true; // state false: idle, true: asked, (no cooldown: throttled by keepOurselfInDOM())
+const safeModeDisableUI = false;
+const safeModeDisableGetJSON = false;
+
 (function () {
     'use strict';
-    const version = "2.1.0";
-    const scriptUpdateURL = "https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js"
-    // Global constants and variables for our script
-    const overlayJSON1 = "https://pixels-solidaires.fr/overlays.json"; // Need CORS header (Access-Control-Allow-Origin: https://place.zevent.fr)
-    const overlayJSON2 = "https://backup.place.timeforzevent.fr/overlay.json";
-    const inviteDiscordURL = "https://discord.gg/sXe5aVW2jV";
-    let refreshOverlaysState = true; // state false: idle, true: asked, (no cooldown: throttled by keepOurselfInDOM())
-    const safeModeDisableUI = false;
-    const safeModeDisableGetJSON = false;
+
     const wantedOverlays = {}; // Same format as knownOverlays : the format of overlay.json
     let refreshKnownOverlaysState = 0; // state 0: idle, 1: asked, 2: in progress (main url), 3: in progress (bkp url), 4: cooldown (rate limiting)
     let lastCustomId = 0;
@@ -218,19 +222,24 @@
         ourUI.style = `
             padding: 0 12px; border-radius: 20px; background: #1f1f1f; color: #fff;
             position: fixed; top: 16px; left: 16px; z-index: 999;`
-        ourUI.innerHTML = `
-            <div id="zevent-place-overlay-ui-head" style="display: flex; align-items: center; height: 40px;">
-                <button
-                    onClick="const n = document.querySelector('#zevent-place-overlay-ui-body'); if ( n.hidden ) { n.hidden=false; n.style.height='calc(100vh - 72px)'; } else { n.hidden=true; n.style.height='0'; }"
-                    >
-                    <svg height="24px" viewBox="0 0 32 32">
-                        <path fill="white" d="M4,10h24c1.104,0,2-0.896,2-2s-0.896-2-2-2H4C2.896,6,2,6.896,2,8S2.896,10,4,10z M28,14H4c-1.104,0-2,0.896-2,2  s0.896,2,2,2h24c1.104,0,2-0.896,2-2S29.104,14,28,14z M28,22H4c-1.104,0-2,0.896-2,2s0.896,2,2,2h24c1.104,0,2-0.896,2-2  S29.104,22,28,22z"/>
-                    </svg>
-                </button>
-                Overlays
-                <span id="zevent-place-overlay-ui-version" style="color:gray; font-size:70%; padding-left:1em;"></span>
+        ourUI.innerHTML = /* HTML */`
+            <div id="zevent-place-overlay-ui-head" style="display:flex;height: 40px;flex-direction: column;justify-content: center;">
+                <div style="display: flex; align-items: center;">
+                    <button
+                        onClick="const n = document.querySelector('#zevent-place-overlay-ui-body'); if ( n.hidden ) { n.hidden=false; n.style.height='calc(100vh - 72px)'; } else { n.hidden=true; n.style.height='0'; }"
+                        >
+                        <svg height="24px" viewBox="0 0 32 32">
+                            <path fill="white" d="M4,10h24c1.104,0,2-0.896,2-2s-0.896-2-2-2H4C2.896,6,2,6.896,2,8S2.896,10,4,10z M28,14H4c-1.104,0-2,0.896-2,2  s0.896,2,2,2h24c1.104,0,2-0.896,2-2S29.104,14,28,14z M28,22H4c-1.104,0-2,0.896-2,2s0.896,2,2,2h24c1.104,0,2-0.896,2-2  S29.104,22,28,22z"/>
+                        </svg>
+                    </button>
+                    Overlays
+                    <span id="zevent-place-overlay-ui-version" style="color:gray; font-size:70%; padding-left:1em;"></span>
+                    <a href="${scriptUpdateURL}" alt="Update" target="_blank"><button>↺</button></a>
+                </div>
+                <div id="newUpdate" style="color: red; font-size: 80%; display: none;"></div>
             </div>
-            <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; height: 0vh; transition: all 0.2s ease 0s;">
+            
+            <div id="zevent-place-overlay-ui-body" hidden style="display: flex; flex-flow: row wrap; flex-direction: column; height: 0vh; transition: all 0.2s ease 0s;overflow: hidden;">
                 <div id="zevent-place-overlay-ui-overlaylist"
                      style="flex: 1; overflow-x:hidden; overflow-y: auto;padding-top: 20px; box-sizing: border-box;">
                     <label for="zevent-place-overlay-ui-input-url">Ajout via URL</label><br/>
@@ -278,16 +287,6 @@
         const versionSpan = ourUI.querySelector('#zevent-place-overlay-ui-version');
         if (versionSpan) {
             versionSpan.innerHTML = 'v' + version;
-        }
-
-        const nodeUIHead = ourUI.querySelector('#zevent-place-overlay-ui-head');
-        if (nodeUIHead) {
-            const aScriptUpdate = document.createElement("a");
-            aScriptUpdate.href = scriptUpdateURL;
-            aScriptUpdate.target = "_blank";
-            aScriptUpdate.alt = "Aperçu";
-            aScriptUpdate.innerHTML = '<button>↺</button>';
-            nodeUIHead.appendChild(aScriptUpdate);
         }
 
         const searchInput = ourUI.querySelector('#zevent-place-overlay-search');
@@ -543,7 +542,7 @@
             }
         };
         try {
-            xmlhttp1.open("GET", overlayJSON1+"?ts="+Math.random(), true);
+            xmlhttp1.open("GET", overlayJSON1 + "?ts=" + Math.random(), true);
             xmlhttp1.send();
         } catch (error) {
             zpoLog("fetchKnownOverlays() xmlhttp1 Exception");
@@ -611,7 +610,7 @@
         if (!url) return null;
         if (typeof url !== "string") return '#nonstring';
         let trimmedURL = url.substring(0, 260).replaceAll(/\s/g, '');
-        if(trimmedURL.includes("imgur.com") && !trimmedURL.includes(".png")){
+        if (trimmedURL.includes("imgur.com") && !trimmedURL.includes(".png")) {
             const imgurId = trimmedURL.split("/").pop();
             trimmedURL = "https://i.imgur.com/" + imgurId + ".png";
         }
@@ -662,6 +661,45 @@
         });
     }
 
+    async function checkVersion() {
+
+        const versionState = (a, b) => {
+            let x = a.split(".").map(e => parseInt(e));
+            let y = b.split(".").map(e => parseInt(e));
+            let z = "";
+
+            for (let i = 0; i < x.length; i++) {
+                if (x[i] === y[i]) z += "e";
+                else {
+                    if (x[i] > y[i]) z += "m";
+                    else z += "l";
+                }
+            }
+            if (!z.match(/[l|m]/g)) return 0;
+            else if (z.split("e").join("")[0] == "m") return 1;
+            return -1;
+        }
+
+        try {
+            const response = await fetch(versionJsonUrl);
+            if (!response.ok) return zpoLog("Couldn't get version.json");
+            const {version} = await response.json();
+
+            const needUpdate = versionState(version, GM_info.script.version) === 1;
+            const newVersionElement = document.getElementById("newUpdate")
+            if (!newVersionElement) return;
+            if (needUpdate) {
+                newVersionElement.innerHTML = "Nouvelle version disponible !"
+                newVersionElement.style.display = "block";
+            } else {
+                newVersionElement.innerHTML = ""
+                newVersionElement.style.display = "none";
+            }
+        } catch (err) {
+            zpoLog("Couldn't get version:", err);
+        }
+    }
+
     // Following embed data to not depend or generate trafic to external webservers
     const threadLogoB64 = "data:image/png;base64, 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";
     const twitchLogoSVG = '<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24"><path fill="#ffffff" d="M21 3v11.74l-4.696 4.695h-3.913l-2.437 2.348H6.913v-2.348H3V6.13L4.227 3H21zm-1.565 1.565H6.13v11.74h3.13v2.347l2.349-2.348h4.695l3.13-3.13V4.565zm-3.13 3.13v4.696h-1.566V7.696h1.565zm-3.914 0v4.696h-1.565V7.696h1.565z"></path></svg>'
@@ -676,6 +714,9 @@
     // Run the script with delay, MutationObserver fail in some configs (race condition between this script and the original app)
     //setTimeout(keepOurselfInDOM, 100);
     let intervalID = setInterval(keepOurselfInDOM, 1000);
+
+    setInterval(checkVersion, 1000 * 60 * 5);
+    setTimeout(checkVersion, 1000);
 })();
 
 const css = `
