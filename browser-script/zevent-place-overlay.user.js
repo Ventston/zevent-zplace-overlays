@@ -19,7 +19,7 @@
  */
 (function () {
     'use strict';
-    const version = "2.0.1";
+    const version = "2.0.2";
     const scriptUpdateURL = "https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js"
     // Global constants and variables for our script
     const overlayJSON1 = "https://pixels-solidaires.fr/overlays.json"; // Need CORS header (Access-Control-Allow-Origin: https://place.zevent.fr)
