@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      2.0.2
+// @version      2.0.3
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston, PiRDub
 // @match        https://place.zevent.fr/
@@ -19,7 +19,7 @@
  */
 (function () {
     'use strict';
-    const version = "2.0.2";
+    const version = "2.0.3";
     const scriptUpdateURL = "https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js"
     // Global constants and variables for our script
     const overlayJSON1 = "https://pixels-solidaires.fr/overlays.json"; // Need CORS header (Access-Control-Allow-Origin: https://place.zevent.fr)
@@ -611,7 +611,7 @@
         if (!url) return null;
         if (typeof url !== "string") return '#nonstring';
         const trimmedURL = url.substring(0, 260).replaceAll(/\s/g, '');
-        if (!trimmedURL.match(/^https?:\/\/[A-Za-z0-9\/_.-]+$/)) {
+        if (!trimmedURL.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/)) {
             zpoLog("urlSanityCheck(url) invalid : " + url);
             return '#invalid';
         }
