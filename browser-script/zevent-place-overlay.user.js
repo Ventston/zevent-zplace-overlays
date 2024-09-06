@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      2.2.1
+// @version      2.2.2
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston, PiRDub
 // @match        https://place.zevent.fr/
@@ -685,7 +685,7 @@ const safeModeDisableGetJSON = false;
         }
 
         try {
-            const response = await fetch(versionJsonUrl);
+            const response = await fetch(versionJsonUrl+"?t=" + Date.now());
             if (!response.ok) return zpoLog("Couldn't get version.json");
             const {version} = await response.json();
 
