@@ -2,14 +2,16 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      2.2.0
+// @version      2.2.1
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston, PiRDub
 // @match        https://place.zevent.fr/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=zevent.fr
 // @grant        GM_addStyle
-// @downloadURL  https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js
-// @updateURL    https://github.com/Ventston/zevent-zplace-overlays/raw/main/browser-script/zevent-place-overlay.user.js
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @downloadURL  https://raw.githubusercontent.com/Ventston/zevent-zplace-overlays/main/browser-script/zevent-place-overlay.user.js
+// @updateURL    https://raw.githubusercontent.com/Ventston/zevent-zplace-overlays/main/browser-script/zevent-place-overlay.user.js
 // ==/UserScript==
 /*
  * Script used as base, form MinusKube: https://greasyfork.org/fr/scripts/444833-z-place-overlay/code
@@ -32,7 +34,7 @@ const safeModeDisableGetJSON = false;
 (function () {
     'use strict';
 
-    const wantedOverlays = {}; // Same format as knownOverlays : the format of overlay.json
+    const wantedOverlays = GM_getValue("selectedOverlays", {}); // Same format as knownOverlays : the format of overlay.json
     let refreshKnownOverlaysState = 0; // state 0: idle, 1: asked, 2: in progress (main url), 3: in progress (bkp url), 4: cooldown (rate limiting)
     let lastCustomId = 0;
 
@@ -99,6 +101,7 @@ const safeModeDisableGetJSON = false;
             checkedId = "custom-" + lastCustomId++;
         }
         wantedOverlays[checkedId] = {id: checkedId, url: checkedURL, title: checkedTitle};
+        GM_setValue('selectedOverlays', wantedOverlays);
         refreshOverlaysState = true;
     }
 
@@ -433,6 +436,7 @@ const safeModeDisableGetJSON = false;
         const btnId = event.target.id;
         const id = btnId.replace(/^btn-del-/, '');
         delete wantedOverlays[id];
+        GM_setValue('selectedOverlays', wantedOverlays);
         refreshOverlaysState = true;
     }
 
