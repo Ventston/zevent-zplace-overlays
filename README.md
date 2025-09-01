@@ -1,4 +1,4 @@
-# Scripts pour la fresque pixel art ZEvent Place 2024
+# Scripts pour la fresque pixel art ZEvent Place 2025
 
 *English: detailed documentation have been translated, see "documentation" folder above. Download the PDF instead of viewing in a web preview, else the page scroll is poor.*
 
