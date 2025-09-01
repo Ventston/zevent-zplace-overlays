@@ -6,7 +6,6 @@
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       ludolpif, ventston, PiRDub
 // @match        https://place.zevent.fr/
-//@match http://localhost:63342/zevent-zplace-overlays/test/index.html?_ijt=m8b0128l148ieh5f3enkr4vark&_ij_reload=RELOAD_ON_SAVE
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=zevent.fr
 // @grant        GM_addStyle
 // @grant        GM_getValue
