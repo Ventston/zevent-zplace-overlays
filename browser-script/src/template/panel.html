@@ -1,0 +1,148 @@
+<div id="zevent-place-overlay-ui-head">
+    <button id="zevent-place-overlay-ui-toggle">
+        <svg height="24px" viewBox="0 0 32 32">
+            <path
+                fill="white"
+                d="M4,10h24c1.104,0,2-0.896,2-2s-0.896-2-2-2H4C2.896,6,2,6.896,2,8S2.896,10,4,10z M28,14H4c-1.104,0-2,0.896-2,2  s0.896,2,2,2h24c1.104,0,2-0.896,2-2S29.104,14,28,14z M28,22H4c-1.104,0-2,0.896-2,2s0.896,2,2,2h24c1.104,0,2-0.896,2-2  S29.104,22,28,22z"
+            />
+        </svg>
+    </button>
+    Overlays
+    <span id="zevent-place-overlay-ui-version" style="color: gray; font-size: 70%; padding-left: 1em"></span>
+    <a href="{{scriptUpdateURL}}" alt="Update" target="_blank">
+        <button>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                <path d="M8 16H3v5" />
+            </svg>
+        </button>
+    </a>
+</div>
+<div id="newUpdate"></div>
+<div id="zevent-place-overlay-ui-body" aria-expanded="false">
+    <hr />
+    <div style="display: flex; align-items: baseline; padding-top: 10px; gap: 8px">
+        <label for="enableSymbolsCheckbox">Activer les symboles</label>
+        <input type="checkbox" id="enableSymbolsCheckbox" />
+    </div>
+    <div id="zevent-place-overlay-ui-overlaylist">
+        <div class="form-group">
+            <label for="zevent-place-overlay-ui-input-url">Ajout via URL</label>
+            <div class="form-row">
+                <input
+                    id="zevent-place-overlay-ui-input-url"
+                    name="zevent-place-overlay-ui-input-url"
+                    type="text"
+                    placeholder="https://un-site.com/un-lien-permanent.png"
+                />
+                <button id="btn-custom-add">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M5 12h14" />
+                        <path d="M12 5v14" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <hr />
+        <div>
+            <div class="zpo-section-title">
+                <span
+                    >Overlays actifs
+                    <span
+                        id="zevent-place-overlay-wanted-ts"
+                        style="color: gray; font-size: 70%; padding-left: 1em"
+                    ></span
+                ></span>
+                <button id="btn-refresh-wanted">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                        <path d="M21 3v5h-5" />
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                        <path d="M8 16H3v5" />
+                    </svg>
+                </button>
+            </div>
+
+            <div
+                id="zevent-place-overlay-ui-list-wanted-overlays"
+                style="display: flex; flex-direction: column; gap: 4px"
+            ></div>
+        </div>
+        <hr />
+        <div>
+            <div class="zpo-section-title">
+                <span
+                    >Overlays disponibles
+                    <span
+                        id="zevent-place-overlay-known-ts"
+                        style="color: gray; font-size: 70%; padding-left: 1em"
+                    ></span
+                ></span>
+                <button id="btn-refresh-known">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                        <path d="M21 3v5h-5" />
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                        <path d="M8 16H3v5" />
+                    </svg>
+                </button>
+            </div>
+            <div class="zpo-section-subtitle">
+                Gérés sur le
+                <a
+                    href="{{inviteDiscordURL}}"
+                    alt="Invitation Discord"
+                    target="_blank"
+                    style="text-decoration: underline; color: #8ab4f8"
+                    >Discord Commu ZEvent/Place
+                </a>
+            </div>
+        </div>
+        <div class="form-group">
+            <input id="zevent-place-overlay-search" placeholder="Chercher des overlays" />
+        </div>
+        <div id="zevent-place-overlay-ui-list-known-overlays"></div>
+    </div>
+</div>
