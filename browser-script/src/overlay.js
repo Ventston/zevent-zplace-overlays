@@ -10,7 +10,8 @@ export const refreshKnownOverlays = async () => {
         config.knownOverlays = newOverlays.map(overlay => {
             return {
                 id: idSanityCheck(overlay.id) || 'custom-' + config.lastCustomId++,
-                url: urlSanityCheck(overlay.overlay_url),
+                overlay_url: urlSanityCheck(overlay.overlay_url),
+                overlay_colorblind_url: urlSanityCheck(overlay.overlay_colorblind_url),
                 community_name: textSanityFilter(overlay.community_name) || '(invalid)',
                 community_twitch: urlSanityCheck(overlay.community_twitch),
                 community_discord: urlSanityCheck(overlay.community_discord),
@@ -18,9 +19,15 @@ export const refreshKnownOverlays = async () => {
                 description: textSanityFilter(overlay.description),
             };
         });
-        config.wantedOverlays = config.wantedOverlays.filter(overlay => {
-            return overlay.id.startsWith('custom-') || newOverlays.find(o => o.id === overlay.id);
-        });
+        config.wantedOverlays = config.wantedOverlays.reduce((acc, overlay) => {
+            const exists = config.knownOverlays.find(o => o.id === overlay.id);
+            if (exists) {
+                acc.push(exists);
+            } else if(overlay.id.startsWith('custom-')) {
+                acc.push(overlay);
+            }
+            return acc;
+        }, []);
         reloadUIKnownOverlays();
         reloadUIWantedOverlays();
         reloadWantedOverlaysInDOM();
@@ -86,11 +93,14 @@ export function removeWantedOverlay(overlayId) {
 }
 
 function appendOverlayToDOM(overlay) {
-    if (!overlay || !overlay.url) return;
+    if (!overlay || (!overlay.overlay_url && !overlay.overlay_colorblind_url)) return;
 
-    zpoLog('appendOverlayInDOM() url: ' + overlay.url);
+    let url = overlay.overlay_url;
+    if (config.enableSymbols && overlay.overlay_colorblind_url) {
+        url = overlay.overlay_colorblind_url || overlay.overlay_url;
+    }
 
-    let url = overlay.url;
+    zpoLog('appendOverlayInDOM() url: ' + url);
 
     const image = document.createElement('img');
     if (url.split('/').pop().includes('?')) {
@@ -110,7 +120,7 @@ function appendOverlayToDOM(overlay) {
         zpoLog('appendOverlayInDOM() image.onerror for url: ' + url);
         removeWantedOverlay(overlay.id);
         alert(
-            "Impossible de charger l'overlay " + overlay.community_name + ", veuillez vérifier l'URL: " + overlay.url
+            "Impossible de charger l'overlay " + overlay.community_name + ", veuillez vérifier l'URL: " + url
         );
     };
     const parent = getOverlayParent();

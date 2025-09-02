@@ -74,7 +74,7 @@ function eventAddCustomOverlay() {
     const id = config.lastCustomId++;
     addWantedOverlay({
         id: 'custom-' + id,
-        url: checkedUrl,
+        overlay_url: checkedUrl,
         community_name: 'Custom ' + id,
         description: 'Ajouté manuellement',
     });
@@ -103,7 +103,7 @@ export function appendUIWantedOverlay(overlay) {
     // Use template system
     tr.innerHTML = renderTemplate('wanted-overlay', {
         overlayId: overlay.id,
-        overlayUrl: overlay.url,
+        overlayUrl: config.enableSymbols ? (overlay.overlay_colorblind_url ?? overlay.overlay_url) : overlay.overlay_url,
         threadUrl: overlay.thread_url,
     });
     const btnDel = tr.querySelector('#btn-del-' + overlay.id);

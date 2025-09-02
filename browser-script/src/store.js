@@ -1,7 +1,8 @@
 /**
  * @typedef {Object} Overlay
  * @property {string} id - Unique identifier for the overlay
- * @property {string} url - URL of the overlay image
+ * @property {string} [overlay_url] - URL of the overlay image
+ * @property {string} [overlay_colorblind_url] - URL of the overlay image for colorblind users
  * @property {string} [community_name] - Name of the community associated with the overlay
  * @property {string} [community_twitch] - Twitch URL of the community
  * @property {string} [community_discord] - Discord URL of the community

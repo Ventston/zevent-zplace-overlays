@@ -1,6 +1,8 @@
 import { zpoLog } from './utils.js';
 import { config } from './store.js';
 import { symbolsUrl } from './constants.js';
+import { reloadWantedOverlaysInDOM } from './overlay.js';
+import { reloadUIWantedOverlays } from './panel.js';
 
 let SYMBOL_H = 5;
 let SYMBOL_W = 5;
@@ -250,6 +252,8 @@ export const changeEnabledSymbols = async enabled => {
             e.remove();
         });
     }
+    reloadWantedOverlaysInDOM();
+    reloadUIWantedOverlays();
 };
 
 export const initSymbols = async () => {

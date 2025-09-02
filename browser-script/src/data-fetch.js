@@ -53,6 +53,7 @@ function jsonSanityCheck(data) {
             community_discord: urlSanityCheck(item.community_discord),
             thread_url: urlSanityCheck(item.thread_url),
             overlay_url: urlSanityCheck(item.overlay_url),
+            overlay_colorblind_url: urlSanityCheck(item.overlay_colorblind_url),
             description: textSanityFilter(item.description),
         });
     });
