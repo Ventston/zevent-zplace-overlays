@@ -3,6 +3,7 @@ import knownOverlay from 'inline:./template/knownOverlay.html';
 import wantedOverlay from 'inline:./template/wantedOverlay.html';
 import threadLink from 'inline:./template/threadLink.html';
 import overlayDescription from 'inline:./template/overlayDescription.html';
+import update from 'inline:./template/update.html';
 import { zpoLog } from './utils.js';
 
 //make function to replace values in html
@@ -30,6 +31,7 @@ const templates = {
     'known-overlay': knownOverlay,
     'thread-link': threadLink,
     'overlay-description': overlayDescription,
+    'update': update
 };
 
 // Function to render template with values (now synchronous)

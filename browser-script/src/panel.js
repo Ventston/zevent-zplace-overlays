@@ -5,6 +5,7 @@ import { config } from './store';
 import { getPanelParent } from './selectors';
 import { changeEnabledSymbols } from './symbols.js';
 import { renderTemplate } from './ui.js';
+import { checkVersion } from './version.js';
 
 export function appendOurUI() {
     zpoLog('appendOurUI()');
@@ -59,6 +60,7 @@ export function appendOurUI() {
 
     reloadUIWantedOverlays();
     reloadUIKnownOverlays();
+    checkVersion();
 }
 
 function eventAddCustomOverlay() {

@@ -1,5 +1,6 @@
 import { zpoLog } from './utils.js';
-import { version, versionJsonUrl } from './constants.js';
+import { scriptUpdateURL, version, versionJsonUrl } from './constants.js';
+import { renderTemplate } from './ui.js';
 
 export const checkVersion = async () => {
     const versionState = (a, b) => {
@@ -28,7 +29,7 @@ export const checkVersion = async () => {
         const newVersionElement = document.getElementById('newUpdate');
         if (!newVersionElement) return;
         if (needUpdate) {
-            newVersionElement.innerHTML = 'Nouvelle version disponible !';
+            newVersionElement.innerHTML = renderTemplate('update', { scriptUpdateURL });
             newVersionElement.style.display = 'block';
         } else {
             newVersionElement.innerHTML = '';
