@@ -25,6 +25,7 @@ export function appendOurUI() {
             if (body) {
                 const isExpanded = body.getAttribute('aria-expanded') === 'true';
                 body.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+                btnToggle.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
             }
         };
     }

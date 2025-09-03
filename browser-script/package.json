@@ -1,11 +1,12 @@
 {
   "name": "zevent-place-overlay",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "Userscript for zevent-place overlay management",
   "main": "src/main.js",
   "type": "module",
   "scripts": {
-    "build": "node build-script.js"
+    "build": "node build-script.js",
+    "postversion": "node version-update.js && npm run build"
   },
   "author": "ludolpif, ventston, PiRDub",
   "license": "MIT",

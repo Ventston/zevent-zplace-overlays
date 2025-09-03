@@ -19,6 +19,13 @@
     display: none !important;
 }
 
+#zevent-place-overlay-ui-toggle > svg {
+    transition: transform 0.3s ease;
+}
+#zevent-place-overlay-ui-toggle[aria-expanded='true'] > svg {
+    transform: rotate(180deg);
+}
+
 #zevent-place-overlay-ui-head {
     display: flex;
     justify-content: space-between;
@@ -368,20 +375,14 @@
     margin-left: auto;
 }
 
-.zpo-btn-show-hide[data-shown='true'] > .eye-closed {
-    display: none;
-}
-
-.zpo-btn-show-hide[data-shown='true'] > .eye {
-    display: block;
-}
-
-.zpo-btn-show-hide[data-shown='false'] > .eye-closed {
-    display: block;
-}
-
+.zpo-btn-show-hide[data-shown='true'] > .eye-closed,
 .zpo-btn-show-hide[data-shown='false'] > .eye {
     display: none;
+}
+
+.zpo-btn-show-hide[data-shown='true'] > .eye,
+.zpo-btn-show-hide[data-shown='false'] > .eye-closed {
+    display: block;
 }
 
 .zpo-overlay-line {
