@@ -417,8 +417,13 @@
     padding: 5px;
     max-width: 160px;
     white-space: nowrap;
+}
+
+.zpo-overlay-title > span {
     overflow: hidden;
     text-overflow: ellipsis;
+    display: inline-block;
+    max-width: 100%;
 }
 
 .zpo-overlay-description {

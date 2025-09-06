@@ -108,17 +108,13 @@ export function appendUIWantedOverlay(overlay) {
         overlayId: overlay.id,
         overlayUrl: config.enableSymbols ? (overlay.overlay_colorblind_url ?? overlay.overlay_url) : overlay.overlay_url,
         threadUrl: overlay.thread_url,
+        title: overlay.community_name,
     });
     const btnDel = tr.querySelector('#btn-del-' + overlay.id);
     if (btnDel)
         btnDel.onclick = () => {
             removeWantedOverlay(overlay.id);
         };
-
-    if (typeof overlay.community_name === 'string') {
-        const nodeTitle = document.createTextNode(overlay.community_name);
-        tr.querySelector('.zpo-overlay-title').appendChild(nodeTitle);
-    }
 
     const showHideBtn = tr.querySelector('.zpo-btn-show-hide');
     if (showHideBtn) {
@@ -162,6 +158,7 @@ function appendUIKnownOverlay(ulKnownOverlays, overlay) {
         overlayId: overlay.id,
         threadUrl: overlay.thread_url,
         description: overlay.description,
+        title: overlay.community_name,
     });
     const btnAdd = tr.querySelector('#btn-add-' + overlay.id);
     if (btnAdd)
@@ -180,11 +177,6 @@ function appendUIKnownOverlay(ulKnownOverlays, overlay) {
                     descNode.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
                 }
             };
-    }
-
-    if (typeof overlay.community_name === 'string') {
-        const nodeCommunityName = document.createTextNode(overlay.community_name);
-        tr.querySelector('.community_name').appendChild(nodeCommunityName);
     }
 
     ulKnownOverlays.appendChild(tr);
