@@ -424,7 +424,6 @@
 .zpo-overlay-description {
     padding: 16px;
     height: 100%;
-    overflow: hidden;
     font-size: 12px;
     display: block;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
