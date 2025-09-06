@@ -4,12 +4,15 @@ import { checkVersion } from './version.js';
 import { injectStyles } from './style.js';
 import { initSymbols } from './symbols.js';
 import { config } from './store.js';
+import { initMisc } from './misc.js';
 
 (function () {
     if (!Array.isArray(config.wantedOverlays)) {
         GM_setValue('selectedOverlays', []);
         config.wantedOverlays = [];
     }
+
+    initMisc();
 
     //init all
     refreshKnownOverlays();
