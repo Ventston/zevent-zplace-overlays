@@ -221,13 +221,23 @@ const getColors = async () => {
             { colorCode: '#1832A4' },
             { colorCode: '#511E9F' },
             { colorCode: '#6A5CFF' },
-            { colorCode: '#33E9F4' },
+            { colorCode: '#de0a7f' },
             { colorCode: '#B44AC0' },
             { colorCode: '#FF63AA' },
             { colorCode: '#E4ABFF' },
         ];
     } else {
         colors = loadedColors;
+        //there are two #33E9F4, change the second one to #de0a7f
+        const index = colors.findIndex(color => color.colorCode.toLowerCase() === '#33e9f4');
+        if (index !== -1) {
+            const index2 = colors.findIndex(
+                (color, i) => color.colorCode.toLowerCase() === '#33e9f4' && i !== index
+            );
+            if (index2 !== -1) {
+                colors[index2].colorCode = '#de0a7f';
+            }
+        }
     }
 };
 
