@@ -1,4 +1,4 @@
-import { idSanityCheck, textSanityFilter, urlSanityCheck, zpoLog } from './utils';
+import { idSanityCheck, urlSanityCheck, zpoLog } from './utils';
 import { overlayJSON1, overlayJSON2 } from './constants';
 
 export const fetchKnownOverlays = async () => {
@@ -48,13 +48,13 @@ function jsonSanityCheck(data) {
         const item = data[id];
         checkedData.push({
             id: checkedId,
-            community_name: textSanityFilter(item.community_name),
+            community_name: item.community_name,
             community_twitch: urlSanityCheck(item.community_twitch),
             community_discord: urlSanityCheck(item.community_discord),
             thread_url: urlSanityCheck(item.thread_url),
             overlay_url: urlSanityCheck(item.overlay_url),
             overlay_colorblind_url: urlSanityCheck(item.overlay_colorblind_url),
-            description: textSanityFilter(item.description),
+            description: item.description,
         });
     });
     return checkedData;

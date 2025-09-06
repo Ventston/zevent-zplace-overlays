@@ -31,8 +31,3 @@ export const urlSanityCheck = url => {
     }
     return trimmedURL;
 };
-
-export const textSanityFilter = text => {
-    if (typeof text !== 'string') return '(invalid)';
-    return text.substring(0, 260).replaceAll(/[^A-Za-z0-9çéèàêùûôÇÉÈÊÀùÛÔ ',;.:*!()?+-]/g, ' ');
-};

@@ -1,6 +1,6 @@
 import { config } from './store';
 import { fetchKnownOverlays } from './data-fetch';
-import { idSanityCheck, textSanityFilter, urlSanityCheck, zpoLog } from './utils';
+import { idSanityCheck, urlSanityCheck, zpoLog } from './utils';
 import { getOriginalCanvas, getOverlayParent } from './selectors';
 import { appendUIWantedOverlay, refreshDisplayTime, reloadUIKnownOverlays, reloadUIWantedOverlays } from './panel';
 
@@ -12,11 +12,11 @@ export const refreshKnownOverlays = async () => {
                 id: idSanityCheck(overlay.id) || 'custom-' + config.lastCustomId++,
                 overlay_url: urlSanityCheck(overlay.overlay_url),
                 overlay_colorblind_url: urlSanityCheck(overlay.overlay_colorblind_url),
-                community_name: textSanityFilter(overlay.community_name) || '(invalid)',
+                community_name: overlay.community_name,
                 community_twitch: urlSanityCheck(overlay.community_twitch),
                 community_discord: urlSanityCheck(overlay.community_discord),
                 thread_url: urlSanityCheck(overlay.thread_url),
-                description: textSanityFilter(overlay.description),
+                description: overlay.description,
             };
         });
         config.wantedOverlays = config.wantedOverlays.reduce((acc, overlay) => {
