@@ -424,6 +424,7 @@
     text-overflow: ellipsis;
     display: inline-block;
     max-width: 100%;
+    line-height: 17px;
 }
 
 .zpo-overlay-description {

@@ -23,6 +23,7 @@ import { initMisc } from './misc.js';
     initSymbols();
 
     setInterval(keepOurselfInDOM, 1000);
+    setInterval(refreshKnownOverlays, 1000 * 60); //every minute
     setInterval(checkVersion, 1000 * 60 * 5); //every 5 minutes
     checkVersion();
 
