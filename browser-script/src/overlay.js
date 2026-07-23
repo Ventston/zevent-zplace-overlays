@@ -1,24 +1,14 @@
 import { config } from './store';
 import { fetchKnownOverlays } from './data-fetch';
-import { idSanityCheck, urlSanityCheck, zpoLog } from './utils';
+import { zpoLog } from './utils';
+import { overlayGeometry } from './geometry';
 import { getOriginalCanvas, getOverlayParent } from './selectors';
 import { appendUIWantedOverlay, refreshDisplayTime, reloadUIKnownOverlays, reloadUIWantedOverlays } from './panel';
 
-export const refreshKnownOverlays = async () => {
-    const newOverlays = await fetchKnownOverlays();
+export const refreshKnownOverlays = async (force = false) => {
+    const newOverlays = await fetchKnownOverlays(force);
     if (newOverlays) {
-        config.knownOverlays = newOverlays.map(overlay => {
-            return {
-                id: idSanityCheck(overlay.id) || 'custom-' + config.lastCustomId++,
-                overlay_url: urlSanityCheck(overlay.overlay_url),
-                overlay_colorblind_url: urlSanityCheck(overlay.overlay_colorblind_url),
-                community_name: overlay.community_name,
-                community_twitch: urlSanityCheck(overlay.community_twitch),
-                community_discord: urlSanityCheck(overlay.community_discord),
-                thread_url: urlSanityCheck(overlay.thread_url),
-                description: overlay.description,
-            };
-        });
+        config.knownOverlays = newOverlays;
         config.wantedOverlays = config.wantedOverlays.reduce((acc, overlay) => {
             const exists = config.knownOverlays.find(o => o.id === overlay.id);
             if (exists) {
@@ -41,8 +31,7 @@ export const refreshKnownOverlays = async () => {
  */
 export function addWantedOverlay(overlay) {
     if (!config.wantedOverlays.find(o => o.id === overlay.id)) {
-        config.wantedOverlays.push(overlay);
-        GM_setValue('selectedOverlays', config.wantedOverlays);
+        config.wantedOverlays = [...config.wantedOverlays, overlay];
     }
     appendOverlayToDOM(overlay);
     appendUIWantedOverlay(overlay);
@@ -97,31 +86,37 @@ function appendOverlayToDOM(overlay) {
 
     let url = overlay.overlay_url;
     if (config.enableSymbols && overlay.overlay_colorblind_url) {
-        url = overlay.overlay_colorblind_url || overlay.overlay_url;
+        url = overlay.overlay_colorblind_url;
     }
 
     zpoLog('appendOverlayInDOM() url: ' + url);
 
     const image = document.createElement('img');
-    if (url.split('/').pop().includes('?')) {
-        url = url + '&t=' + Math.random();
-    } else {
-        url = url + '?t=' + Math.random();
-    }
+    const cacheKey = overlay.updated_at ? encodeURIComponent(overlay.updated_at) : 'x';
+    image.src = url + (url.includes('?') ? '&t=' : '?t=') + cacheKey;
     image.className = 'zevent-place-overlay-img';
     image.id = 'zpo-overlay-' + overlay.id;
-    // Add ?ts= and a timestamp to skip browser cache, overlays will be hosted at various places, with various Expires: headers
-    image.src = url;
     image.style = 'background: none; position: absolute; left: 0px; top: 0px;';
-    image.onload = function (event) {
-        fitOverlayOnCanvas(event.target);
-    };
+
+    const geometry = overlayGeometry(overlay);
+    if (geometry) {
+        image.style.left = geometry.left;
+        image.style.top = geometry.top;
+        image.width = geometry.width;
+        image.height = geometry.height;
+    } else {
+        image.onload = function (event) {
+            fitOverlayOnCanvas(event.target);
+        };
+    }
     image.onerror = function () {
         zpoLog('appendOverlayInDOM() image.onerror for url: ' + url);
-        removeWantedOverlay(overlay.id);
-        alert(
-            "Impossible de charger l'overlay " + overlay.community_name + ", veuillez vérifier l'URL: " + url
-        );
+        if (overlay.id.startsWith('custom-')) {
+            removeWantedOverlay(overlay.id);
+            alert(
+                "Impossible de charger l'overlay " + overlay.community_name + ", veuillez vérifier l'URL: " + url
+            );
+        }
     };
     const parent = getOverlayParent();
     if (parent) {
@@ -138,10 +133,8 @@ function removeOverlayFromDOM(overlayId) {
 
 export function reloadWantedOverlaysInDOM() {
     zpoLog('reloadWantedOverlaysInDOM()');
-    // First, remove all existing overlays from DOM
     const existingImgs = document.querySelectorAll('.zevent-place-overlay-img');
     existingImgs.forEach(img => img.remove());
-    // Then, add all wanted overlays to DOM
     config.wantedOverlays.forEach(overlay => {
         appendOverlayToDOM(overlay);
     });

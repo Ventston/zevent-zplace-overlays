@@ -1,16 +1,24 @@
 import panel from 'inline:./template/panel.html';
 import knownOverlay from 'inline:./template/knownOverlay.html';
 import wantedOverlay from 'inline:./template/wantedOverlay.html';
-import threadLink from 'inline:./template/threadLink.html';
 import overlayDescription from 'inline:./template/overlayDescription.html';
 import update from 'inline:./template/update.html';
 import { zpoLog } from './utils.js';
+
+const escapeHtml = value =>
+    String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
 
 //make function to replace values in html
 export const replaceValuesInHtml = (html, values) => {
     for (const key in values) {
         const regex = new RegExp(`{{${key}}}`, 'g');
-        html = html.replace(regex, values[key] || '');
+        const replacement = escapeHtml(values[key] || '');
+        html = html.replace(regex, () => replacement);
     }
 
     // Handle conditional blocks - remove blocks where the condition variable is empty/undefined
@@ -29,7 +37,6 @@ const templates = {
     'main-ui': panel,
     'wanted-overlay': wantedOverlay,
     'known-overlay': knownOverlay,
-    'thread-link': threadLink,
     'overlay-description': overlayDescription,
     'update': update
 };

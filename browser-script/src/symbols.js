@@ -189,7 +189,7 @@ const getColors = async () => {
     });
     if (!response.ok) return zpoLog("Couldn't get colors" + response.statusText);
     const data = await response.json();
-    const loadedColors = data.getAvailableColors;
+    const loadedColors = data.data?.getAvailableColors;
     if (!loadedColors || loadedColors?.length === 0) {
         zpoLog('getColors() loadedColors is empty, using fallback colors');
         colors = [
@@ -243,7 +243,7 @@ const getColors = async () => {
 
 export const changeEnabledSymbols = async enabled => {
     config.enableSymbols = enabled;
-    GM_setValue('enableSymbols', enabled);
+
     if (enabled) {
         zpoLog('Symbols enabled');
         await Promise.all([getSymbols(), getColors()]);

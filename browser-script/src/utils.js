@@ -1,3 +1,13 @@
+export const isNewerVersion = (remote, local) => {
+    const a = remote.split('.').map(Number);
+    const b = local.split('.').map(Number);
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+        const diff = (a[i] || 0) - (b[i] || 0);
+        if (diff) return diff > 0;
+    }
+    return false;
+};
+
 export const zpoLog = msg => {
     const ts = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     console.log(ts + ' [zevent-place-overlay] ' + msg);
@@ -23,7 +33,7 @@ export const urlSanityCheck = url => {
     }
     if (
         !trimmedURL.match(
-            /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+            /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/
         )
     ) {
         zpoLog('urlSanityCheck(url) invalid : ' + url);

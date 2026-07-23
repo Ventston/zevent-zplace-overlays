@@ -37,7 +37,7 @@ export function appendOurUI() {
     if (btnAskRefreshWantedOverlays) btnAskRefreshWantedOverlays.onclick = reloadWantedOverlaysInDOM;
 
     const btnAskRefreshKnownOverlays = ourUI.querySelector('#btn-refresh-known');
-    if (btnAskRefreshKnownOverlays) btnAskRefreshKnownOverlays.onclick = refreshKnownOverlays;
+    if (btnAskRefreshKnownOverlays) btnAskRefreshKnownOverlays.onclick = () => refreshKnownOverlays(true);
 
     const versionSpan = ourUI.querySelector('#zevent-place-overlay-ui-version');
     if (versionSpan) {
@@ -74,7 +74,7 @@ function eventAddCustomOverlay() {
         alert('URL invalide');
         return;
     }
-    const id = config.lastCustomId++;
+    const id = Date.now().toString(36);
     addWantedOverlay({
         id: 'custom-' + id,
         overlay_url: checkedUrl,
@@ -87,10 +87,11 @@ function searchOverlays(e) {
     const search = e.target.value.toLowerCase();
     zpoLog('searchOverlays :' + search);
     config.knownOverlays.forEach(function (overlay) {
-        const isHidden = !(
+        const node = document.getElementById('avail-node-' + overlay.id);
+        if (!node) return;
+        node.hidden = !(
             overlay.community_name.toLowerCase().includes(search) || overlay.description.toLowerCase().includes(search)
         );
-        document.querySelector('#avail-node-' + overlay.id).hidden = isHidden;
     });
 }
 
@@ -213,24 +214,20 @@ export function keepOurselfInDOM() {
     const origCanvas = document.querySelector('#place-canvas');
     if (!origCanvas) zpoLog('keepOurselfInDOM() origCanvas: ' + origCanvas);
 
-    let ourOverlays = document.querySelectorAll('.zevent-place-overlay-img');
-    if (origCanvas && !ourOverlays.length) {
-        // Special skip case skip : if there is no wantedOverlay and no currently displayed overlay
-        if (!(config.wantedOverlays && config.wantedOverlays.length === 0 && ourOverlays.length === 0)) {
-            zpoLog('keepOurselfInDOM() origCanvas: ' + !!origCanvas + ', ourOverlays: ' + ourOverlays.length);
-            // reloadOverlays(origCanvas, ourOverlays);
-            reloadWantedOverlaysInDOM();
-            reloadUIWantedOverlays();
-        }
+    const ourOverlays = document.querySelectorAll('.zevent-place-overlay-img');
+    if (origCanvas && !ourOverlays.length && config.wantedOverlays.length > 0) {
+        zpoLog('keepOurselfInDOM() overlays lost, re-injecting');
+        reloadWantedOverlaysInDOM();
+        reloadUIWantedOverlays();
     }
 
     const origUI = document.querySelector('#root');
     if (!origUI) zpoLog('keepOurselfInDOM() origUI: ' + origUI);
     const ourUI = document.querySelector('#zevent-place-overlay-ui');
     if (origUI && !ourUI) {
-        zpoLog('keepOurselfInDOM() origUI: ' + !!origUI + ', ourUI: ' + !!ourUI);
-        appendOurUI(origUI);
-        reloadUIKnownOverlays(); // With local data (see knownOverlays at bottom of this script)
+        zpoLog('keepOurselfInDOM() UI lost, re-injecting');
+        appendOurUI();
+        reloadUIKnownOverlays();
     }
 }
 

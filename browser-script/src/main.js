@@ -8,7 +8,6 @@ import { initMisc } from './misc.js';
 
 (function () {
     if (!Array.isArray(config.wantedOverlays)) {
-        GM_setValue('selectedOverlays', []);
         config.wantedOverlays = [];
     }
 
@@ -29,6 +28,10 @@ import { initMisc } from './misc.js';
 
     let showAll = true;
     document.addEventListener('keypress', function (event) {
+        const target = event.target;
+        if (target instanceof Element && target.closest('input, textarea, [contenteditable]')) {
+            return;
+        }
         if (event.code === 'KeyH') {
             showAll = !showAll;
             const ourOverlays = document.querySelectorAll('.zevent-place-overlay-img');

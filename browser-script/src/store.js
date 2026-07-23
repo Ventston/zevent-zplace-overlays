@@ -8,25 +8,21 @@
  * @property {string} [community_discord] - Discord URL of the community
  * @property {string} [thread_url] - URL of the discussion thread for the overlay
  * @property {string} [description] - Description of the overlay
+ * @property {number} [x] - Coordinates and size (place pixels) — absent for a custom overlay
+ * @property {number} [y]
+ * @property {number} [width]
+ * @property {number} [height]
  */
 
 /**
- * @typedef {Object} Config
- * @property {Overlay[]} knownOverlays - List of all known overlays
- * @property {Overlay[]} wantedOverlays - List of overlays that the user wants to display
- * @property {number} lastCustomId - Counter for generating unique IDs for custom overlays
- * @property {boolean} enableSymbols - Flag to enable or disable symbol overlays
- */
-
-/**
- * Global configuration object for managing overlays.
- * @type {Config}
+ * Global config. GM persistence goes through the proxy: always REASSIGN
+ * (`config.wantedOverlays = [...]`), never mutate (`push`), otherwise nothing is saved.
+ * @type {{knownOverlays: Overlay[], wantedOverlays: Overlay[], enableSymbols: boolean}}
  */
 export const config = new Proxy(
     {
         knownOverlays: [],
         wantedOverlays: GM_getValue('selectedOverlays', []),
-        lastCustomId: 0,
         enableSymbols: GM_getValue('enableSymbols', false),
     },
     {
