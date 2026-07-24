@@ -58,6 +58,18 @@
         box-shadow 0.2s ease;
 }
 
+#zevent-place-overlay-ui input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+    text-align: center;
+}
+
+#zevent-place-overlay-ui input[type='number']::-webkit-inner-spin-button,
+#zevent-place-overlay-ui input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 #zevent-place-overlay-ui input:focus {
     outline: none;
     border-color: #6366f1;

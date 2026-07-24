@@ -23,6 +23,21 @@ export const idSanityCheck = id => {
     return trimmedId;
 };
 
+/**
+ * Place coordinate typed by the user.
+ * @returns {number|null|false} the integer, null when the field is empty, false when invalid
+ */
+export const coordSanityCheck = value => {
+    const trimmed = String(value ?? '').replaceAll(/\s/g, '');
+    if (!trimmed) return null;
+    const coord = Number(trimmed);
+    if (!Number.isInteger(coord) || coord < 0) {
+        zpoLog('coordSanityCheck(value) invalid : ' + value);
+        return false;
+    }
+    return coord;
+};
+
 export const urlSanityCheck = url => {
     if (!url) return null;
     if (typeof url !== 'string') return '#nonstring';

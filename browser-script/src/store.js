@@ -8,9 +8,9 @@
  * @property {string} [community_discord] - Discord URL of the community
  * @property {string} [thread_url] - URL of the discussion thread for the overlay
  * @property {string} [description] - Description of the overlay
- * @property {number} [x] - Coordinates and size (place pixels) — absent for a custom overlay
+ * @property {number} [x] - Position (place pixels) — optional on a custom overlay
  * @property {number} [y]
- * @property {number} [width]
+ * @property {number} [width] - Size (place pixels) — server overlays only, deduced from the image otherwise
  * @property {number} [height]
  */
 

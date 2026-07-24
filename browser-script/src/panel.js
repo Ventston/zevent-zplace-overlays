@@ -1,5 +1,5 @@
 import { inviteDiscordURL, scriptUpdateURL, version } from './constants';
-import { urlSanityCheck, zpoLog } from './utils';
+import { coordSanityCheck, urlSanityCheck, zpoLog } from './utils';
 import { addWantedOverlay, refreshKnownOverlays, reloadWantedOverlaysInDOM, removeWantedOverlay } from './overlay';
 import { config } from './store';
 import { getPanelParent } from './selectors';
@@ -74,13 +74,30 @@ function eventAddCustomOverlay() {
         alert('URL invalide');
         return;
     }
+
+    const x = coordSanityCheck(document.querySelector('#zevent-place-overlay-ui-input-x').value);
+    const y = coordSanityCheck(document.querySelector('#zevent-place-overlay-ui-input-y').value);
+    if (x === false || y === false) {
+        alert('Position invalide : X et Y doivent être des entiers positifs');
+        return;
+    }
+    if ((x === null) !== (y === null)) {
+        alert('Position incomplète : renseignez X et Y, ou laissez les deux vides');
+        return;
+    }
+
     const id = Date.now().toString(36);
-    addWantedOverlay({
+    const overlay = {
         id: 'custom-' + id,
         overlay_url: checkedUrl,
         community_name: 'Custom ' + id,
         description: 'Ajouté manuellement',
-    });
+    };
+    if (x !== null) {
+        overlay.x = x;
+        overlay.y = y;
+    }
+    addWantedOverlay(overlay);
 }
 
 function searchOverlays(e) {

@@ -102,8 +102,11 @@ function appendOverlayToDOM(overlay) {
     if (geometry) {
         image.style.left = geometry.left;
         image.style.top = geometry.top;
-        image.width = geometry.width;
-        image.height = geometry.height;
+        if (geometry.width) {
+            image.width = geometry.width;
+            image.height = geometry.height;
+        }
+        // else: positioned custom overlay → keep the image at its natural (1:1) size
     } else {
         image.onload = function (event) {
             fitOverlayOnCanvas(event.target);

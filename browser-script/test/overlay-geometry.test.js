@@ -11,8 +11,23 @@ describe('overlayGeometry', () => {
         });
     });
 
-    it('retourne null pour un overlay custom sans dimensions', () => {
+    it('retourne la position seule pour un overlay custom sans dimensions', () => {
+        expect(overlayGeometry({ id: 'custom-0', x: 12, y: 34 })).toEqual({
+            left: '12px',
+            top: '34px',
+            width: null,
+            height: null,
+        });
+        expect(overlayGeometry({ x: 1, y: 2, width: 0, height: 5 })).toEqual({
+            left: '1px',
+            top: '2px',
+            width: null,
+            height: null,
+        });
+    });
+
+    it('retourne null pour un overlay sans position', () => {
         expect(overlayGeometry({ id: 'custom-0', overlay_url: 'https://x.test/a.png' })).toBeNull();
-        expect(overlayGeometry({ x: 1, y: 2, width: 0, height: 5 })).toBeNull();
+        expect(overlayGeometry({ x: 10, width: 4, height: 4 })).toBeNull();
     });
 });
