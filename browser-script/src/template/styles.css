@@ -1,14 +1,32 @@
-/* ZEvent Place Overlay UI - Enhanced for 350px max-width */
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap');
+
 #zevent-place-overlay-ui {
+    --zpo-bg: #14161d;
+    --zpo-card: #1b1e28;
+    --zpo-elevated: #242836;
+    --zpo-accent: #2a2f3f;
+    --zpo-border: #2a2f3d;
+    --zpo-fg: #e9ebf2;
+    --zpo-muted: #8e95aa;
+    --zpo-primary: #38bdf8;
+    --zpo-primary-hover: #20b0f4;
+    --zpo-primary-active: #0ea5e9;
+    --zpo-primary-fg: #14161d;
+    --zpo-destructive: #e5484d;
+    --zpo-ring: rgba(56, 189, 248, 0.25);
+    --zpo-checker: rgba(233, 235, 242, 0.07);
+    --zpo-font-sans: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --zpo-font-pixel: 'Silkscreen', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
     max-width: 350px;
     min-width: 300px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
+    font-family: var(--zpo-font-sans);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
     padding: 0 12px;
-    border-radius: 16px;
-    background: #1f1f1f;
-    color: #fff;
+    border-radius: 0;
+    border: 1px solid var(--zpo-border);
+    background: var(--zpo-card);
+    color: var(--zpo-fg);
     position: fixed;
     top: 16px;
     left: 16px;
@@ -27,19 +45,48 @@
 }
 
 #zevent-place-overlay-ui-head {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
     padding: 12px 0;
-    transition: padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: var(--zpo-font-pixel);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+}
+
+#zevent-place-overlay-ui-head::after {
+    content: '';
+    position: absolute;
+    left: -12px;
+    right: -12px;
+    bottom: 0;
+    height: 6px;
+    pointer-events: none;
+    border-top: 1px solid var(--zpo-border);
+    border-bottom: 1px solid var(--zpo-border);
+    background-image: conic-gradient(
+        var(--zpo-checker) 25%,
+        transparent 25% 50%,
+        var(--zpo-checker) 50% 75%,
+        transparent 75%
+    );
+    background-size: 12px 12px;
+}
+
+#zevent-place-overlay-ui-version,
+#zevent-place-overlay-wanted-ts,
+#zevent-place-overlay-known-ts {
+    font-family: var(--zpo-font-sans);
+    color: var(--zpo-muted);
 }
 
 #zevent-place-overlay-ui hr {
     all: unset;
     border: none;
-    border-top: 1px solid #444;
+    border-top: 1px solid var(--zpo-border);
     margin-top: 16px;
-    opacity: 0.6;
     width: 100%;
 }
 
@@ -47,15 +94,15 @@
     width: 100%;
     box-sizing: border-box;
     padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #444;
-    background-color: #2a2a2a;
-    color: #fff;
+    border-radius: 0;
+    border: 1px solid var(--zpo-border);
+    background-color: var(--zpo-bg);
+    color: var(--zpo-fg);
     font-size: 14px;
-    font-family: inherit;
+    font-family: var(--zpo-font-sans);
     transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
 }
 
 #zevent-place-overlay-ui input[type='number'] {
@@ -72,12 +119,12 @@
 
 #zevent-place-overlay-ui input:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    border-color: var(--zpo-primary);
+    box-shadow: 0 0 0 3px var(--zpo-ring);
 }
 
 #zevent-place-overlay-ui input::placeholder {
-    color: #888;
+    color: var(--zpo-muted);
     opacity: 1;
 }
 
@@ -86,31 +133,31 @@
     min-height: 28px;
     width: 28px;
     min-width: 28px;
-    color: #fff;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    border: none;
-    border-radius: 6px;
+    color: var(--zpo-fg);
+    background: transparent;
+    border: 1px solid var(--zpo-border);
+    border-radius: 0;
     justify-content: center;
     align-items: center;
     padding: 0;
     font-size: 13px;
     font-weight: 500;
-    font-family: inherit;
+    font-family: var(--zpo-font-sans);
     display: inline-flex;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
 }
 
 #zevent-place-overlay-ui button:hover {
-    background: linear-gradient(135deg, #5855eb 0%, #7c3aed 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: var(--zpo-accent);
+    border-color: #3a4256;
 }
 
 #zevent-place-overlay-ui button:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    background: var(--zpo-border);
 }
 
 #zevent-place-overlay-ui button > svg {
@@ -121,21 +168,49 @@
     flex-shrink: 0;
 }
 
+#zevent-place-overlay-ui #zevent-place-overlay-ui-toggle {
+    border-color: transparent;
+}
+#zevent-place-overlay-ui #zevent-place-overlay-ui-toggle:hover {
+    background: var(--zpo-accent);
+    border-color: transparent;
+}
+
+#zevent-place-overlay-ui #btn-custom-add,
+#zevent-place-overlay-ui [id^='btn-add-'] {
+    background: var(--zpo-primary);
+    border-color: var(--zpo-primary);
+    color: var(--zpo-primary-fg);
+}
+#zevent-place-overlay-ui #btn-custom-add:hover,
+#zevent-place-overlay-ui [id^='btn-add-']:hover {
+    background: var(--zpo-primary-hover);
+    border-color: var(--zpo-primary-hover);
+}
+#zevent-place-overlay-ui #btn-custom-add:active,
+#zevent-place-overlay-ui [id^='btn-add-']:active {
+    background: var(--zpo-primary-active);
+    border-color: var(--zpo-primary-active);
+}
+
+#zevent-place-overlay-ui [id^='btn-del-']:hover {
+    background: rgba(229, 72, 77, 0.15);
+    border-color: var(--zpo-destructive);
+    color: var(--zpo-destructive);
+}
+
 #zevent-place-overlay-ui button.secondary {
-    background: #444;
+    background: var(--zpo-elevated);
+    border-color: var(--zpo-border);
+    color: var(--zpo-fg);
 }
-
 #zevent-place-overlay-ui button.secondary:hover {
-    background: #555;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: var(--zpo-accent);
+    border-color: #3a4256;
 }
-
 #zevent-place-overlay-ui button.secondary:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    background: var(--zpo-border);
 }
-
 #zevent-place-overlay-ui button.secondary > svg {
     height: 16px;
     width: 16px;
@@ -145,7 +220,7 @@
 }
 
 #zevent-place-overlay-ui label {
-    color: #e5e5e5;
+    color: var(--zpo-fg);
     font-size: 13px;
     font-weight: 500;
     margin-bottom: 4px;
@@ -153,13 +228,13 @@
 }
 
 #zevent-place-overlay-ui a {
-    color: #6366f1;
+    color: var(--zpo-primary);
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: color 0.15s ease;
 }
 
 #zevent-place-overlay-ui a:hover {
-    color: #8b5cf6;
+    color: #7dd3fc;
     text-decoration: underline;
 }
 
@@ -173,7 +248,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    max-height: calc(32px * 5 + 4px * 4); /* 5 items max with 4px gap */
+    max-height: calc(32px * 5 + 4px * 4);
     overflow-y: auto;
 }
 
@@ -187,7 +262,7 @@
 
 #zevent-place-overlay-ui-body {
     scrollbar-width: thin;
-    scrollbar-color: #444 transparent;
+    scrollbar-color: var(--zpo-border) transparent;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-flow: row wrap;
@@ -221,34 +296,35 @@
 }
 
 #zevent-place-overlay-ui-overlaylist::-webkit-scrollbar-thumb {
-    background-color: #444;
-    border-radius: 3px;
+    background-color: var(--zpo-border);
+    border-radius: 0;
 }
 
 #zevent-place-overlay-ui-overlaylist::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
+    background-color: var(--zpo-primary);
 }
 
 #zevent-place-overlay-ui input[type='checkbox'] {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-color: #2a2a2a;
+    background-color: var(--zpo-bg);
     margin: 0;
     font: inherit;
     color: currentColor;
     width: 16px;
     height: 16px;
-    border: 1px solid #444;
-    border-radius: 3px;
+    border: 1px solid var(--zpo-border);
+    border-radius: 0;
     display: grid;
     place-content: center;
     padding: 0;
+    cursor: pointer;
 }
 
 #zevent-place-overlay-ui input[type='checkbox']:checked {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    border-color: #6366f1;
+    background: var(--zpo-primary);
+    border-color: var(--zpo-primary);
 }
 
 #zevent-place-overlay-ui input[type='checkbox']::before {
@@ -260,8 +336,7 @@
     transform: scale(0);
     transform-origin: bottom left;
     transition: 120ms transform ease-in-out;
-    box-shadow: inset 1em 1em #fff;
-    /* Windows High Contrast Mode */
+    box-shadow: inset 1em 1em var(--zpo-primary-fg);
     background-color: CanvasText;
 }
 
@@ -270,12 +345,13 @@
 }
 
 #zevent-place-overlay-ui input[type='checkbox']:hover {
-    border-color: #6366f1;
-    background: #3a3a3a;
+    border-color: var(--zpo-primary);
+    background: var(--zpo-accent);
 }
 
 #zevent-place-overlay-ui input[type='checkbox']:checked:hover {
-    background: linear-gradient(135deg, #5855eb 0%, #7c3aed 100%);
+    background: var(--zpo-primary-hover);
+    border-color: var(--zpo-primary-hover);
 }
 
 .zevent-place-overlay-symbol {
@@ -286,7 +362,6 @@
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-/* Responsive adjustments for smaller screens */
 @media (max-width: 400px) {
     #zevent-place-overlay-ui {
         max-width: calc(100vw - 32px);
@@ -294,11 +369,10 @@
     }
 
     #zevent-place-overlay-ui input {
-        font-size: 16px; /* Prevent zoom on iOS */
+        font-size: 16px;
     }
 }
 
-/* Better spacing for form elements */
 #zevent-place-overlay-ui .form-group {
     margin: 12px 0;
 }
@@ -320,10 +394,12 @@
 }
 
 .zpo-section-title {
-    font-size: 14px;
-    font-weight: 600;
+    font-family: var(--zpo-font-pixel);
+    font-size: 11px;
+    letter-spacing: 0.04em;
     margin: 16px 0 8px 0;
-    padding-bottom: 4px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--zpo-border);
 
     display: flex;
     align-items: center;
@@ -332,7 +408,7 @@
 
 .zpo-section-subtitle {
     font-size: 12px;
-    color: #888;
+    color: var(--zpo-muted);
     margin-top: -8px;
     margin-bottom: 8px;
 }
@@ -402,15 +478,15 @@
     align-items: center;
     gap: 8px;
     justify-content: space-between;
-    padding: 4px 0;
+    padding: 4px;
     flex-wrap: wrap;
-    border-radius: 6px;
-    transition: background-color 0.2s ease;
+    border-radius: 0;
+    transition: background-color 0.15s ease;
     font-size: 12px;
 }
 
 .zpo-overlay-line:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(56, 189, 248, 0.08);
 }
 
 #newUpdate:empty {
@@ -418,7 +494,7 @@
 }
 
 #newUpdate {
-    color: #f8333c;
+    color: var(--zpo-destructive);
     padding-bottom: 8px;
     font-size: 12px;
     text-align: center;
@@ -444,6 +520,7 @@
     height: 100%;
     font-size: 12px;
     display: block;
+    color: var(--zpo-muted);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
