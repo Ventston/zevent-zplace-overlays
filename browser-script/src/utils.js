@@ -1,10 +1,18 @@
 export const isNewerVersion = (remote, local) => {
-    const a = remote.split('.').map(Number);
-    const b = local.split('.').map(Number);
-    for (let i = 0; i < Math.max(a.length, b.length); i++) {
-        const diff = (a[i] || 0) - (b[i] || 0);
+    const parse = v => {
+        const [main, pre] = v.split('-');
+        return { nums: main.split('.').map(Number), pre };
+    };
+    const r = parse(remote);
+    const l = parse(local);
+    for (let i = 0; i < Math.max(r.nums.length, l.nums.length); i++) {
+        const diff = (r.nums[i] || 0) - (l.nums[i] || 0);
         if (diff) return diff > 0;
     }
+
+    if (r.pre && !l.pre) return false;
+    if (!r.pre && l.pre) return true;
+    if (r.pre && l.pre) return r.pre > l.pre;
     return false;
 };
 
