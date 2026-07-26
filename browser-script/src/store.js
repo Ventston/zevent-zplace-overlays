@@ -14,25 +14,32 @@
  * @property {number} [height]
  */
 
+/** Config properties that survive a reload, mapped to their GM storage key. */
+const persistedKeys = {
+    wantedOverlays: 'selectedOverlays',
+    enableSymbols: 'enableSymbols',
+    enableAnalytics: 'enableAnalytics',
+    showCustomInput: 'showCustomInput',
+};
+
 /**
  * Global config. GM persistence goes through the proxy: always REASSIGN
  * (`config.wantedOverlays = [...]`), never mutate (`push`), otherwise nothing is saved.
- * @type {{knownOverlays: Overlay[], wantedOverlays: Overlay[], enableSymbols: boolean}}
+ * @type {{knownOverlays: Overlay[], wantedOverlays: Overlay[], enableSymbols: boolean, enableAnalytics: boolean, showCustomInput: boolean}}
  */
 export const config = new Proxy(
     {
         knownOverlays: [],
         wantedOverlays: GM_getValue('selectedOverlays', []),
         enableSymbols: GM_getValue('enableSymbols', false),
+        enableAnalytics: GM_getValue('enableAnalytics', true),
+        showCustomInput: GM_getValue('showCustomInput', false),
     },
     {
         set(target, property, value) {
             target[property] = value;
-            if (property === 'wantedOverlays') {
-                GM_setValue('selectedOverlays', value);
-            } else if (property === 'enableSymbols') {
-                GM_setValue('enableSymbols', value);
-            }
+            const key = persistedKeys[property];
+            if (key) GM_setValue(key, value);
 
             return true;
         },

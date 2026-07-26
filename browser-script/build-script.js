@@ -1,6 +1,5 @@
 import esbuild from 'esbuild';
 import fs from 'fs';
-import path from 'path';
 import inlineImportPlugin from "./inlineImportPlugin.js";
 
 const resultEsbuild = await esbuild.build({

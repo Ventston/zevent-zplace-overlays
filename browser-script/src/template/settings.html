@@ -1,0 +1,41 @@
+<div id="zpo-settings-panel" aria-expanded="false">
+    <div class="zpo-settings-head">
+        <span>Paramètres</span>
+        <button id="btn-settings-close" title="Fermer">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        </button>
+    </div>
+    <div class="zpo-settings-row">
+        <label for="showCustomInputCheckbox">Afficher l'ajout via URL</label>
+        <input type="checkbox" id="showCustomInputCheckbox" />
+    </div>
+    <div class="zpo-settings-row">
+        <label for="enableAnalyticsCheckbox">Statistiques d'usage anonymes</label>
+        <input type="checkbox" id="enableAnalyticsCheckbox" />
+    </div>
+    <p class="zpo-settings-note">
+        Pour savoir combien de personnes utilisent le script et quels overlays sont les plus chargés.
+    </p>
+    <p class="zpo-settings-note">
+        <strong>Envoyé</strong> : version du script, langue et taille de l'écran, nom des overlays que vous chargez. Les
+        overlays perso sont comptés sans leur URL.
+    </p>
+    <p class="zpo-settings-note">
+        <strong>Jamais envoyé</strong> : vos pixels, vos coordonnées, votre compte ZEvent. Pas de cookie ; votre IP sert
+        seulement à compter les visites uniques côté serveur, elle n'est pas conservée. Statistiques auto-hébergées,
+        jamais partagées.
+    </p>
+</div>

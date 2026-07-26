@@ -18,16 +18,22 @@ export function appendOurUI() {
         scriptUpdateURL,
         inviteDiscordURL,
     });
+    ourUI.insertAdjacentHTML('beforeend', renderTemplate('settings'));
+
     const btnToggle = ourUI.querySelector('#zevent-place-overlay-ui-toggle');
-    if (btnToggle) {
-        btnToggle.onclick = e => {
-            const body = ourUI.querySelector('#zevent-place-overlay-ui-body');
-            if (body) {
-                const isExpanded = body.getAttribute('aria-expanded') === 'true';
-                body.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
-                btnToggle.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
-            }
-        };
+    const body = ourUI.querySelector('#zevent-place-overlay-ui-body');
+    if (btnToggle && body) {
+        btnToggle.onclick = () => setExpanded(btnToggle, body, body.getAttribute('aria-expanded') !== 'true');
+    }
+
+    const btnSettings = ourUI.querySelector('#btn-settings');
+    const settings = ourUI.querySelector('#zpo-settings-panel');
+    if (btnSettings && settings) {
+        btnSettings.onclick = () =>
+            setExpanded(btnSettings, settings, settings.getAttribute('aria-expanded') !== 'true');
+
+        const btnCloseSettings = ourUI.querySelector('#btn-settings-close');
+        if (btnCloseSettings) btnCloseSettings.onclick = () => setExpanded(btnSettings, settings, false);
     }
 
     const btnAdd = ourUI.querySelector('#btn-custom-add');
@@ -57,11 +63,36 @@ export function appendOurUI() {
         };
     }
 
+    const enableAnalyticsCheckbox = ourUI.querySelector('#enableAnalyticsCheckbox');
+    if (enableAnalyticsCheckbox) {
+        enableAnalyticsCheckbox.checked = config.enableAnalytics;
+        enableAnalyticsCheckbox.onchange = e => {
+            config.enableAnalytics = e.target.checked;
+        };
+    }
+
+    const customAdd = [ourUI.querySelector('#zpo-custom-add'), ourUI.querySelector('#zpo-custom-add-sep')];
+    const showCustomInputCheckbox = ourUI.querySelector('#showCustomInputCheckbox');
+    if (showCustomInputCheckbox) {
+        const applyCustomAdd = shown => customAdd.forEach(node => node && (node.hidden = !shown));
+        showCustomInputCheckbox.checked = config.showCustomInput;
+        applyCustomAdd(config.showCustomInput);
+        showCustomInputCheckbox.onchange = e => {
+            config.showCustomInput = e.target.checked;
+            applyCustomAdd(e.target.checked);
+        };
+    }
+
     origUI.appendChild(ourUI);
 
     reloadUIWantedOverlays();
     reloadUIKnownOverlays();
     checkVersion();
+}
+
+function setExpanded(btn, target, expanded) {
+    target.setAttribute('aria-expanded', String(expanded));
+    btn.setAttribute('aria-expanded', String(expanded));
 }
 
 function eventAddCustomOverlay() {

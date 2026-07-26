@@ -51,6 +51,52 @@ The userscript has been split into the following modules:
 3. **Install/Update** the generated `.user.js` file in Tampermonkey
 4. **Test** the functionality on https://place.zevent.fr/
 
+## Analytics
+
+Usage stats are collected by a self-hosted [Umami](https://umami.is/) instance. The tracker script is
+never injected into place.zevent.fr — `src/analytics.js` posts events straight to the `/api/send`
+collect endpoint at `analyticsUrl`, with no proxy in between. Umami answers that endpoint with
+`Access-Control-Allow-Origin: *`, so the cross-origin POST needs no server-side setup.
+
+Two consequences of going direct. The URL is frozen in every installed copy — a userscript cannot be
+redeployed, so moving the Umami instance breaks collection for everyone who has not updated. And an ad
+blocker that knows the domain drops events silently; a proxy on the API vhost would not have fixed
+that, since the page is place.zevent.fr and both domains are third-party from it either way.
+
+What is sent, per event: script version, hostname (prod vs mock), screen size, browser language, and
+the event name. Umami is cookieless: it derives a session id server-side by hashing IP + user agent +
+a rotating salt, and never stores the raw IP.
+
+- **one pageview per script boot** — unique users, with the version carried in the URL (`/4.0.0`),
+  so the Umami "Pages" report doubles as a version breakdown
+- **`overlay-active`** — one event per overlay in use, once per day per browser. This is the one that
+  ranks overlays by popularity: `wantedOverlays` is persisted, so an overlay picked weeks ago is still
+  in daily use without ever firing `overlay-add` again. The daily guard (`analyticsLastDaily` in GM
+  storage) keeps page reloads from inflating heavy users.
+- **`overlay-add`** — the moment an overlay is picked. Answers discovery, *not* usage: read it to see
+  what people are finding, not what they run.
+- **`symbols`** — colorblind symbols toggled on/off
+
+Both overlay events carry `overlay` (the community name, readable in the report) and `id` (stable
+across server-side renames). Custom overlays have one-off names and ids, so they collapse to a single
+`overlay: custom` value instead of flooding the ranking.
+
+Set `analyticsWebsiteId` in `src/constants.js` to the UUID of the Umami website entry. Leave it empty
+and tracking is a no-op, which is how local builds behave by default.
+
+Users can opt out at any time with the "Statistiques d'usage anonymes" checkbox in the settings panel,
+opened by the gear button in the header; the choice is persisted through `GM_setValue` like the other
+settings. Keep it reachable: the build is unminified and public (`minify: false` in `build-script.js`),
+so anyone can read what the script sends, and a userscript running on someone else's site is held to a
+higher bar than a website.
+
+Events go out through plain `fetch`, like every other request the script makes. `GM_xmlhttpRequest`
+would only buy delivery past content blockers, since it issues from the extension context rather than
+the page — deliberately routing the one tracking call around a blocker the user installed, while the
+functional calls stay on `fetch`, is not a trade worth making here. It would also cost `keepalive` and
+require an extra `@grant`. Revisit only if a page CSP actually blocks the POST, which would show up as
+a caught `TypeError` in the console.
+
 ## File Dependencies
 
 The build script combines files in this order to ensure proper dependency resolution:

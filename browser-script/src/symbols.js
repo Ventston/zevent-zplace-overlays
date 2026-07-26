@@ -1,5 +1,6 @@
 import { zpoLog } from './utils.js';
 import { config } from './store.js';
+import { track } from './analytics.js';
 import { symbolsUrl } from './constants.js';
 import { reloadWantedOverlaysInDOM } from './overlay.js';
 import { reloadUIWantedOverlays } from './panel.js';
@@ -243,6 +244,7 @@ const getColors = async () => {
 
 export const changeEnabledSymbols = async enabled => {
     config.enableSymbols = enabled;
+    track('symbols', { enabled });
 
     if (enabled) {
         zpoLog('Symbols enabled');

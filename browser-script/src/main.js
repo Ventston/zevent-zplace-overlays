@@ -5,6 +5,7 @@ import { injectStyles } from './style.js';
 import { initSymbols } from './symbols.js';
 import { config } from './store.js';
 import { initMisc } from './misc.js';
+import { track, trackDailyOverlays } from './analytics.js';
 
 (function () {
     if (!Array.isArray(config.wantedOverlays)) {
@@ -13,8 +14,11 @@ import { initMisc } from './misc.js';
 
     initMisc();
 
+    //one pageview per script boot: unique users, and version breakdown via the URL
+    track();
+
     //init all
-    refreshKnownOverlays();
+    refreshKnownOverlays().then(trackDailyOverlays);
     //append ui
     injectStyles();
     appendOurUI();

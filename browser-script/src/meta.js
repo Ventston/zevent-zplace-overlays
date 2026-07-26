@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay-dev
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      4.0.0-dev
+// @version      4.0.0-dev.1-dev.0-1-0-0-0-dev
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       PiRDub, ludolpif, ventston
 // @match        https://place.zevent.fr/
@@ -13,6 +13,7 @@
 // @grant        GM_setValue
 // @downloadURL  https://raw.githubusercontent.com/Ventston/zevent-zplace-overlays/dev/browser-script/zevent-place-overlay.user.js
 // @updateURL    https://raw.githubusercontent.com/Ventston/zevent-zplace-overlays/dev/browser-script/zevent-place-overlay.user.js
+// @antifeature  tracking  Anonymous usage counts (script version, language, screen size, overlays loaded). No cookie, no personal data, self-hosted, and can be turned off in the settings panel.
 // ==/UserScript==
 /*
  * Script used as base, form MinusKube: https://greasyfork.org/fr/scripts/444833-z-place-overlay/code

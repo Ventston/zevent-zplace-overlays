@@ -413,6 +413,98 @@
     margin-bottom: 8px;
 }
 
+.zpo-head-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+#zpo-settings-panel {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 9px);
+    width: 270px;
+    box-sizing: border-box;
+    padding: 0 12px 12px;
+    background: var(--zpo-card);
+    border: 1px solid var(--zpo-border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    /* aligné sur le haut du panneau, lui-même à 16px du viewport : on garde la même marge en bas */
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--zpo-border) transparent;
+}
+
+#zpo-settings-panel[aria-expanded='false'] {
+    display: none;
+}
+
+.zpo-settings-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 0 10px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--zpo-border);
+    font-family: var(--zpo-font-pixel);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+}
+
+.zpo-settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 0;
+}
+
+/* Le label générique est en display:block avec une marge basse, inadapté à une ligne libellé + case. */
+.zpo-settings-row + .zpo-settings-note {
+    margin-top: 6px;
+}
+
+.zpo-settings-note {
+    margin: 0 0 8px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--zpo-muted);
+}
+
+.zpo-settings-note:last-child {
+    margin-bottom: 0;
+}
+
+.zpo-settings-note strong {
+    color: var(--zpo-fg);
+    font-weight: 500;
+}
+
+#zevent-place-overlay-ui .zpo-settings-row label {
+    margin-bottom: 0;
+    font-weight: 400;
+}
+
+/* Doit rester après les règles de base : même spécificité, c'est la dernière déclarée qui gagne. */
+@media (max-width: 400px) {
+    /* Plus la place de le poser à côté : il repasse dans le flux, pleine largeur sous l'en-tête. */
+    #zpo-settings-panel {
+        position: static;
+        width: auto;
+        margin: 0 -12px;
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+    }
+}
+
+#zevent-place-overlay-ui #btn-settings[aria-expanded='true'] {
+    background: var(--zpo-accent);
+    color: var(--zpo-primary);
+}
+
 #zevent-place-overlay-ui .action_add {
     display: flex;
     justify-content: center;

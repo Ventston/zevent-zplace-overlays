@@ -1,4 +1,5 @@
 import panel from 'inline:./template/panel.html';
+import settings from 'inline:./template/settings.html';
 import knownOverlay from 'inline:./template/knownOverlay.html';
 import wantedOverlay from 'inline:./template/wantedOverlay.html';
 import overlayDescription from 'inline:./template/overlayDescription.html';
@@ -35,6 +36,7 @@ export const replaceValuesInHtml = (html, values) => {
 // Template variables - inline HTML templates
 const templates = {
     'main-ui': panel,
+    settings,
     'wanted-overlay': wantedOverlay,
     'known-overlay': knownOverlay,
     'overlay-description': overlayDescription,

@@ -1,5 +1,6 @@
 import { config } from './store';
 import { fetchKnownOverlays } from './data-fetch';
+import { overlayProps, track } from './analytics';
 import { zpoLog } from './utils';
 import { overlayGeometry } from './geometry';
 import { getOriginalCanvas, getOverlayParent } from './selectors';
@@ -32,6 +33,7 @@ export const refreshKnownOverlays = async (force = false) => {
 export function addWantedOverlay(overlay) {
     if (!config.wantedOverlays.find(o => o.id === overlay.id)) {
         config.wantedOverlays = [...config.wantedOverlays, overlay];
+        track('overlay-add', overlayProps(overlay));
     }
     appendOverlayToDOM(overlay);
     appendUIWantedOverlay(overlay);
