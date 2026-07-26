@@ -39,7 +39,7 @@ const versionUpdate = () => {
     const metaFilePath = 'src/meta.js';
     if (fs.existsSync(metaFilePath)) {
         let metaFile = fs.readFileSync(metaFilePath, 'utf8');
-        const newMetaFile = metaFile.replace(/@version(\s+)[0-9]+\.[0-9]+\.[0-9]+/, `@version$1${packageVersion}`);
+        const newMetaFile = metaFile.replace(/@version(\s+)[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?/, `@version$1${packageVersion}`);
         if (metaFile !== newMetaFile) {
             fs.writeFileSync(metaFilePath, newMetaFile);
             console.log(`src/meta.js mis à jour à la version ${packageVersion}`);

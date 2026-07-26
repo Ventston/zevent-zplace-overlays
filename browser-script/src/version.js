@@ -11,7 +11,7 @@ export const checkVersion = async () => {
         const newVersionElement = document.getElementById('newUpdate');
         if (!newVersionElement) return;
         if (isNewerVersion(newVersion, version)) {
-            newVersionElement.innerHTML = renderTemplate('update', { scriptUpdateURL });
+            newVersionElement.innerHTML = renderTemplate('update', { scriptUpdateURL, newVersion });
             newVersionElement.style.display = 'block';
         } else {
             newVersionElement.innerHTML = '';
