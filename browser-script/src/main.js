@@ -6,6 +6,7 @@ import { initSymbols } from './symbols.js';
 import { config } from './store.js';
 import { initMisc } from './misc.js';
 import { track, trackDailyOverlays } from './analytics.js';
+import { refreshMessages } from './messages.js';
 
 (function () {
     if (!Array.isArray(config.wantedOverlays)) {
@@ -23,10 +24,13 @@ import { track, trackDailyOverlays } from './analytics.js';
     injectStyles();
     appendOurUI();
 
+    refreshMessages();
+
     initSymbols();
 
     setInterval(keepOurselfInDOM, 1000);
     setInterval(refreshKnownOverlays, 1000 * 60); //every minute
+    setInterval(refreshMessages, 1000 * 30);
     setInterval(checkVersion, 1000 * 60 * 5); //every 5 minutes
     checkVersion();
 

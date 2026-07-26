@@ -276,7 +276,7 @@
 }
 
 #zevent-place-overlay-ui-body[aria-expanded='true'] {
-    height: calc(100vh - 84px);
+    height: calc(100vh - 84px - var(--zpo-banners, 0px));
 }
 
 #zevent-place-overlay-ui-overlaylist {
@@ -394,7 +394,7 @@
     flex-shrink: 0;
 }
 
-.zpo-section-title {
+#zevent-place-overlay-ui .zpo-section-title {
     font-family: var(--zpo-font-pixel);
     font-size: 11px;
     letter-spacing: 0.04em;
@@ -407,14 +407,14 @@
     justify-content: space-between;
 }
 
-.zpo-section-subtitle {
+#zevent-place-overlay-ui .zpo-section-subtitle {
     font-size: 12px;
     color: var(--zpo-muted);
     margin-top: -8px;
     margin-bottom: 8px;
 }
 
-.zpo-head-actions {
+#zevent-place-overlay-ui .zpo-head-actions {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -441,7 +441,7 @@
     display: none;
 }
 
-.zpo-settings-head {
+#zevent-place-overlay-ui .zpo-settings-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -454,7 +454,7 @@
     letter-spacing: 0.04em;
 }
 
-.zpo-settings-row {
+#zevent-place-overlay-ui .zpo-settings-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -462,23 +462,22 @@
     padding: 6px 0;
 }
 
-/* Le label générique est en display:block avec une marge basse, inadapté à une ligne libellé + case. */
-.zpo-settings-row + .zpo-settings-note {
+#zevent-place-overlay-ui .zpo-settings-row + .zpo-settings-note {
     margin-top: 6px;
 }
 
-.zpo-settings-note {
+#zevent-place-overlay-ui .zpo-settings-note {
     margin: 0 0 8px;
     font-size: 11px;
     line-height: 1.5;
     color: var(--zpo-muted);
 }
 
-.zpo-settings-note:last-child {
+#zevent-place-overlay-ui .zpo-settings-note:last-child {
     margin-bottom: 0;
 }
 
-.zpo-settings-note strong {
+#zevent-place-overlay-ui .zpo-settings-note strong {
     color: var(--zpo-fg);
     font-weight: 500;
 }
@@ -488,10 +487,8 @@
     font-weight: 400;
 }
 
-/* Doit rester après les règles de base : même spécificité, c'est la dernière déclarée qui gagne. */
 @media (max-width: 400px) {
-    /* Plus la place de le poser à côté : il repasse dans le flux, pleine largeur sous l'en-tête. */
-    #zpo-settings-panel {
+    #zevent-place-overlay-ui #zpo-settings-panel {
         position: static;
         width: auto;
         margin: 0 -12px;
@@ -548,7 +545,7 @@
     padding: 2px;
 }
 
-.zpo-wrapper-actions {
+#zevent-place-overlay-ui .zpo-wrapper-actions {
     display: flex;
     gap: 4px;
     align-items: center;
@@ -556,17 +553,17 @@
     margin-left: auto;
 }
 
-.zpo-btn-show-hide[data-shown='true'] > .eye-closed,
-.zpo-btn-show-hide[data-shown='false'] > .eye {
+#zevent-place-overlay-ui .zpo-btn-show-hide[data-shown='true'] > .eye-closed,
+#zevent-place-overlay-ui .zpo-btn-show-hide[data-shown='false'] > .eye {
     display: none;
 }
 
-.zpo-btn-show-hide[data-shown='true'] > .eye,
-.zpo-btn-show-hide[data-shown='false'] > .eye-closed {
+#zevent-place-overlay-ui .zpo-btn-show-hide[data-shown='true'] > .eye,
+#zevent-place-overlay-ui .zpo-btn-show-hide[data-shown='false'] > .eye-closed {
     display: block;
 }
 
-.zpo-overlay-line {
+#zevent-place-overlay-ui .zpo-overlay-line {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -578,20 +575,16 @@
     font-size: 12px;
 }
 
-.zpo-overlay-line:hover {
+#zevent-place-overlay-ui .zpo-overlay-line:hover {
     background-color: rgba(56, 189, 248, 0.08);
 }
 
-#newUpdate:empty {
+#zevent-place-overlay-ui #newUpdate:empty {
     display: none;
 }
 
-#newUpdate {
+#zevent-place-overlay-ui #newUpdate {
     margin: 8px 0;
-}
-
-#newUpdate:not(:empty) ~ #zevent-place-overlay-ui-body[aria-expanded='true'] {
-    height: calc(100vh - 84px - 38px);
 }
 
 #zevent-place-overlay-ui .zpo-update {
@@ -612,19 +605,88 @@
     color: var(--zpo-primary-fg);
 }
 
-.zpo-update > svg {
+#zevent-place-overlay-ui .zpo-update > svg {
     width: 14px;
     height: 14px;
 }
 
-.zpo-overlay-title {
+#zevent-place-overlay-ui .zpo-message {
+    --zpo-level: var(--zpo-primary);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 8px 0;
+    padding: 8px 10px;
+    border: 1px solid var(--zpo-level);
+    background: color-mix(in srgb, var(--zpo-level) 12%, transparent);
+    color: var(--zpo-primary);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+#zevent-place-overlay-ui .zpo-message[data-level='warning'] {
+    --zpo-level: var(--zpo-warn);
+}
+
+#zevent-place-overlay-ui .zpo-message[data-level='critical'] {
+    --zpo-level: var(--zpo-destructive);
+}
+
+#zevent-place-overlay-ui .zpo-message > svg {
+    display: none;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+#zevent-place-overlay-ui .zpo-message[data-level='info'] > .zpo-icon-info,
+#zevent-place-overlay-ui .zpo-message[data-level='warning'] > .zpo-icon-warning,
+#zevent-place-overlay-ui .zpo-message[data-level='critical'] > .zpo-icon-critical {
+    display: block;
+}
+
+#zevent-place-overlay-ui .zpo-message-body {
+    flex: 1;
+    min-width: 0;
+    color: var(--zpo-fg);
+}
+
+#zevent-place-overlay-ui .zpo-message-content {
+    display: block;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+#zevent-place-overlay-ui .zpo-message-link {
+    display: inline-block;
+    margin-top: 4px;
+    color: var(--zpo-level);
+    text-decoration: underline;
+}
+
+#zevent-place-overlay-ui .zpo-message-close {
+    height: 20px;
+    min-height: 20px;
+    width: 20px;
+    min-width: 20px;
+    border-color: transparent;
+    color: inherit;
+}
+
+#zevent-place-overlay-ui .zpo-message-close:hover {
+    background: var(--zpo-accent);
+    border-color: transparent;
+}
+
+#zevent-place-overlay-ui .zpo-overlay-title {
     flex: 1;
     padding: 5px;
     max-width: 160px;
     white-space: nowrap;
 }
 
-.zpo-overlay-title > span {
+#zevent-place-overlay-ui .zpo-overlay-title > span {
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-block;
@@ -632,7 +694,7 @@
     line-height: 17px;
 }
 
-.zpo-overlay-description {
+#zevent-place-overlay-ui .zpo-overlay-description {
     padding: 16px;
     height: 100%;
     font-size: 12px;
@@ -640,13 +702,13 @@
     color: var(--zpo-muted);
 }
 
-.zpo-overlay-description[aria-expanded='false'] {
+#zevent-place-overlay-ui .zpo-overlay-description[aria-expanded='false'] {
     height: 0;
     padding: 0;
     display: none;
 }
 
-#newUpdate > div {
+#zevent-place-overlay-ui #newUpdate > div {
     display: flex;
     align-items: center;
     justify-content: center;

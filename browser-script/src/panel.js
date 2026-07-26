@@ -6,6 +6,7 @@ import { getPanelParent } from './selectors';
 import { changeEnabledSymbols } from './symbols.js';
 import { renderTemplate } from './ui.js';
 import { checkVersion } from './version.js';
+import { renderMessages } from './messages.js';
 
 export function appendOurUI() {
     zpoLog('appendOurUI()');
@@ -87,6 +88,7 @@ export function appendOurUI() {
 
     reloadUIWantedOverlays();
     reloadUIKnownOverlays();
+    renderMessages();
     checkVersion();
 }
 

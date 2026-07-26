@@ -4,6 +4,7 @@ import knownOverlay from 'inline:./template/knownOverlay.html';
 import wantedOverlay from 'inline:./template/wantedOverlay.html';
 import overlayDescription from 'inline:./template/overlayDescription.html';
 import update from 'inline:./template/update.html';
+import message from 'inline:./template/message.html';
 import { zpoLog } from './utils.js';
 
 const escapeHtml = value =>
@@ -40,7 +41,16 @@ const templates = {
     'wanted-overlay': wantedOverlay,
     'known-overlay': knownOverlay,
     'overlay-description': overlayDescription,
-    'update': update
+    'update': update,
+    'message': message
+};
+
+export const syncBannerHeight = () => {
+    const head = document.querySelector('#zevent-place-overlay-ui-head');
+    const body = document.querySelector('#zevent-place-overlay-ui-body');
+    if (!head || !body) return;
+    const gap = body.getBoundingClientRect().top - head.getBoundingClientRect().bottom;
+    body.style.setProperty('--zpo-banners', Math.max(0, Math.round(gap)) + 'px');
 };
 
 // Function to render template with values (now synchronous)

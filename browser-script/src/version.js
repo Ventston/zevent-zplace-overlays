@@ -1,6 +1,6 @@
 import { isNewerVersion, zpoLog } from './utils.js';
 import { scriptUpdateURL, version, versionJsonUrl } from './constants.js';
-import { renderTemplate } from './ui.js';
+import { renderTemplate, syncBannerHeight } from './ui.js';
 
 export const checkVersion = async () => {
     try {
@@ -17,6 +17,7 @@ export const checkVersion = async () => {
             newVersionElement.innerHTML = '';
             newVersionElement.style.display = 'none';
         }
+        syncBannerHeight();
     } catch (err) {
         zpoLog("Couldn't get version: " + err);
     }
