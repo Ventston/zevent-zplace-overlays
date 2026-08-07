@@ -1,5 +1,6 @@
 import { config } from './store';
 import { fetchKnownOverlays } from './data-fetch';
+import { defaultsToAdd, groupToRemove, isRemovable, linkedToAdd, newlyLinkedToAdd } from './links';
 import { overlayProps, track } from './analytics';
 import { zpoLog } from './utils';
 import { overlayGeometry } from './geometry';
@@ -9,16 +10,22 @@ import { appendUIWantedOverlay, refreshDisplayTime, reloadUIKnownOverlays, reloa
 export const refreshKnownOverlays = async (force = false) => {
     const newOverlays = await fetchKnownOverlays(force);
     if (newOverlays) {
+        const freshlyLinked = newlyLinkedToAdd(newOverlays, config.wantedOverlays);
         config.knownOverlays = newOverlays;
         config.wantedOverlays = config.wantedOverlays.reduce((acc, overlay) => {
             const exists = config.knownOverlays.find(o => o.id === overlay.id);
             if (exists) {
                 acc.push(exists);
-            } else if(overlay.id.startsWith('custom-')) {
+            } else if (overlay.id.startsWith('custom-')) {
                 acc.push(overlay);
             }
             return acc;
         }, []);
+        for (const overlay of freshlyLinked) {
+            zpoLog('refreshKnownOverlays() newly linked: ' + overlay.id);
+            addWantedOverlay(overlay, false);
+        }
+        applyDefaultOverlays();
         reloadUIKnownOverlays();
         reloadUIWantedOverlays();
         reloadWantedOverlaysInDOM();
@@ -29,14 +36,33 @@ export const refreshKnownOverlays = async (force = false) => {
 /**
  * Load an overlay by adding it to wantedOverlays and displaying it
  * @param {Overlay} overlay
+ * @param {boolean} [withLinked] - also add the overlays linked to this one.
+ *   false when adding a linked overlay: links are followed one hop only.
  */
-export function addWantedOverlay(overlay) {
+export function addWantedOverlay(overlay, withLinked = true) {
     if (!config.wantedOverlays.find(o => o.id === overlay.id)) {
         config.wantedOverlays = [...config.wantedOverlays, overlay];
         track('overlay-add', overlayProps(overlay));
     }
     appendOverlayToDOM(overlay);
     appendUIWantedOverlay(overlay);
+
+    if (!withLinked) return;
+    const linked = linkedToAdd(overlay, config.knownOverlays, config.wantedOverlays);
+    for (const other of linked) {
+        zpoLog('addWantedOverlay() linked: ' + other.id);
+        addWantedOverlay(other, false);
+        const availNode = document.getElementById('avail-node-' + other.id);
+        if (availNode) availNode.hidden = true;
+    }
+    if (linked.length) reloadUIWantedOverlays();
+}
+
+export function applyDefaultOverlays() {
+    for (const overlay of defaultsToAdd(config.knownOverlays, config.wantedOverlays)) {
+        zpoLog('applyDefaultOverlays() ' + overlay.id);
+        addWantedOverlay(overlay);
+    }
 }
 
 function fitOverlayOnCanvas(image) {
@@ -71,6 +97,19 @@ function fitOverlayOnCanvas(image) {
 }
 
 export function removeWantedOverlay(overlayId) {
+    const overlay = config.wantedOverlays.find(o => o.id === overlayId);
+    if (!isRemovable(overlay, config.knownOverlays)) {
+        zpoLog('removeWantedOverlay() denied, overlay is pinned by the organizers: ' + overlayId);
+        return;
+    }
+    for (const member of groupToRemove(overlay, config.wantedOverlays)) {
+        if (member.id !== overlayId) zpoLog('removeWantedOverlay() group member: ' + member.id);
+        dropOverlay(member.id);
+    }
+    if (!overlay) dropOverlay(overlayId);
+}
+
+function dropOverlay(overlayId) {
     config.wantedOverlays = config.wantedOverlays.filter(o => o.id !== overlayId);
     removeOverlayFromDOM(overlayId);
     const availNode = document.getElementById('avail-node-' + overlayId);

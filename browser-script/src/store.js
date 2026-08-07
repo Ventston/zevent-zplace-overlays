@@ -12,6 +12,8 @@
  * @property {number} [y]
  * @property {number} [width] - Size (place pixels) — server overlays only, deduced from the image otherwise
  * @property {number} [height]
+ * @property {string[]} [linked_ids] - Overlays to activate along with this one (symmetric, one hop)
+ * @property {boolean} [is_default] - Activated on its own and not removable (admin choice)
  */
 
 /**

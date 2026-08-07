@@ -27,9 +27,11 @@ The userscript has been split into the following modules:
 ## Building the Userscript
 
 ### Prerequisites
+
 - Node.js installed on your system
 
 ### Build Process
+
 1. Navigate to the `browser-script` directory
 2. Run the build script:
    ```bash
@@ -38,6 +40,7 @@ The userscript has been split into the following modules:
 3. The script will generate `zevent-place-overlay.user.js` with all modules combined
 
 ### Build Script Features
+
 - Combines files in the correct dependency order
 - Adds section separators for easy debugging
 - Validates that all source files exist
@@ -50,6 +53,31 @@ The userscript has been split into the following modules:
 2. **Run build script** to generate the combined userscript
 3. **Install/Update** the generated `.user.js` file in Tampermonkey
 4. **Test** the functionality on https://place.zevent.fr/
+
+## Linked overlays and defaults
+
+`overlays.json` carries two fields consumed by `src/links.js`:
+
+- **`linkedIds`** — the other members of the **group**. Linked overlays are inseparable: activating
+  one activates them all, removing one removes them all. The server resolves the whole connected
+  component (`A–B` plus `B–C` ⇒ a single `{A, B, C}` group) and caps its size when a link is
+  accepted, so the script has no graph to walk. Every member carries a link icon in the panel,
+  naming the other members currently active.
+
+    A group formed mid-event applies on the next refresh, without reloading the page:
+    `newlyLinkedToAdd` compares the `linkedIds` just received against those of the previous sync.
+    Only **new** ones trigger an add — a group already seen, then dismissed by the user, does not
+    come back a minute later. One consequence: on the first run after a script update, active
+    overlays hold no `linkedIds` yet, so their existing groups all apply at once.
+
+- **`isDefault`** — an overlay activated on its own, without the user picking it (an admin call),
+  and that they cannot remove: the remove button gives way to a 📌, and `removeWantedOverlay` turns
+  the request down even when the call comes from somewhere else. The protection covers its whole
+  group — without it, the removal would be undone on the next refresh, the default overlay pulling
+  its teammates back in.
+
+Both fields are optional: a server version that does not send them leaves the script behaving as
+before.
 
 ## Analytics
 
@@ -73,7 +101,7 @@ a rotating salt, and never stores the raw IP.
   ranks overlays by popularity: `wantedOverlays` is persisted, so an overlay picked weeks ago is still
   in daily use without ever firing `overlay-add` again. The daily guard (`analyticsLastDaily` in GM
   storage) keeps page reloads from inflating heavy users.
-- **`overlay-add`** — the moment an overlay is picked. Answers discovery, *not* usage: read it to see
+- **`overlay-add`** — the moment an overlay is picked. Answers discovery, _not_ usage: read it to see
   what people are finding, not what they run.
 - **`symbols`** — colorblind symbols toggled on/off
 
@@ -122,6 +150,7 @@ The build script combines files in this order to ensure proper dependency resolu
 ## Original Functionality
 
 The modular version maintains 100% compatibility with the original monolithic userscript, including:
+
 - Overlay loading and management
 - UI for overlay selection
 - Network fetching of overlay lists

@@ -37,8 +37,25 @@ describe('mapPublicOverlays', () => {
             y: 250,
             width: 40,
             height: 30,
+            linked_ids: [],
+            is_default: false,
             updated_at: valid.updatedAt,
         });
+    });
+
+    it('mappe les liaisons et le drapeau « par défaut »', () => {
+        const other = '223e4567-e89b-42d3-a456-426614174111';
+        const [o] = mapPublicOverlays([{ ...valid, linkedIds: [other], isDefault: true }]);
+        expect(o.linked_ids).toEqual([other]);
+        expect(o.is_default).toBe(true);
+    });
+
+    it('écarte les identifiants de liaison invalides, tolère un champ absent', () => {
+        const [o] = mapPublicOverlays([{ ...valid, linkedIds: ['pas/bon', 42] }]);
+        expect(o.linked_ids).toEqual([]);
+        const [legacy] = mapPublicOverlays([{ ...valid, linkedIds: undefined, isDefault: undefined }]);
+        expect(legacy.linked_ids).toEqual([]);
+        expect(legacy.is_default).toBe(false);
     });
 
     it('garde null pour colorblindImageUrl absent', () => {

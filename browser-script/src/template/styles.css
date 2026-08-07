@@ -694,6 +694,29 @@
     line-height: 17px;
 }
 
+#zevent-place-overlay-ui .zpo-overlay-title:has(.zpo-linked) > span:first-child {
+    max-width: calc(100% - 18px);
+}
+
+#zevent-place-overlay-ui .zpo-overlay-title > span.zpo-linked {
+    display: inline-flex;
+    align-items: center;
+    opacity: 0.7;
+    cursor: help;
+}
+
+#zevent-place-overlay-ui .zpo-linked > svg {
+    height: 14px;
+    width: 14px;
+}
+
+#zevent-place-overlay-ui .zpo-pinned {
+    opacity: 0.7;
+    cursor: help;
+    font-size: 14px;
+    line-height: 28px;
+}
+
 #zevent-place-overlay-ui .zpo-overlay-description {
     padding: 16px;
     height: 100%;

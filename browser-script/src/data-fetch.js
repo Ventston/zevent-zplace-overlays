@@ -28,6 +28,8 @@ export const mapPublicOverlays = data => {
             y: item.y,
             width: item.width,
             height: item.height,
+            linked_ids: Array.isArray(item.linkedIds) ? item.linkedIds.map(idSanityCheck).filter(Boolean) : [],
+            is_default: item.isDefault === true,
             updated_at: typeof item.updatedAt === 'string' ? item.updatedAt : null,
         });
     }

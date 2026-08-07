@@ -2,6 +2,7 @@ import { inviteDiscordURL, scriptUpdateURL, version } from './constants';
 import { coordSanityCheck, urlSanityCheck, zpoLog } from './utils';
 import { addWantedOverlay, refreshKnownOverlays, reloadWantedOverlaysInDOM, removeWantedOverlay } from './overlay';
 import { config } from './store';
+import { isRemovable, linkedNames } from './links.js';
 import { getPanelParent } from './selectors';
 import { changeEnabledSymbols } from './symbols.js';
 import { renderTemplate } from './ui.js';
@@ -160,6 +161,9 @@ export function appendUIWantedOverlay(overlay) {
         overlayUrl: config.enableSymbols ? (overlay.overlay_colorblind_url ?? overlay.overlay_url) : overlay.overlay_url,
         threadUrl: overlay.thread_url,
         title: overlay.community_name,
+        linkedTo: linkedNames(overlay, config.wantedOverlays).join(', '),
+        removable: isRemovable(overlay, config.knownOverlays),
+        pinned: !isRemovable(overlay, config.knownOverlays),
     });
     const btnDel = tr.querySelector('#btn-del-' + overlay.id);
     if (btnDel)
