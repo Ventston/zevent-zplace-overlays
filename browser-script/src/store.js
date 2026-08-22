@@ -1,6 +1,7 @@
 /**
  * @typedef {Object} Overlay
  * @property {string} id - Unique identifier for the overlay
+ * @property {string} [slug] - Readable identifier carried by share links (`?overlay=`)
  * @property {string} [overlay_url] - URL of the overlay image
  * @property {string} [overlay_colorblind_url] - URL of the overlay image for colorblind users
  * @property {string} [community_name] - Name of the community associated with the overlay

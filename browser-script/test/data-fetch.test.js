@@ -7,6 +7,7 @@ const { serverBase } = await import('../src/constants.js');
 
 const valid = {
     id: '123e4567-e89b-42d3-a456-426614174000',
+    slug: 'ma-commu',
     name: 'Ma commu',
     description: 'desc',
     x: 100,
@@ -26,6 +27,7 @@ describe('mapPublicOverlays', () => {
         const [o] = mapPublicOverlays([valid]);
         expect(o).toEqual({
             id: valid.id,
+            slug: 'ma-commu',
             community_name: 'Ma commu',
             description: 'desc',
             community_twitch: 'https://twitch.tv/foo',
@@ -56,6 +58,13 @@ describe('mapPublicOverlays', () => {
         const [legacy] = mapPublicOverlays([{ ...valid, linkedIds: undefined, isDefault: undefined }]);
         expect(legacy.linked_ids).toEqual([]);
         expect(legacy.is_default).toBe(false);
+    });
+
+    it("retombe sur l'id quand le serveur n'envoie pas de slug, ou en envoie un invalide", () => {
+        const [legacy] = mapPublicOverlays([{ ...valid, slug: undefined }]);
+        expect(legacy.slug).toBe(valid.id);
+        const [bad] = mapPublicOverlays([{ ...valid, slug: 'pas/bon' }]);
+        expect(bad.slug).toBe(valid.id);
     });
 
     it('garde null pour colorblindImageUrl absent', () => {

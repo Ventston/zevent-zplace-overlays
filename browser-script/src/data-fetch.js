@@ -17,6 +17,7 @@ export const mapPublicOverlays = data => {
         if (typeof item.imageUrl !== 'string') continue;
         mapped.push({
             id,
+            slug: idSanityCheck(item.slug) || id,
             community_name: typeof item.name === 'string' ? item.name : id,
             description: typeof item.description === 'string' ? item.description : '',
             community_twitch: urlSanityCheck(item.twitchUrl),

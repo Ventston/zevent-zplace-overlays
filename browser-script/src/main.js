@@ -1,5 +1,5 @@
 import { appendOurUI, keepOurselfInDOM } from './panel';
-import { refreshKnownOverlays, reloadWantedOverlaysInDOM } from './overlay';
+import { applyQueryOverlays, refreshKnownOverlays, reloadWantedOverlaysInDOM } from './overlay';
 import { checkVersion } from './version.js';
 import { injectStyles } from './style.js';
 import { initSymbols } from './symbols.js';
@@ -19,7 +19,10 @@ import { refreshMessages } from './messages.js';
     track();
 
     //init all
-    refreshKnownOverlays().then(trackDailyOverlays);
+    refreshKnownOverlays().then(() => {
+        applyQueryOverlays();
+        trackDailyOverlays();
+    });
     //append ui
     injectStyles();
     appendOurUI();

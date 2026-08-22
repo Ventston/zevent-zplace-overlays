@@ -4,6 +4,7 @@ import { defaultsToAdd, groupToRemove, isRemovable, linkedToAdd, newlyLinkedToAd
 import { overlayProps, track } from './analytics';
 import { zpoLog } from './utils';
 import { overlayGeometry } from './geometry';
+import { overlayKeysFromQuery, searchWithoutOverlays } from './query';
 import { getOriginalCanvas, getOverlayParent } from './selectors';
 import { appendUIWantedOverlay, refreshDisplayTime, reloadUIKnownOverlays, reloadUIWantedOverlays } from './panel';
 
@@ -62,6 +63,33 @@ export function applyDefaultOverlays() {
     for (const overlay of defaultsToAdd(config.knownOverlays, config.wantedOverlays)) {
         zpoLog('applyDefaultOverlays() ' + overlay.id);
         addWantedOverlay(overlay);
+    }
+}
+
+export function applyQueryOverlays() {
+    const keys = overlayKeysFromQuery(location.search);
+    if (!keys.length) return;
+
+    let missing = false;
+    for (const key of keys) {
+        const overlay = config.knownOverlays.find(o => o.slug === key || o.id === key);
+        if (!overlay) {
+            zpoLog('applyQueryOverlays() unknown overlay: ' + key);
+            missing = true;
+            continue;
+        }
+        if (config.wantedOverlays.find(o => o.id === overlay.id)) {
+            zpoLog('applyQueryOverlays() already active: ' + key);
+            continue;
+        }
+        zpoLog('applyQueryOverlays() ' + key);
+        addWantedOverlay(overlay);
+        const availNode = document.getElementById('avail-node-' + overlay.id);
+        if (availNode) availNode.hidden = true;
+    }
+
+    if (!missing) {
+        history.replaceState(null, '', location.pathname + searchWithoutOverlays(location.search) + location.hash);
     }
 }
 
@@ -157,9 +185,7 @@ function appendOverlayToDOM(overlay) {
         zpoLog('appendOverlayInDOM() image.onerror for url: ' + url);
         if (overlay.id.startsWith('custom-')) {
             removeWantedOverlay(overlay.id);
-            alert(
-                "Impossible de charger l'overlay " + overlay.community_name + ", veuillez vérifier l'URL: " + url
-            );
+            alert("Impossible de charger l'overlay " + overlay.community_name + ", veuillez vérifier l'URL: " + url);
         }
     };
     const parent = getOverlayParent();

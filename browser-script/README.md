@@ -34,9 +34,9 @@ The userscript has been split into the following modules:
 
 1. Navigate to the `browser-script` directory
 2. Run the build script:
-   ```bash
-   node build-script.js
-   ```
+    ```bash
+    node build-script.js
+    ```
 3. The script will generate `zevent-place-overlay.user.js` with all modules combined
 
 ### Build Script Features
@@ -78,6 +78,35 @@ The userscript has been split into the following modules:
 
 Both fields are optional: a server version that does not send them leaves the script behaving as
 before.
+
+## Link activation (`?overlay=`)
+
+`https://place.zevent.fr/?overlay=les-lezarts` activates the overlay as the script loads: a
+community lead hands out a link instead of an instruction — "open the panel, look for X, click".
+The param repeats and accepts a list: `?overlay=a&overlay=b` and `?overlay=a,b` are equivalent, and
+linked overlays (`linkedIds`) come along just as they do on a click in the panel.
+
+The value is a **key**: the overlay's `slug`, or its `id`. The site copies the slug, which reads
+better and is picked by the community, but an id still works — that is what keeps a link valid even
+against an `overlays.json` served by a pre-slug server, where `mapPublicOverlays` falls back to the
+id. Keys go through `idSanityCheck` (`src/query.js`, pure and tested); an unknown key is only
+logged.
+
+Activation is the panel's own: it is persisted in GM storage, the overlay outlives the visit, and
+the user can remove it as usual.
+
+Once every key is resolved, `applyQueryOverlays()` strips the param from the URL
+(`history.replaceState`): without it, an F5 on the link would bring back an overlay the user has
+just removed. The param is kept, on the other hand, when a key was not found — typically an
+`overlays.json` that did not answer — so a reload gives it another chance.
+
+Worth noting in `src/meta.js`: the `@match` is `https://place.zevent.fr/*`, not `.../`. A match
+pattern's path is compared against the path **and** the query string, so the exact form did not
+match a URL carrying `?overlay=...` and the script would not have run.
+
+Server-side the slug is unique, derived from the name at creation (`les-lezarts`, `les-lezarts-2`…)
+and editable by the community; renaming the overlay leaves it alone, so links already handed out
+keep working.
 
 ## Analytics
 
