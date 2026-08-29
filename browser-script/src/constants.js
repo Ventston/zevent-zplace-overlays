@@ -1,6 +1,9 @@
 export const version = GM_info.script.version;
 export const scriptUpdateURL = GM_info.script.updateURL;
 
+export const placeOrigin = 'https://place.zevent.fr';
+export const presenceAttribute = 'data-zpo-version';
+
 export const serverBase = 'https://api-zevent-place.4each.dev';
 export const overlaysJsonUrl = serverBase + '/overlays.json';
 export const versionJsonUrl = 'https://raw.githubusercontent.com/Ventston/zevent-zplace-overlays/dev/browser-script/version.json';

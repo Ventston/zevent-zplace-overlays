@@ -7,8 +7,15 @@ import { config } from './store.js';
 import { initMisc } from './misc.js';
 import { track, trackDailyOverlays } from './analytics.js';
 import { refreshMessages } from './messages.js';
+import { announcePresence } from './presence.js';
+import { placeOrigin } from './constants.js';
 
 (function () {
+    if (window.location.origin !== placeOrigin) {
+        announcePresence();
+        return;
+    }
+
     if (!Array.isArray(config.wantedOverlays)) {
         config.wantedOverlays = [];
     }

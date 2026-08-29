@@ -165,7 +165,7 @@ function appendOverlayToDOM(overlay) {
     image.src = url + (url.includes('?') ? '&t=' : '?t=') + cacheKey;
     image.className = 'zevent-place-overlay-img';
     image.id = 'zpo-overlay-' + overlay.id;
-    image.style = 'background: none; position: absolute; left: 0px; top: 0px;';
+    image.style = 'background: none; position: absolute; left: 0px; top: 0px;z-index: 1000; pointer-events: none;';
 
     const geometry = overlayGeometry(overlay);
     if (geometry) {
