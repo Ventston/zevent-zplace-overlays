@@ -2,7 +2,7 @@
 // @name         zevent-place-overlay
 // @namespace    http://tampermonkey.net/
 // @license      MIT
-// @version      4.2.1
+// @version      4.2.2
 // @description  Please organize with other participants on Discord: https://discord.gg/sXe5aVW2jV ; Press H to hide/show again the overlay.
 // @author       PiRDub, ludolpif, ventston
 // @match        https://place.zevent.fr/*
@@ -632,71 +632,72 @@
       setTimeout(addPaletteObserver, 1e3);
     }
   };
+  var FALLBACK_COLORS = [
+    { colorCode: "#ffffff", name: "Blanc" },
+    { colorCode: "#d4d7d9", name: "Gris clair" },
+    { colorCode: "#898d90", name: "Gris" },
+    { colorCode: "#515252", name: "Gris fonc\xE9" },
+    { colorCode: "#000000", name: "Noir" },
+    { colorCode: "#6d001a", name: "Bordeaux" },
+    { colorCode: "#be0039", name: "Rouge fonc\xE9" },
+    { colorCode: "#ff4500", name: "Rouge" },
+    { colorCode: "#ff8a8a", name: "Rouge clair" },
+    { colorCode: "#ffa800", name: "Orange" },
+    { colorCode: "#ffb470", name: "Orange clair" },
+    { colorCode: "#ffd635", name: "Jaune" },
+    { colorCode: "#fff8b8", name: "Jaune p\xE2le" },
+    { colorCode: "#7a5901", name: "Or fonc\xE9" },
+    { colorCode: "#00a368", name: "Vert fonc\xE9" },
+    { colorCode: "#00cc78", name: "Vert" },
+    { colorCode: "#7eed56", name: "Vert clair" },
+    { colorCode: "#c8ff9e", name: "Vert p\xE2le" },
+    { colorCode: "#004c2c", name: "Sapin" },
+    { colorCode: "#8fbc3f", name: "Olive" },
+    { colorCode: "#00756f", name: "Sarcelle fonc\xE9" },
+    { colorCode: "#009eaa", name: "Sarcelle" },
+    { colorCode: "#00ccc0", name: "Turquoise" },
+    { colorCode: "#9ef5ee", name: "Turquoise p\xE2le" },
+    { colorCode: "#24468c", name: "Bleu fonc\xE9" },
+    { colorCode: "#3690ea", name: "Bleu" },
+    { colorCode: "#51e9f4", name: "Cyan" },
+    { colorCode: "#a8d8ff", name: "Bleu p\xE2le" },
+    { colorCode: "#101d3c", name: "Bleu nuit" },
+    { colorCode: "#493ac1", name: "Indigo" },
+    { colorCode: "#6a5cff", name: "Pervenche" },
+    { colorCode: "#94b3ff", name: "Lavande" },
+    { colorCode: "#811e9f", name: "Violet fonc\xE9" },
+    { colorCode: "#b44ac0", name: "Violet" },
+    { colorCode: "#e4abff", name: "Lilas" },
+    { colorCode: "#de107f", name: "Magenta" },
+    { colorCode: "#ff3881", name: "Rose" },
+    { colorCode: "#ff99aa", name: "Rose clair" },
+    { colorCode: "#ffdfe6", name: "Rose p\xE2le" },
+    { colorCode: "#4a2409", name: "Brun fonc\xE9" },
+    { colorCode: "#6d482f", name: "Brun" },
+    { colorCode: "#9c6926", name: "Brun clair" },
+    { colorCode: "#c9945a", name: "Caramel" },
+    { colorCode: "#ffb783", name: "Peau claire" },
+    { colorCode: "#e0906c", name: "Peau" },
+    { colorCode: "#a05a3c", name: "Peau fonc\xE9e" },
+    { colorCode: "#f2e8dc", name: "Ivoire" },
+    { colorCode: "#c7b299", name: "Sable" },
+    { colorCode: "#354a21", name: "Kaki" },
+    { colorCode: "#2b2b45", name: "Ardoise" }
+  ];
   var getColors = async () => {
-    const response = await fetch("https://place-api.zevent.fr/graphql", {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0",
-        Accept: "*/*",
-        "Accept-Language": "fr-FR,en-US;q=0.7,en;q=0.3",
-        "content-type": "application/json",
-        "Sec-Fetch-Dest": "empty",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Site": "same-site"
-      },
-      referrer: "https://place.zevent.fr/",
-      body: '{"operationName":"getAvailableColors","variables":{},"query":"query getAvailableColors {\\n  getAvailableColors {\\n    colorCode\\n    name\\n    __typename\\n  }\\n}"}',
-      method: "POST"
-    });
-    if (!response.ok) return zpoLog("Couldn't get colors" + response.statusText);
-    const data = await response.json();
-    const loadedColors = data.data?.getAvailableColors;
-    if (!loadedColors || loadedColors?.length === 0) {
-      zpoLog("getColors() loadedColors is empty, using fallback colors");
-      colors = [
-        { colorCode: "#000000" },
-        { colorCode: "#333434" },
-        { colorCode: "#D4D7D9" },
-        { colorCode: "#FFFFFF" },
-        { colorCode: "#6D302F" },
-        { colorCode: "#9C451A" },
-        { colorCode: "#6D001A" },
-        { colorCode: "#BE0027" },
-        { colorCode: "#FF2651" },
-        { colorCode: "#FF2D00" },
-        { colorCode: "#FFA800" },
-        { colorCode: "#FFB446" },
-        { colorCode: "#FFD623" },
-        { colorCode: "#FFF8B8" },
-        { colorCode: "#7EED38" },
-        { colorCode: "#00CC4E" },
-        { colorCode: "#00A344" },
-        { colorCode: "#598D5A" },
-        { colorCode: "#004B6F" },
-        { colorCode: "#009EAA" },
-        { colorCode: "#00CCC0" },
-        { colorCode: "#33E9F4" },
-        { colorCode: "#5EB3FF" },
-        { colorCode: "#245AEA" },
-        { colorCode: "#313AC1" },
-        { colorCode: "#1832A4" },
-        { colorCode: "#511E9F" },
-        { colorCode: "#6A5CFF" },
-        { colorCode: "#de0a7f" },
-        { colorCode: "#B44AC0" },
-        { colorCode: "#FF63AA" },
-        { colorCode: "#E4ABFF" }
-      ];
-    } else {
-      colors = loadedColors;
-      const index = colors.findIndex((color) => color.colorCode.toLowerCase() === "#33e9f4");
-      if (index !== -1) {
-        const index2 = colors.findIndex(
-          (color, i) => color.colorCode.toLowerCase() === "#33e9f4" && i !== index
-        );
-        if (index2 !== -1) {
-          colors[index2].colorCode = "#de0a7f";
-        }
+    try {
+      const response = await fetch("https://place-api.zevent.fr/colors");
+      if (!response.ok) return zpoLog("Couldn't get colors" + response.statusText);
+      const loadedColors = await response.json();
+      if (!Array.isArray(loadedColors) || loadedColors.length === 0) {
+        zpoLog("getColors() loadedColors is empty, using fallback colors");
+        colors = FALLBACK_COLORS;
+      } else {
+        colors = loadedColors;
       }
+    } catch (error) {
+      zpoLog("Couldn't get colors: " + error);
+      colors = FALLBACK_COLORS;
     }
   };
   var changeEnabledSymbols = async (enabled) => {
@@ -737,7 +738,7 @@
     }
   };
 
-  // _zsxcpliiv:src/template/panel.html
+  // _5o7hskfzy:src/template/panel.html
   var panel_default = `<div id="zevent-place-overlay-ui-head">\r
     <button id="zevent-place-overlay-ui-toggle" aria-expanded="false">\r
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"\r
@@ -925,7 +926,7 @@
 </div>\r
 `;
 
-  // _zsxcpliiv:src/template/settings.html
+  // _5o7hskfzy:src/template/settings.html
   var settings_default = `<div id="zpo-settings-panel" aria-expanded="false">\r
     <div class="zpo-settings-head">\r
         <span>Param\xE8tres</span>\r
@@ -969,10 +970,10 @@
 </div>\r
 `;
 
-  // _zsxcpliiv:src/template/knownOverlay.html
+  // _5o7hskfzy:src/template/knownOverlay.html
   var knownOverlay_default = '<div class="action_add">\r\n    <button id="btn-add-{{overlayId}}">\r\n        <svg\r\n            xmlns="http://www.w3.org/2000/svg"\r\n            width="16"\r\n            height="16"\r\n            viewBox="0 0 24 24"\r\n            fill="none"\r\n            stroke="currentColor"\r\n            stroke-width="2"\r\n            stroke-linecap="round"\r\n            stroke-linejoin="round"\r\n        >\r\n            <path d="M5 12h14" />\r\n            <path d="M12 5v14" />\r\n        </svg>\r\n    </button>\r\n</div>\r\n<div class="community_name zpo-overlay-title">\r\n    <span title="{{title}}">{{title}}</span>\r\n</div>\r\n<div class="zpo-wrapper-actions">\r\n    {{#if threadUrl}}\r\n    <div>\r\n        <a href="{{threadUrl}}" target="_blank" title="Ouvrir le fil de discussion Discord">\r\n            <button class="secondary">\r\n                <svg\r\n                    xmlns="http://www.w3.org/2000/svg"\r\n                    width="16"\r\n                    height="16"\r\n                    fill="currentColor"\r\n                    class="bi bi-discord"\r\n                    viewBox="0 0 16 16"\r\n                >\r\n                    <path\r\n                        d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"\r\n                    />\r\n                </svg>\r\n            </button>\r\n        </a>\r\n    </div>\r\n    {{/if}} {{#if description}}\r\n    <div class="description_btn">\r\n        <button id="btn-description-{{overlayId}}">\r\n            <svg\r\n                xmlns="http://www.w3.org/2000/svg"\r\n                width="16"\r\n                height="16"\r\n                viewBox="0 0 24 24"\r\n                fill="none"\r\n                stroke="currentColor"\r\n                stroke-width="2"\r\n                stroke-linecap="round"\r\n                stroke-linejoin="round"\r\n            >\r\n                <circle cx="12" cy="12" r="10" />\r\n                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />\r\n                <path d="M12 17h.01" />\r\n            </svg>\r\n        </button>\r\n    </div>\r\n    {{/if}}\r\n</div>\r\n';
 
-  // _zsxcpliiv:src/template/wantedOverlay.html
+  // _5o7hskfzy:src/template/wantedOverlay.html
   var wantedOverlay_default = `<div class="action_del" style="display: flex; justify-content: center; align-items: center; flex-shrink: 0">\r
     {{#if pinned}}\r
     <span class="zpo-pinned" title="Overlay mis en avant par l'organisation : il ne peut pas \xEAtre retir\xE9">\u{1F4CC}</span>\r
@@ -1100,13 +1101,13 @@
 </div>\r
 `;
 
-  // _zsxcpliiv:src/template/overlayDescription.html
+  // _5o7hskfzy:src/template/overlayDescription.html
   var overlayDescription_default = '{{#if description}}\r\n<div id="desc-node-{{overlayId}}" class="zpo-overlay-description" aria-expanded="false">{{description}}</div>\r\n{{/if}}\r\n';
 
-  // _zsxcpliiv:src/template/update.html
+  // _5o7hskfzy:src/template/update.html
   var update_default = '<a class="zpo-update" href="{{scriptUpdateURL}}" title="Mettre \xE0 jour le script" target="_blank" rel="noopener">\r\n    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"\r\n         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"\r\n         class="lucide lucide-download-icon lucide-download">\r\n        <path d="M12 15V3"/>\r\n        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>\r\n        <path d="m7 10 5 5 5-5"/>\r\n    </svg>\r\n    Nouvelle version : v{{newVersion}}\r\n</a>\r\n';
 
-  // _zsxcpliiv:src/template/message.html
+  // _5o7hskfzy:src/template/message.html
   var message_default = '<div class="zpo-message" data-level="{{level}}">\r\n    <svg class="zpo-icon-info" xmlns="http://www.w3.org/2000/svg" width="24" height="24"\r\n         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"\r\n         stroke-linejoin="round">\r\n        <circle cx="12" cy="12" r="10"/>\r\n        <path d="M12 16v-4"/>\r\n        <path d="M12 8h.01"/>\r\n    </svg>\r\n    <svg class="zpo-icon-warning" xmlns="http://www.w3.org/2000/svg" width="24" height="24"\r\n         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"\r\n         stroke-linejoin="round">\r\n        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>\r\n        <path d="M12 9v4"/>\r\n        <path d="M12 17h.01"/>\r\n    </svg>\r\n    <svg class="zpo-icon-critical" xmlns="http://www.w3.org/2000/svg" width="24" height="24"\r\n         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"\r\n         stroke-linejoin="round">\r\n        <path d="M12 16h.01"/>\r\n        <path d="M12 8v4"/>\r\n        <path d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z"/>\r\n    </svg>\r\n    <div class="zpo-message-body">\r\n        <span class="zpo-message-content">{{content}}</span>\r\n        {{#if linkUrl}}\r\n        <a class="zpo-message-link" href="{{linkUrl}}" target="_blank" rel="noopener">{{linkLabel}}</a>\r\n        {{/if}}\r\n    </div>\r\n    {{#if dismissible}}\r\n    <button class="zpo-message-close" data-zpo-dismiss="{{key}}" title="Masquer ce message">\r\n        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"\r\n             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\r\n            <path d="M18 6 6 18"/>\r\n            <path d="m6 6 12 12"/>\r\n        </svg>\r\n    </button>\r\n    {{/if}}\r\n</div>\r\n';
 
   // src/ui.js
@@ -1495,7 +1496,7 @@
     }
   }
 
-  // _cxxdiijjx:src/template/styles.css
+  // _g2klcfs48:src/template/styles.css
   var styles_default = "@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap');\r\n\r\n#zevent-place-overlay-ui {\r\n    --zpo-bg: #14161d;\r\n    --zpo-card: #1b1e28;\r\n    --zpo-elevated: #242836;\r\n    --zpo-accent: #2a2f3f;\r\n    --zpo-border: #2a2f3d;\r\n    --zpo-fg: #e9ebf2;\r\n    --zpo-muted: #8e95aa;\r\n    --zpo-primary: #38bdf8;\r\n    --zpo-primary-hover: #20b0f4;\r\n    --zpo-primary-active: #0ea5e9;\r\n    --zpo-primary-fg: #14161d;\r\n    --zpo-destructive: #e5484d;\r\n    --zpo-warn: #f5b544;\r\n    --zpo-ring: rgba(56, 189, 248, 0.25);\r\n    --zpo-checker: rgba(233, 235, 242, 0.07);\r\n    --zpo-font-sans: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;\r\n    --zpo-font-pixel: 'Silkscreen', ui-monospace, 'Cascadia Mono', Consolas, monospace;\r\n\r\n    max-width: 350px;\r\n    min-width: 300px;\r\n    font-family: var(--zpo-font-sans);\r\n    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);\r\n    padding: 0 12px;\r\n    border-radius: 0;\r\n    border: 1px solid var(--zpo-border);\r\n    background: var(--zpo-card);\r\n    color: var(--zpo-fg);\r\n    position: fixed;\r\n    top: 16px;\r\n    left: 16px;\r\n    z-index: 99999;\r\n}\r\n\r\n#zevent-place-overlay-ui [hidden] {\r\n    display: none !important;\r\n}\r\n\r\n#zevent-place-overlay-ui-toggle > svg {\r\n    transition: transform 0.3s ease;\r\n}\r\n#zevent-place-overlay-ui-toggle[aria-expanded='true'] > svg {\r\n    transform: rotate(180deg);\r\n}\r\n\r\n#zevent-place-overlay-ui-head {\r\n    position: relative;\r\n    display: flex;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n    gap: 8px;\r\n    padding: 12px 0;\r\n    font-family: var(--zpo-font-pixel);\r\n    font-size: 13px;\r\n    letter-spacing: 0.02em;\r\n}\r\n\r\n#zevent-place-overlay-ui-head::after {\r\n    content: '';\r\n    position: absolute;\r\n    left: -12px;\r\n    right: -12px;\r\n    bottom: 0;\r\n    height: 6px;\r\n    pointer-events: none;\r\n    border-top: 1px solid var(--zpo-border);\r\n    border-bottom: 1px solid var(--zpo-border);\r\n    background-image: conic-gradient(\r\n        var(--zpo-checker) 25%,\r\n        transparent 25% 50%,\r\n        var(--zpo-checker) 50% 75%,\r\n        transparent 75%\r\n    );\r\n    background-size: 12px 12px;\r\n}\r\n\r\n#zevent-place-overlay-ui-version,\r\n#zevent-place-overlay-wanted-ts,\r\n#zevent-place-overlay-known-ts {\r\n    font-family: var(--zpo-font-sans);\r\n    color: var(--zpo-muted);\r\n}\r\n\r\n#zevent-place-overlay-ui hr {\r\n    all: unset;\r\n    border: none;\r\n    border-top: 1px solid var(--zpo-border);\r\n    margin-top: 16px;\r\n    width: 100%;\r\n}\r\n\r\n#zevent-place-overlay-ui input {\r\n    width: 100%;\r\n    box-sizing: border-box;\r\n    padding: 8px 12px;\r\n    border-radius: 0;\r\n    border: 1px solid var(--zpo-border);\r\n    background-color: var(--zpo-bg);\r\n    color: var(--zpo-fg);\r\n    font-size: 14px;\r\n    font-family: var(--zpo-font-sans);\r\n    transition:\r\n        border-color 0.15s ease,\r\n        box-shadow 0.15s ease;\r\n}\r\n\r\n#zevent-place-overlay-ui input[type='number'] {\r\n    -moz-appearance: textfield;\r\n    appearance: textfield;\r\n    text-align: center;\r\n}\r\n\r\n#zevent-place-overlay-ui input[type='number']::-webkit-inner-spin-button,\r\n#zevent-place-overlay-ui input[type='number']::-webkit-outer-spin-button {\r\n    -webkit-appearance: none;\r\n    margin: 0;\r\n}\r\n\r\n#zevent-place-overlay-ui input:focus {\r\n    outline: none;\r\n    border-color: var(--zpo-primary);\r\n    box-shadow: 0 0 0 3px var(--zpo-ring);\r\n}\r\n\r\n#zevent-place-overlay-ui input::placeholder {\r\n    color: var(--zpo-muted);\r\n    opacity: 1;\r\n}\r\n\r\n#zevent-place-overlay-ui button {\r\n    height: 28px;\r\n    min-height: 28px;\r\n    width: 28px;\r\n    min-width: 28px;\r\n    color: var(--zpo-fg);\r\n    background: transparent;\r\n    border: 1px solid var(--zpo-border);\r\n    border-radius: 0;\r\n    justify-content: center;\r\n    align-items: center;\r\n    padding: 0;\r\n    font-size: 13px;\r\n    font-weight: 500;\r\n    font-family: var(--zpo-font-sans);\r\n    display: inline-flex;\r\n    cursor: pointer;\r\n    transition:\r\n        background-color 0.15s ease,\r\n        border-color 0.15s ease,\r\n        color 0.15s ease;\r\n}\r\n\r\n#zevent-place-overlay-ui button:hover {\r\n    background: var(--zpo-accent);\r\n    border-color: #3a4256;\r\n}\r\n\r\n#zevent-place-overlay-ui button:active {\r\n    background: var(--zpo-border);\r\n}\r\n\r\n#zevent-place-overlay-ui button > svg {\r\n    height: 16px;\r\n    width: 16px;\r\n    padding: 0;\r\n    justify-content: center;\r\n    flex-shrink: 0;\r\n}\r\n\r\n#zevent-place-overlay-ui #zevent-place-overlay-ui-toggle {\r\n    border-color: transparent;\r\n}\r\n#zevent-place-overlay-ui #zevent-place-overlay-ui-toggle:hover {\r\n    background: var(--zpo-accent);\r\n    border-color: transparent;\r\n}\r\n\r\n#zevent-place-overlay-ui #btn-custom-add,\r\n#zevent-place-overlay-ui [id^='btn-add-'] {\r\n    background: var(--zpo-primary);\r\n    border-color: var(--zpo-primary);\r\n    color: var(--zpo-primary-fg);\r\n}\r\n#zevent-place-overlay-ui #btn-custom-add:hover,\r\n#zevent-place-overlay-ui [id^='btn-add-']:hover {\r\n    background: var(--zpo-primary-hover);\r\n    border-color: var(--zpo-primary-hover);\r\n}\r\n#zevent-place-overlay-ui #btn-custom-add:active,\r\n#zevent-place-overlay-ui [id^='btn-add-']:active {\r\n    background: var(--zpo-primary-active);\r\n    border-color: var(--zpo-primary-active);\r\n}\r\n\r\n#zevent-place-overlay-ui [id^='btn-del-']:hover {\r\n    background: rgba(229, 72, 77, 0.15);\r\n    border-color: var(--zpo-destructive);\r\n    color: var(--zpo-destructive);\r\n}\r\n\r\n#zevent-place-overlay-ui button.secondary {\r\n    background: var(--zpo-elevated);\r\n    border-color: var(--zpo-border);\r\n    color: var(--zpo-fg);\r\n}\r\n#zevent-place-overlay-ui button.secondary:hover {\r\n    background: var(--zpo-accent);\r\n    border-color: #3a4256;\r\n}\r\n#zevent-place-overlay-ui button.secondary:active {\r\n    background: var(--zpo-border);\r\n}\r\n#zevent-place-overlay-ui button.secondary > svg {\r\n    height: 16px;\r\n    width: 16px;\r\n    padding: 0;\r\n    justify-content: center;\r\n    flex-shrink: 0;\r\n}\r\n\r\n#zevent-place-overlay-ui label {\r\n    color: var(--zpo-fg);\r\n    font-size: 13px;\r\n    font-weight: 500;\r\n    margin-bottom: 4px;\r\n    display: block;\r\n}\r\n\r\n#zevent-place-overlay-ui a {\r\n    color: var(--zpo-primary);\r\n    text-decoration: none;\r\n    transition: color 0.15s ease;\r\n}\r\n\r\n#zevent-place-overlay-ui a:hover {\r\n    color: #7dd3fc;\r\n    text-decoration: underline;\r\n}\r\n\r\n#zevent-place-overlay-ui-list-wanted-overlays,\r\n#zevent-place-overlay-ui-list-known-overlays {\r\n    width: 100%;\r\n    margin: 8px 0;\r\n}\r\n\r\n#zevent-place-overlay-ui-list-wanted-overlays {\r\n    display: flex;\r\n    flex-direction: column;\r\n    gap: 4px;\r\n    max-height: calc(32px * 5 + 4px * 4);\r\n    overflow-y: auto;\r\n}\r\n\r\n#zevent-place-overlay-ui-list-known-overlays {\r\n    max-height: calc(100vh - 200px);\r\n    overflow-y: auto;\r\n    display: flex;\r\n    flex-direction: column;\r\n    gap: 4px;\r\n}\r\n\r\n#zevent-place-overlay-ui-body {\r\n    scrollbar-width: thin;\r\n    scrollbar-color: var(--zpo-border) transparent;\r\n    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);\r\n    display: flex;\r\n    flex-flow: row wrap;\r\n    flex-direction: column;\r\n    overflow: hidden;\r\n}\r\n\r\n#zevent-place-overlay-ui-body[aria-expanded='false'] {\r\n    height: 0;\r\n}\r\n\r\n#zevent-place-overlay-ui-body[aria-expanded='true'] {\r\n    height: calc(100vh - 84px - var(--zpo-banners, 0px));\r\n}\r\n\r\n#zevent-place-overlay-ui-overlaylist {\r\n    flex: 1;\r\n    overflow: hidden;\r\n    padding-top: 20px;\r\n    box-sizing: border-box;\r\n    display: flex;\r\n    flex-direction: column;\r\n}\r\n\r\n#zevent-place-overlay-ui-overlaylist::-webkit-scrollbar {\r\n    width: 6px;\r\n}\r\n\r\n#zevent-place-overlay-ui-overlaylist::-webkit-scrollbar-track {\r\n    background: transparent;\r\n}\r\n\r\n#zevent-place-overlay-ui-overlaylist::-webkit-scrollbar-thumb {\r\n    background-color: var(--zpo-border);\r\n    border-radius: 0;\r\n}\r\n\r\n#zevent-place-overlay-ui-overlaylist::-webkit-scrollbar-thumb:hover {\r\n    background-color: var(--zpo-primary);\r\n}\r\n\r\n#zevent-place-overlay-ui input[type='checkbox'] {\r\n    -webkit-appearance: none;\r\n    -moz-appearance: none;\r\n    appearance: none;\r\n    background-color: var(--zpo-bg);\r\n    margin: 0;\r\n    font: inherit;\r\n    color: currentColor;\r\n    width: 16px;\r\n    height: 16px;\r\n    border: 1px solid var(--zpo-border);\r\n    border-radius: 0;\r\n    display: grid;\r\n    place-content: center;\r\n    padding: 0;\r\n    cursor: pointer;\r\n}\r\n\r\n#zevent-place-overlay-ui input[type='checkbox']:checked {\r\n    background: var(--zpo-primary);\r\n    border-color: var(--zpo-primary);\r\n}\r\n\r\n#zevent-place-overlay-ui input[type='checkbox']::before {\r\n    content: '';\r\n    width: 10px;\r\n    height: 10px;\r\n    -webkit-clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);\r\n    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);\r\n    transform: scale(0);\r\n    transform-origin: bottom left;\r\n    transition: 120ms transform ease-in-out;\r\n    box-shadow: inset 1em 1em var(--zpo-primary-fg);\r\n    background-color: CanvasText;\r\n}\r\n\r\n#zevent-place-overlay-ui input[type='checkbox']:checked::before {\r\n    transform: scale(1);\r\n}\r\n\r\n#zevent-place-overlay-ui input[type='checkbox']:hover {\r\n    border-color: var(--zpo-primary);\r\n    background: var(--zpo-accent);\r\n}\r\n\r\n#zevent-place-overlay-ui input[type='checkbox']:checked:hover {\r\n    background: var(--zpo-primary-hover);\r\n    border-color: var(--zpo-primary-hover);\r\n}\r\n\r\n.zevent-place-overlay-symbol {\r\n    position: absolute;\r\n    top: 50%;\r\n    left: 50%;\r\n    transform: translate(-50%, -50%);\r\n    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));\r\n}\r\n\r\n@media (max-width: 400px) {\r\n    #zevent-place-overlay-ui {\r\n        max-width: calc(100vw - 32px);\r\n        min-width: 280px;\r\n    }\r\n\r\n    #zevent-place-overlay-ui input {\r\n        font-size: 16px;\r\n    }\r\n}\r\n\r\n#zevent-place-overlay-ui .form-group {\r\n    margin: 12px 0;\r\n}\r\n\r\n#zevent-place-overlay-ui .form-row {\r\n    display: flex;\r\n    gap: 8px;\r\n    align-items: center;\r\n    justify-content: center;\r\n}\r\n\r\n#zevent-place-overlay-ui .form-row input {\r\n    flex: 1;\r\n}\r\n\r\n#zevent-place-overlay-ui .form-row button {\r\n    margin-left: 0;\r\n    flex-shrink: 0;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-section-title {\r\n    font-family: var(--zpo-font-pixel);\r\n    font-size: 11px;\r\n    letter-spacing: 0.04em;\r\n    margin: 16px 0 8px 0;\r\n    padding-bottom: 6px;\r\n    border-bottom: 1px solid var(--zpo-border);\r\n\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: space-between;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-section-subtitle {\r\n    font-size: 12px;\r\n    color: var(--zpo-muted);\r\n    margin-top: -8px;\r\n    margin-bottom: 8px;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-head-actions {\r\n    display: flex;\r\n    align-items: center;\r\n    gap: 4px;\r\n}\r\n\r\n#zpo-settings-panel {\r\n    position: absolute;\r\n    top: 0;\r\n    left: calc(100% + 9px);\r\n    width: 270px;\r\n    box-sizing: border-box;\r\n    padding: 0 12px 12px;\r\n    background: var(--zpo-card);\r\n    border: 1px solid var(--zpo-border);\r\n    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);\r\n    /* align\xE9 sur le haut du panneau, lui-m\xEAme \xE0 16px du viewport : on garde la m\xEAme marge en bas */\r\n    max-height: calc(100vh - 32px);\r\n    overflow-y: auto;\r\n    scrollbar-width: thin;\r\n    scrollbar-color: var(--zpo-border) transparent;\r\n}\r\n\r\n#zpo-settings-panel[aria-expanded='false'] {\r\n    display: none;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-settings-head {\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: space-between;\r\n    gap: 8px;\r\n    padding: 12px 0 10px;\r\n    margin-bottom: 4px;\r\n    border-bottom: 1px solid var(--zpo-border);\r\n    font-family: var(--zpo-font-pixel);\r\n    font-size: 11px;\r\n    letter-spacing: 0.04em;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-settings-row {\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: space-between;\r\n    gap: 8px;\r\n    padding: 6px 0;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-settings-row + .zpo-settings-note {\r\n    margin-top: 6px;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-settings-note {\r\n    margin: 0 0 8px;\r\n    font-size: 11px;\r\n    line-height: 1.5;\r\n    color: var(--zpo-muted);\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-settings-note:last-child {\r\n    margin-bottom: 0;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-settings-note strong {\r\n    color: var(--zpo-fg);\r\n    font-weight: 500;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-settings-row label {\r\n    margin-bottom: 0;\r\n    font-weight: 400;\r\n}\r\n\r\n@media (max-width: 400px) {\r\n    #zevent-place-overlay-ui #zpo-settings-panel {\r\n        position: static;\r\n        width: auto;\r\n        margin: 0 -12px;\r\n        border-left: none;\r\n        border-right: none;\r\n        box-shadow: none;\r\n    }\r\n}\r\n\r\n#zevent-place-overlay-ui #btn-settings[aria-expanded='true'] {\r\n    background: var(--zpo-accent);\r\n    color: var(--zpo-primary);\r\n}\r\n\r\n#zevent-place-overlay-ui .action_add {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n    flex-shrink: 0;\r\n}\r\n\r\n#zevent-place-overlay-ui .community_name {\r\n    flex: 1;\r\n    padding: 5px;\r\n    display: flex;\r\n    justify-content: flex-start;\r\n    align-items: center;\r\n    max-width: 160px;\r\n    white-space: nowrap;\r\n    overflow: hidden;\r\n    text-overflow: ellipsis;\r\n}\r\n\r\n#zevent-place-overlay-ui .community_discord {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n    flex-shrink: 0;\r\n    padding: 2px;\r\n}\r\n\r\n#zevent-place-overlay-ui .description_btn {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n    flex-shrink: 0;\r\n}\r\n\r\n#zevent-place-overlay-ui .thread_url {\r\n    display: flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n    flex-shrink: 0;\r\n    padding: 2px;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-wrapper-actions {\r\n    display: flex;\r\n    gap: 4px;\r\n    align-items: center;\r\n    justify-content: center;\r\n    margin-left: auto;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-btn-show-hide[data-shown='true'] > .eye-closed,\r\n#zevent-place-overlay-ui .zpo-btn-show-hide[data-shown='false'] > .eye {\r\n    display: none;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-btn-show-hide[data-shown='true'] > .eye,\r\n#zevent-place-overlay-ui .zpo-btn-show-hide[data-shown='false'] > .eye-closed {\r\n    display: block;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-overlay-line {\r\n    display: flex;\r\n    align-items: center;\r\n    gap: 8px;\r\n    justify-content: space-between;\r\n    padding: 4px;\r\n    flex-wrap: wrap;\r\n    border-radius: 0;\r\n    transition: background-color 0.15s ease;\r\n    font-size: 12px;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-overlay-line:hover {\r\n    background-color: rgba(56, 189, 248, 0.08);\r\n}\r\n\r\n#zevent-place-overlay-ui #newUpdate:empty {\r\n    display: none;\r\n}\r\n\r\n#zevent-place-overlay-ui #newUpdate {\r\n    margin: 8px 0;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-update {\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n    gap: 8px;\r\n    height: 30px;\r\n    border: 1px solid var(--zpo-warn);\r\n    background: rgba(245, 181, 68, 0.12);\r\n    color: var(--zpo-warn);\r\n    font-size: 12px;\r\n    transition: background-color 0.15s ease, color 0.15s ease;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-update:hover {\r\n    background: var(--zpo-warn);\r\n    color: var(--zpo-primary-fg);\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-update > svg {\r\n    width: 14px;\r\n    height: 14px;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-message {\r\n    --zpo-level: var(--zpo-primary);\r\n    display: flex;\r\n    align-items: flex-start;\r\n    gap: 8px;\r\n    margin: 8px 0;\r\n    padding: 8px 10px;\r\n    border: 1px solid var(--zpo-level);\r\n    background: color-mix(in srgb, var(--zpo-level) 12%, transparent);\r\n    color: var(--zpo-primary);\r\n    font-size: 12px;\r\n    line-height: 1.45;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-message[data-level='warning'] {\r\n    --zpo-level: var(--zpo-warn);\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-message[data-level='critical'] {\r\n    --zpo-level: var(--zpo-destructive);\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-message > svg {\r\n    display: none;\r\n    width: 14px;\r\n    height: 14px;\r\n    flex-shrink: 0;\r\n    margin-top: 2px;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-message[data-level='info'] > .zpo-icon-info,\r\n#zevent-place-overlay-ui .zpo-message[data-level='warning'] > .zpo-icon-warning,\r\n#zevent-place-overlay-ui .zpo-message[data-level='critical'] > .zpo-icon-critical {\r\n    display: block;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-message-body {\r\n    flex: 1;\r\n    min-width: 0;\r\n    color: var(--zpo-fg);\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-message-content {\r\n    display: block;\r\n    white-space: pre-line;\r\n    overflow-wrap: anywhere;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-message-link {\r\n    display: inline-block;\r\n    margin-top: 4px;\r\n    color: var(--zpo-level);\r\n    text-decoration: underline;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-message-close {\r\n    height: 20px;\r\n    min-height: 20px;\r\n    width: 20px;\r\n    min-width: 20px;\r\n    border-color: transparent;\r\n    color: inherit;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-message-close:hover {\r\n    background: var(--zpo-accent);\r\n    border-color: transparent;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-overlay-title {\r\n    flex: 1;\r\n    padding: 5px;\r\n    max-width: 160px;\r\n    white-space: nowrap;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-overlay-title > span {\r\n    overflow: hidden;\r\n    text-overflow: ellipsis;\r\n    display: inline-block;\r\n    max-width: 100%;\r\n    line-height: 17px;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-overlay-title:has(.zpo-linked) > span:first-child {\r\n    max-width: calc(100% - 18px);\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-overlay-title > span.zpo-linked {\r\n    display: inline-flex;\r\n    align-items: center;\r\n    opacity: 0.7;\r\n    cursor: help;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-linked > svg {\r\n    height: 14px;\r\n    width: 14px;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-pinned {\r\n    opacity: 0.7;\r\n    cursor: help;\r\n    font-size: 14px;\r\n    line-height: 28px;\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-overlay-description {\r\n    padding: 16px;\r\n    height: 100%;\r\n    font-size: 12px;\r\n    display: block;\r\n    color: var(--zpo-muted);\r\n}\r\n\r\n#zevent-place-overlay-ui .zpo-overlay-description[aria-expanded='false'] {\r\n    height: 0;\r\n    padding: 0;\r\n    display: none;\r\n}\r\n\r\n#zevent-place-overlay-ui #newUpdate > div {\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n    gap: 6px;\r\n}\r\n";
 
   // src/style.js

@@ -173,72 +173,73 @@ const addPaletteObserver = () => {
     }
 };
 
+const FALLBACK_COLORS = [
+    { colorCode: '#ffffff', name: 'Blanc' },
+    { colorCode: '#d4d7d9', name: 'Gris clair' },
+    { colorCode: '#898d90', name: 'Gris' },
+    { colorCode: '#515252', name: 'Gris foncé' },
+    { colorCode: '#000000', name: 'Noir' },
+    { colorCode: '#6d001a', name: 'Bordeaux' },
+    { colorCode: '#be0039', name: 'Rouge foncé' },
+    { colorCode: '#ff4500', name: 'Rouge' },
+    { colorCode: '#ff8a8a', name: 'Rouge clair' },
+    { colorCode: '#ffa800', name: 'Orange' },
+    { colorCode: '#ffb470', name: 'Orange clair' },
+    { colorCode: '#ffd635', name: 'Jaune' },
+    { colorCode: '#fff8b8', name: 'Jaune pâle' },
+    { colorCode: '#7a5901', name: 'Or foncé' },
+    { colorCode: '#00a368', name: 'Vert foncé' },
+    { colorCode: '#00cc78', name: 'Vert' },
+    { colorCode: '#7eed56', name: 'Vert clair' },
+    { colorCode: '#c8ff9e', name: 'Vert pâle' },
+    { colorCode: '#004c2c', name: 'Sapin' },
+    { colorCode: '#8fbc3f', name: 'Olive' },
+    { colorCode: '#00756f', name: 'Sarcelle foncé' },
+    { colorCode: '#009eaa', name: 'Sarcelle' },
+    { colorCode: '#00ccc0', name: 'Turquoise' },
+    { colorCode: '#9ef5ee', name: 'Turquoise pâle' },
+    { colorCode: '#24468c', name: 'Bleu foncé' },
+    { colorCode: '#3690ea', name: 'Bleu' },
+    { colorCode: '#51e9f4', name: 'Cyan' },
+    { colorCode: '#a8d8ff', name: 'Bleu pâle' },
+    { colorCode: '#101d3c', name: 'Bleu nuit' },
+    { colorCode: '#493ac1', name: 'Indigo' },
+    { colorCode: '#6a5cff', name: 'Pervenche' },
+    { colorCode: '#94b3ff', name: 'Lavande' },
+    { colorCode: '#811e9f', name: 'Violet foncé' },
+    { colorCode: '#b44ac0', name: 'Violet' },
+    { colorCode: '#e4abff', name: 'Lilas' },
+    { colorCode: '#de107f', name: 'Magenta' },
+    { colorCode: '#ff3881', name: 'Rose' },
+    { colorCode: '#ff99aa', name: 'Rose clair' },
+    { colorCode: '#ffdfe6', name: 'Rose pâle' },
+    { colorCode: '#4a2409', name: 'Brun foncé' },
+    { colorCode: '#6d482f', name: 'Brun' },
+    { colorCode: '#9c6926', name: 'Brun clair' },
+    { colorCode: '#c9945a', name: 'Caramel' },
+    { colorCode: '#ffb783', name: 'Peau claire' },
+    { colorCode: '#e0906c', name: 'Peau' },
+    { colorCode: '#a05a3c', name: 'Peau foncée' },
+    { colorCode: '#f2e8dc', name: 'Ivoire' },
+    { colorCode: '#c7b299', name: 'Sable' },
+    { colorCode: '#354a21', name: 'Kaki' },
+    { colorCode: '#2b2b45', name: 'Ardoise' },
+];
+
 const getColors = async () => {
-    const response = await fetch('https://place-api.zevent.fr/graphql', {
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0',
-            Accept: '*/*',
-            'Accept-Language': 'fr-FR,en-US;q=0.7,en;q=0.3',
-            'content-type': 'application/json',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-site',
-        },
-        referrer: 'https://place.zevent.fr/',
-        body: '{"operationName":"getAvailableColors","variables":{},"query":"query getAvailableColors {\\n  getAvailableColors {\\n    colorCode\\n    name\\n    __typename\\n  }\\n}"}',
-        method: 'POST',
-    });
-    if (!response.ok) return zpoLog("Couldn't get colors" + response.statusText);
-    const data = await response.json();
-    const loadedColors = data.data?.getAvailableColors;
-    if (!loadedColors || loadedColors?.length === 0) {
-        zpoLog('getColors() loadedColors is empty, using fallback colors');
-        colors = [
-            { colorCode: '#000000' },
-            { colorCode: '#333434' },
-            { colorCode: '#D4D7D9' },
-            { colorCode: '#FFFFFF' },
-            { colorCode: '#6D302F' },
-            { colorCode: '#9C451A' },
-            { colorCode: '#6D001A' },
-            { colorCode: '#BE0027' },
-            { colorCode: '#FF2651' },
-            { colorCode: '#FF2D00' },
-            { colorCode: '#FFA800' },
-            { colorCode: '#FFB446' },
-            { colorCode: '#FFD623' },
-            { colorCode: '#FFF8B8' },
-            { colorCode: '#7EED38' },
-            { colorCode: '#00CC4E' },
-            { colorCode: '#00A344' },
-            { colorCode: '#598D5A' },
-            { colorCode: '#004B6F' },
-            { colorCode: '#009EAA' },
-            { colorCode: '#00CCC0' },
-            { colorCode: '#33E9F4' },
-            { colorCode: '#5EB3FF' },
-            { colorCode: '#245AEA' },
-            { colorCode: '#313AC1' },
-            { colorCode: '#1832A4' },
-            { colorCode: '#511E9F' },
-            { colorCode: '#6A5CFF' },
-            { colorCode: '#de0a7f' },
-            { colorCode: '#B44AC0' },
-            { colorCode: '#FF63AA' },
-            { colorCode: '#E4ABFF' },
-        ];
-    } else {
-        colors = loadedColors;
-        //there are two #33E9F4, change the second one to #de0a7f
-        const index = colors.findIndex(color => color.colorCode.toLowerCase() === '#33e9f4');
-        if (index !== -1) {
-            const index2 = colors.findIndex(
-                (color, i) => color.colorCode.toLowerCase() === '#33e9f4' && i !== index
-            );
-            if (index2 !== -1) {
-                colors[index2].colorCode = '#de0a7f';
-            }
+    try {
+        const response = await fetch('https://place-api.zevent.fr/colors');
+        if (!response.ok) return zpoLog("Couldn't get colors" + response.statusText);
+        const loadedColors = await response.json();
+        if (!Array.isArray(loadedColors) || loadedColors.length === 0) {
+            zpoLog('getColors() loadedColors is empty, using fallback colors');
+            colors = FALLBACK_COLORS;
+        } else {
+            colors = loadedColors;
         }
+    } catch (error) {
+        zpoLog("Couldn't get colors: " + error);
+        colors = FALLBACK_COLORS;
     }
 };
 
