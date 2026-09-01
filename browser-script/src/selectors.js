@@ -3,8 +3,7 @@ export const getOriginalCanvas = () => {
 };
 
 export const getOverlayParent = () => {
-    const canvas = getOriginalCanvas();
-    return canvas.parentElement;
+    return getOriginalCanvas()?.parentElement ?? null;
 };
 
 export const getPanelParent = () => {

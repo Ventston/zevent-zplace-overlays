@@ -97,6 +97,10 @@ export function applyQueryOverlays() {
 function fitOverlayOnCanvas(image) {
     zpoLog('fitOverlayOnCanvas()');
     const origCanvas = getOriginalCanvas();
+    if (!origCanvas) {
+        zpoLog('fitOverlayOnCanvas() WARNING: no canvas (maintenance?)');
+        return;
+    }
 
     const nw = image.naturalWidth;
     const nh = image.naturalHeight;
@@ -154,6 +158,12 @@ function dropOverlay(overlayId) {
 function appendOverlayToDOM(overlay) {
     if (!overlay || (!overlay.overlay_url && !overlay.overlay_colorblind_url)) return;
 
+    const parent = getOverlayParent();
+    if (!parent) {
+        zpoLog('appendOverlayInDOM() no canvas, skipping: ' + overlay.id);
+        return;
+    }
+
     let url = overlay.overlay_url;
     if (config.enableSymbols && overlay.overlay_colorblind_url) {
         url = overlay.overlay_colorblind_url;
@@ -190,10 +200,7 @@ function appendOverlayToDOM(overlay) {
         }
     };
     image.onerror = () => onImageFailure('onerror');
-    const parent = getOverlayParent();
-    if (parent) {
-        parent.appendChild(image);
-    }
+    parent.appendChild(image);
     gmFetchImageDataUrl(src)
         .then(dataUrl => {
             if (image.isConnected) image.src = dataUrl;
