@@ -2,6 +2,7 @@ import { zpoLog } from './utils.js';
 import { config } from './store.js';
 import { track } from './analytics.js';
 import { symbolsUrl } from './constants.js';
+import { gmFetchJson } from './http.js';
 import { reloadWantedOverlaysInDOM } from './overlay.js';
 import { reloadUIWantedOverlays } from './panel.js';
 
@@ -15,7 +16,7 @@ let paletteObserver = null;
 const getSymbols = async () => {
     //symbolsUrl
     try {
-        const response = await fetch(symbolsUrl);
+        const response = await gmFetchJson(symbolsUrl);
         if (!response.ok) return zpoLog("Couldn't get symbols" + response.statusText);
         const data = await response.json();
         const loadedSymbols = data.symbols;
@@ -228,7 +229,7 @@ const FALLBACK_COLORS = [
 
 const getColors = async () => {
     try {
-        const response = await fetch('https://place-api.zevent.fr/colors');
+        const response = await gmFetchJson('https://place-api.zevent.fr/colors');
         if (!response.ok) return zpoLog("Couldn't get colors" + response.statusText);
         const loadedColors = await response.json();
         if (!Array.isArray(loadedColors) || loadedColors.length === 0) {

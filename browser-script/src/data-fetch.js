@@ -1,5 +1,6 @@
 import { idSanityCheck, urlSanityCheck, zpoLog } from './utils';
 import { overlaysJsonUrl, serverBase } from './constants';
+import { gmFetchJson } from './http.js';
 
 /**
  * Maps the server public format (PublicOverlay array) to the internal format.
@@ -44,8 +45,9 @@ export const mapPublicOverlays = data => {
 export const fetchKnownOverlays = async (force = false) => {
     try {
         const url = force ? overlaysJsonUrl + '?ts=' + Date.now() : overlaysJsonUrl;
-        const res = await fetch(url, { cache: force ? 'reload' : 'default', signal: AbortSignal.timeout(5000) });
+        const res = await gmFetchJson(url, { force });
         zpoLog('fetchKnownOverlays() status: ' + res.status);
+        if (res.status === 304) return false;
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = mapPublicOverlays(await res.json());
         if (!data) zpoLog('fetchKnownOverlays() invalid data, knownOverlays unchanged');

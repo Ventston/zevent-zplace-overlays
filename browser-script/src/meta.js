@@ -11,6 +11,12 @@
 // @grant        GM_addStyle
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @grant        GM_xmlhttpRequest
+// @connect      api-zevent-place.4each.dev
+// @connect      stats.4each.dev
+// @connect      place-api.zevent.fr
+// @connect      raw.githubusercontent.com
+// @connect      *
 // @downloadURL  https://raw.githubusercontent.com/Ventston/zevent-zplace-overlays/main/browser-script/zevent-place-overlay.user.js
 // @updateURL    https://raw.githubusercontent.com/Ventston/zevent-zplace-overlays/main/browser-script/zevent-place-overlay.user.js
 // @antifeature  tracking  Anonymous usage counts (script version, language, screen size, overlays loaded). No cookie, no personal data, self-hosted, and can be turned off in the settings panel.

@@ -7,8 +7,8 @@ globalThis.GM_setValue = (key, value) => {
     gmStore[key] = value;
 };
 
-const fetchMock = vi.fn(() => Promise.resolve());
-vi.stubGlobal('fetch', fetchMock);
+const gmRequestMock = vi.fn(() => undefined);
+vi.stubGlobal('GM_xmlhttpRequest', gmRequestMock);
 vi.stubGlobal('location', { hostname: 'place.zevent.fr' });
 vi.stubGlobal('screen', { width: 1920, height: 1080 });
 vi.stubGlobal('navigator', { language: 'fr-FR' });
@@ -17,7 +17,7 @@ const { buildPayload, overlayProps, trackDailyOverlays } = await import('../src/
 const { analyticsWebsiteId } = await import('../src/constants.js');
 const { config } = await import('../src/store.js');
 
-const sentEvents = () => fetchMock.mock.calls.map(([, options]) => JSON.parse(options.body).payload);
+const sentEvents = () => gmRequestMock.mock.calls.map(([options]) => JSON.parse(options.data).payload);
 
 describe('buildPayload', () => {
     it('sans nom, produit un pageview portant la version dans l’URL', () => {
@@ -66,7 +66,7 @@ describe('overlayProps', () => {
 describe('trackDailyOverlays', () => {
     beforeEach(() => {
         delete gmStore.analyticsLastDaily;
-        fetchMock.mockClear();
+        gmRequestMock.mockClear();
         config.wantedOverlays = [
             { id: 'uuid-1', community_name: 'Commu A' },
             { id: 'uuid-2', community_name: 'Commu B' },
@@ -82,14 +82,14 @@ describe('trackDailyOverlays', () => {
     it('ne réémet rien le même jour, pour que les rechargements ne gonflent pas le classement', () => {
         trackDailyOverlays();
         trackDailyOverlays();
-        expect(fetchMock).toHaveBeenCalledTimes(2);
+        expect(gmRequestMock).toHaveBeenCalledTimes(2);
     });
 
     it('réémet le lendemain', () => {
         trackDailyOverlays();
         gmStore.analyticsLastDaily = '2020-01-01';
         trackDailyOverlays();
-        expect(fetchMock).toHaveBeenCalledTimes(4);
+        expect(gmRequestMock).toHaveBeenCalledTimes(4);
     });
 
     it('ne consomme pas la garde quotidienne quand l’utilisateur a refusé le suivi', () => {
@@ -97,8 +97,8 @@ describe('trackDailyOverlays', () => {
         trackDailyOverlays();
         config.enableAnalytics = true;
 
-        expect(fetchMock).not.toHaveBeenCalled();
+        expect(gmRequestMock).not.toHaveBeenCalled();
         trackDailyOverlays();
-        expect(fetchMock).toHaveBeenCalledTimes(2);
+        expect(gmRequestMock).toHaveBeenCalledTimes(2);
     });
 });

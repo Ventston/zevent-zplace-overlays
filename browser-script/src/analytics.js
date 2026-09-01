@@ -1,6 +1,7 @@
 import { analyticsUrl, analyticsWebsiteId, version } from './constants';
 import { config } from './store';
 import { zpoLog } from './utils';
+import { gmPostJson } from './http.js';
 
 /**
  * Builds the Umami collect payload. Pure, tested in test/analytics.test.js.
@@ -44,12 +45,7 @@ export const overlayProps = overlay =>
  */
 export const track = (name, data) => {
     if (!trackingEnabled()) return;
-    fetch(analyticsUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildPayload(name, data)),
-        keepalive: true,
-    }).catch(error => zpoLog('track() Exception: ' + error));
+    gmPostJson(analyticsUrl, buildPayload(name, data)).catch(error => zpoLog('track() Exception: ' + error));
 };
 
 /**

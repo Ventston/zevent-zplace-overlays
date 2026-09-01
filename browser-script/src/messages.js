@@ -2,6 +2,7 @@ import { config } from './store.js';
 import { idSanityCheck, urlSanityCheck, zpoLog } from './utils.js';
 import { messagesJsonUrl } from './constants.js';
 import { renderTemplate, syncBannerHeight } from './ui.js';
+import { gmFetchJson } from './http.js';
 
 const LEVELS = ['info', 'warning', 'critical'];
 const MAX_CONTENT = 500;
@@ -60,7 +61,7 @@ export const visibleMessages = (messages, now, dismissed) =>
 
 export const fetchMessages = async () => {
     try {
-        const res = await fetch(messagesJsonUrl, { signal: AbortSignal.timeout(5000) });
+        const res = await gmFetchJson(messagesJsonUrl);
         zpoLog('fetchMessages() status: ' + res.status);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = mapPublicMessages(await res.json());

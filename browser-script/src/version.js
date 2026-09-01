@@ -1,10 +1,11 @@
 import { isNewerVersion, zpoLog } from './utils.js';
 import { scriptUpdateURL, version, versionJsonUrl } from './constants.js';
 import { renderTemplate, syncBannerHeight } from './ui.js';
+import { gmFetchJson } from './http.js';
 
 export const checkVersion = async () => {
     try {
-        const response = await fetch(versionJsonUrl + '?t=' + Date.now());
+        const response = await gmFetchJson(versionJsonUrl + '?t=' + Date.now(), { force: true });
         if (!response.ok) return zpoLog("Couldn't get version.json");
         const { version: newVersion } = await response.json();
 

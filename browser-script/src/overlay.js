@@ -7,6 +7,7 @@ import { overlayGeometry } from './geometry';
 import { overlayKeysFromQuery, searchWithoutOverlays } from './query';
 import { getOriginalCanvas, getOverlayParent } from './selectors';
 import { appendUIWantedOverlay, refreshDisplayTime, reloadUIKnownOverlays, reloadUIWantedOverlays } from './panel';
+import { gmFetchImageDataUrl } from './http.js';
 
 export const refreshKnownOverlays = async (force = false) => {
     const newOverlays = await fetchKnownOverlays(force);
@@ -162,7 +163,7 @@ function appendOverlayToDOM(overlay) {
 
     const image = document.createElement('img');
     const cacheKey = overlay.updated_at ? encodeURIComponent(overlay.updated_at) : 'x';
-    image.src = url + (url.includes('?') ? '&t=' : '?t=') + cacheKey;
+    const src = url + (url.includes('?') ? '&t=' : '?t=') + cacheKey;
     image.className = 'zevent-place-overlay-img';
     image.id = 'zpo-overlay-' + overlay.id;
     image.style = 'background: none; position: absolute; left: 0px; top: 0px;z-index: 1000; pointer-events: none;';
@@ -181,17 +182,23 @@ function appendOverlayToDOM(overlay) {
             fitOverlayOnCanvas(event.target);
         };
     }
-    image.onerror = function () {
-        zpoLog('appendOverlayInDOM() image.onerror for url: ' + url);
+    const onImageFailure = reason => {
+        zpoLog('appendOverlayInDOM() image failure (' + reason + ') for url: ' + url);
         if (overlay.id.startsWith('custom-')) {
             removeWantedOverlay(overlay.id);
             alert("Impossible de charger l'overlay " + overlay.community_name + ", veuillez vérifier l'URL: " + url);
         }
     };
+    image.onerror = () => onImageFailure('onerror');
     const parent = getOverlayParent();
     if (parent) {
         parent.appendChild(image);
     }
+    gmFetchImageDataUrl(src)
+        .then(dataUrl => {
+            if (image.isConnected) image.src = dataUrl;
+        })
+        .catch(error => onImageFailure(error));
 }
 
 function removeOverlayFromDOM(overlayId) {
