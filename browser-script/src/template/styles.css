@@ -55,6 +55,14 @@
     font-family: var(--zpo-font-pixel);
     font-size: 13px;
     letter-spacing: 0.02em;
+    cursor: move;
+    touch-action: none;
+    user-select: none;
+}
+
+#zevent-place-overlay-ui.zpo-dragging {
+    user-select: none;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
 
 #zevent-place-overlay-ui-head::after {
@@ -254,7 +262,7 @@
 }
 
 #zevent-place-overlay-ui-list-known-overlays {
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - var(--zpo-top, 16px) - 184px);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -276,7 +284,11 @@
 }
 
 #zevent-place-overlay-ui-body[aria-expanded='true'] {
-    height: calc(100vh - 84px - var(--zpo-banners, 0px));
+    height: calc(100vh - var(--zpo-top, 16px) - 68px - var(--zpo-banners, 0px));
+}
+
+#zevent-place-overlay-ui.zpo-dragging #zevent-place-overlay-ui-body {
+    transition: none;
 }
 
 #zevent-place-overlay-ui-overlaylist {
@@ -430,7 +442,6 @@
     background: var(--zpo-card);
     border: 1px solid var(--zpo-border);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
-    /* aligné sur le haut du panneau, lui-même à 16px du viewport : on garde la même marge en bas */
     max-height: calc(100vh - 32px);
     overflow-y: auto;
     scrollbar-width: thin;
@@ -439,6 +450,18 @@
 
 #zpo-settings-panel[aria-expanded='false'] {
     display: none;
+}
+
+#zpo-settings-panel.zpo-settings-flip {
+    left: auto;
+    right: calc(100% + 9px);
+}
+
+#zevent-place-overlay-ui .zpo-settings-action {
+    width: auto;
+    min-width: 0;
+    padding: 0 10px;
+    font-size: 12px;
 }
 
 #zevent-place-overlay-ui .zpo-settings-head {

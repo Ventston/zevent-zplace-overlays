@@ -8,6 +8,7 @@ import { changeEnabledSymbols } from './symbols.js';
 import { renderTemplate } from './ui.js';
 import { checkVersion } from './version.js';
 import { renderMessages } from './messages.js';
+import { clampPanelIntoView, makePanelDraggable, resetPanelPosition } from './drag.js';
 
 export function appendOurUI() {
     zpoLog('appendOurUI()');
@@ -25,18 +26,28 @@ export function appendOurUI() {
     const btnToggle = ourUI.querySelector('#zevent-place-overlay-ui-toggle');
     const body = ourUI.querySelector('#zevent-place-overlay-ui-body');
     if (btnToggle && body) {
-        btnToggle.onclick = () => setExpanded(btnToggle, body, body.getAttribute('aria-expanded') !== 'true');
+        btnToggle.onclick = () => {
+            const expanded = body.getAttribute('aria-expanded') !== 'true';
+            setExpanded(btnToggle, body, expanded);
+            if (expanded) clampPanelIntoView(ourUI);
+        };
     }
 
     const btnSettings = ourUI.querySelector('#btn-settings');
     const settings = ourUI.querySelector('#zpo-settings-panel');
     if (btnSettings && settings) {
-        btnSettings.onclick = () =>
-            setExpanded(btnSettings, settings, settings.getAttribute('aria-expanded') !== 'true');
+        btnSettings.onclick = () => {
+            const expanded = settings.getAttribute('aria-expanded') !== 'true';
+            setExpanded(btnSettings, settings, expanded);
+            if (expanded) placeSettingsPanel(ourUI, settings);
+        };
 
         const btnCloseSettings = ourUI.querySelector('#btn-settings-close');
         if (btnCloseSettings) btnCloseSettings.onclick = () => setExpanded(btnSettings, settings, false);
     }
+
+    const btnResetPosition = ourUI.querySelector('#btn-reset-position');
+    if (btnResetPosition) btnResetPosition.onclick = resetPanelPosition;
 
     const btnAdd = ourUI.querySelector('#btn-custom-add');
     if (btnAdd) btnAdd.onclick = eventAddCustomOverlay;
@@ -87,10 +98,19 @@ export function appendOurUI() {
 
     origUI.appendChild(ourUI);
 
+    const head = ourUI.querySelector('#zevent-place-overlay-ui-head');
+    if (head) makePanelDraggable(ourUI, head);
+
     reloadUIWantedOverlays();
     reloadUIKnownOverlays();
     renderMessages();
     checkVersion();
+}
+
+function placeSettingsPanel(panel, settings) {
+    const rect = panel.getBoundingClientRect();
+    settings.classList.toggle('zpo-settings-flip', rect.right + 9 + settings.offsetWidth > window.innerWidth);
+    settings.style.maxHeight = Math.max(0, window.innerHeight - rect.top - 16) + 'px';
 }
 
 function setExpanded(btn, target, expanded) {

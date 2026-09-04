@@ -37,12 +37,13 @@ const persistedKeys = {
     enableAnalytics: 'enableAnalytics',
     showCustomInput: 'showCustomInput',
     dismissedMessages: 'dismissedMessages',
+    panelPosition: 'panelPosition',
 };
 
 /**
  * Global config. GM persistence goes through the proxy: always REASSIGN
  * (`config.wantedOverlays = [...]`), never mutate (`push`), otherwise nothing is saved.
- * @type {{knownOverlays: Overlay[], wantedOverlays: Overlay[], knownMessages: Message[], dismissedMessages: string[], enableSymbols: boolean, enableAnalytics: boolean, showCustomInput: boolean}}
+ * @type {{knownOverlays: Overlay[], wantedOverlays: Overlay[], knownMessages: Message[], dismissedMessages: string[], enableSymbols: boolean, enableAnalytics: boolean, showCustomInput: boolean, panelPosition: {x: number, y: number}|null}}
  */
 export const config = new Proxy(
     {
@@ -53,6 +54,7 @@ export const config = new Proxy(
         enableSymbols: GM_getValue('enableSymbols', false),
         enableAnalytics: GM_getValue('enableAnalytics', true),
         showCustomInput: GM_getValue('showCustomInput', false),
+        panelPosition: GM_getValue('panelPosition', null),
     },
     {
         set(target, property, value) {
