@@ -84,22 +84,33 @@ const createCanvasForSymbol = (symbolValue, size) => {
     return canvas;
 };
 
+const hexFromBackgroundColor = backgroundColor => {
+    const rgb = backgroundColor && backgroundColor.match(/\d+/g);
+    if (!rgb || rgb.length < 3) return null;
+    const value = (parseInt(rgb[0]) << 16) | (parseInt(rgb[1]) << 8) | parseInt(rgb[2]);
+    return '#' + value.toString(16).padStart(6, '0');
+};
+
+const findColorIndex = hex => colors.findIndex(color => color.colorCode.toLowerCase() === hex);
+
 const injectSymbols = () => {
     //palette className: color-picker
     const palette = document.querySelector('.color-picker');
     if (!palette) return zpoLog('injectSymbols() palette not found');
     //for each color class
-    const colors = palette.querySelectorAll('.color');
-    if (!colors) return zpoLog('injectSymbols() colors not found');
-    colors.forEach((colorDiv, index) => {
+    const colorDivs = palette.querySelectorAll('.color');
+    if (!colorDivs.length) return zpoLog('injectSymbols() colors not found');
+    colorDivs.forEach(colorDiv => {
         //remove previous symbol if any
         const prevSymbol = colorDiv.querySelector('.zevent-place-overlay-symbol');
         if (prevSymbol) prevSymbol.remove();
         //add symbol if any
-        //color value is in child span data-color attribute
-        const span = colorDiv.querySelector('span');
-        const colorValue = parseInt(span.getAttribute('data-color'));
-        const symbolValue = symbols[colorValue];
+        //color value comes from the child span background-color
+        const span = colorDiv.querySelector('span.choose') || colorDiv.querySelector('span');
+        if (!span) return;
+        const hex = hexFromBackgroundColor(span.style.backgroundColor);
+        if (!hex) return;
+        const symbolValue = symbols[findColorIndex(hex)];
         if (symbolValue) {
             //create canvas
             const canvas = createCanvasForSymbol(symbolValue, 18);
@@ -121,22 +132,12 @@ const injectSymbolToSelectedColor = () => {
     const colorButton = document.querySelector('.color-button');
     if (!colorButton) return zpoLog('injectSymbolToSelectedColor() colorButton not found');
     //get color from background-color style
-    const bgColor = colorButton.style.backgroundColor;
-    if (!bgColor) return zpoLog('injectSymbolToSelectedColor() bgColor not found');
-    //convert rgb to hex
-    const rgb = bgColor.match(/\d+/g);
-    if (!rgb || rgb.length < 3) return zpoLog('injectSymbolToSelectedColor() rgb not found');
-    const r = parseInt(rgb[0]);
-    const g = parseInt(rgb[1]);
-    const b = parseInt(rgb[2]);
-    const hex = ((r << 16) | (g << 8) | b).toString(16);
-    const colorValue = parseInt(hex, 16);
-    const colorIndex = colors.findIndex(
-        color => color.colorCode.toLowerCase() === ('#' + hex.padStart(6, '0')).toLowerCase()
-    );
-    if (colorIndex === -1) return zpoLog('injectSymbolToSelectedColor() colorIndex not found for color ' + colorValue);
+    const hex = hexFromBackgroundColor(colorButton.style.backgroundColor);
+    if (!hex) return zpoLog('injectSymbolToSelectedColor() bgColor not found');
+    const colorIndex = findColorIndex(hex);
+    if (colorIndex === -1) return zpoLog('injectSymbolToSelectedColor() colorIndex not found for color ' + hex);
     const symbolValue = symbols[colorIndex];
-    if (!symbolValue) return zpoLog('injectSymbolToSelectedColor() symbolValue not found for color ' + colorValue);
+    if (!symbolValue) return zpoLog('injectSymbolToSelectedColor() symbolValue not found for color ' + hex);
     //remove previous symbol if any
     const prevSymbol = colorButton.querySelector('.zevent-place-overlay-symbol');
     if (prevSymbol) prevSymbol.remove();
