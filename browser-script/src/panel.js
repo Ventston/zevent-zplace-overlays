@@ -59,7 +59,7 @@ export function appendOurUI() {
     if (btnAdd) btnAdd.onclick = eventAddCustomOverlay;
 
     const btnAskRefreshWantedOverlays = ourUI.querySelector('#btn-refresh-wanted');
-    if (btnAskRefreshWantedOverlays) btnAskRefreshWantedOverlays.onclick = reloadWantedOverlaysInDOM;
+    if (btnAskRefreshWantedOverlays) btnAskRefreshWantedOverlays.onclick = () => reloadWantedOverlaysInDOM(true);
 
     const btnAskRefreshKnownOverlays = ourUI.querySelector('#btn-refresh-known');
     if (btnAskRefreshKnownOverlays) btnAskRefreshKnownOverlays.onclick = () => refreshKnownOverlays(true);

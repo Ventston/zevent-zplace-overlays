@@ -176,7 +176,20 @@ function dropOverlay(overlayId) {
     }
 }
 
-function appendOverlayToDOM(overlay) {
+function overlayImageUrl(overlay) {
+    return config.enableSymbols && overlay.overlay_colorblind_url
+        ? overlay.overlay_colorblind_url
+        : overlay.overlay_url;
+}
+
+function overlaySignature(overlay) {
+    const g = overlayGeometry(overlay);
+    return [overlayImageUrl(overlay), overlay.updated_at ?? '', g ? g.left + ',' + g.top : 'fit', g?.width ?? ''].join(
+        '|'
+    );
+}
+
+function appendOverlayToDOM(overlay, force = false) {
     if (!overlay || (!overlay.overlay_url && !overlay.overlay_colorblind_url)) return;
 
     const parent = getOverlayParent();
@@ -185,16 +198,23 @@ function appendOverlayToDOM(overlay) {
         return;
     }
 
-    let url = overlay.overlay_url;
-    if (config.enableSymbols && overlay.overlay_colorblind_url) {
-        url = overlay.overlay_colorblind_url;
+    const signature = overlaySignature(overlay);
+    const existing = document.getElementById('zpo-overlay-' + overlay.id);
+    if (existing) {
+        if (!force && existing.parentElement === parent && existing.dataset.signature === signature) {
+            applyOverlayVisibility(overlay.id);
+            return;
+        }
+        existing.remove();
     }
 
+    const url = overlayImageUrl(overlay);
     zpoLog('appendOverlayInDOM() url: ' + url);
 
     const image = document.createElement('img');
     const cacheKey = overlay.updated_at ? encodeURIComponent(overlay.updated_at) : 'x';
     const src = url + (url.includes('?') ? '&t=' : '?t=') + cacheKey;
+    image.dataset.signature = signature;
     image.className = 'zevent-place-overlay-img';
     image.id = 'zpo-overlay-' + overlay.id;
     image.style = 'background: none; position: absolute; left: 0px; top: 0px;z-index: 1000; pointer-events: none;';
@@ -237,10 +257,12 @@ function removeOverlayFromDOM(overlayId) {
     }
 }
 
-export function reloadWantedOverlaysInDOM() {
-    zpoLog('reloadWantedOverlaysInDOM()');
-    const existingImgs = document.querySelectorAll('.zevent-place-overlay-img');
-    existingImgs.forEach(img => img.remove());
+export function reloadWantedOverlaysInDOM(force = false) {
+    zpoLog('reloadWantedOverlaysInDOM() force: ' + force);
+    const wantedIds = new Set(config.wantedOverlays.map(o => o.id));
+    document.querySelectorAll('.zevent-place-overlay-img').forEach(img => {
+        if (force || !wantedIds.has(img.id.replace('zpo-overlay-', ''))) img.remove();
+    });
     config.wantedOverlays.forEach(overlay => {
         appendOverlayToDOM(overlay);
     });
