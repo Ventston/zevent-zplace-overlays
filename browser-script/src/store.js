@@ -43,12 +43,15 @@ const persistedKeys = {
 /**
  * Global config. GM persistence goes through the proxy: always REASSIGN
  * (`config.wantedOverlays = [...]`), never mutate (`push`), otherwise nothing is saved.
- * @type {{knownOverlays: Overlay[], wantedOverlays: Overlay[], knownMessages: Message[], dismissedMessages: string[], enableSymbols: boolean, enableAnalytics: boolean, showCustomInput: boolean, panelPosition: {x: number, y: number}|null}}
+ * `hiddenOverlays` holds the ids masked by the eye button: not persisted (a page reload
+ * shows everything again), but it survives the DOM rebuild done on every data refresh.
+ * @type {{knownOverlays: Overlay[], wantedOverlays: Overlay[], hiddenOverlays: string[], knownMessages: Message[], dismissedMessages: string[], enableSymbols: boolean, enableAnalytics: boolean, showCustomInput: boolean, panelPosition: {x: number, y: number}|null}}
  */
 export const config = new Proxy(
     {
         knownOverlays: [],
         wantedOverlays: GM_getValue('selectedOverlays', []),
+        hiddenOverlays: [],
         knownMessages: [],
         dismissedMessages: GM_getValue('dismissedMessages', []),
         enableSymbols: GM_getValue('enableSymbols', false),

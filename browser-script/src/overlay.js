@@ -6,7 +6,13 @@ import { zpoLog } from './utils';
 import { overlayGeometry } from './geometry';
 import { overlayKeysFromQuery, searchWithoutOverlays } from './query';
 import { getOriginalCanvas, getOverlayParent } from './selectors';
-import { appendUIWantedOverlay, refreshDisplayTime, reloadUIKnownOverlays, reloadUIWantedOverlays } from './panel';
+import {
+    appendUIWantedOverlay,
+    refreshDisplayTime,
+    refreshUIKnownOverlaysVisibility,
+    reloadUIKnownOverlays,
+    reloadUIWantedOverlays,
+} from './panel';
 import { gmFetchImageDataUrl } from './http.js';
 
 export const refreshKnownOverlays = async (force = false) => {
@@ -48,14 +54,13 @@ export function addWantedOverlay(overlay, withLinked = true) {
     }
     appendOverlayToDOM(overlay);
     appendUIWantedOverlay(overlay);
+    refreshUIKnownOverlaysVisibility();
 
     if (!withLinked) return;
     const linked = linkedToAdd(overlay, config.knownOverlays, config.wantedOverlays);
     for (const other of linked) {
         zpoLog('addWantedOverlay() linked: ' + other.id);
         addWantedOverlay(other, false);
-        const availNode = document.getElementById('avail-node-' + other.id);
-        if (availNode) availNode.hidden = true;
     }
     if (linked.length) reloadUIWantedOverlays();
 }
@@ -85,8 +90,6 @@ export function applyQueryOverlays() {
         }
         zpoLog('applyQueryOverlays() ' + key);
         addWantedOverlay(overlay);
-        const availNode = document.getElementById('avail-node-' + overlay.id);
-        if (availNode) availNode.hidden = true;
     }
 
     if (!missing) {
@@ -129,6 +132,26 @@ function fitOverlayOnCanvas(image) {
     zpoLog('fitOverlayOnCanvas() width,height: ' + image.width + ',' + image.height);
 }
 
+export function applyOverlayVisibility(overlayId) {
+    const hidden = config.hiddenOverlays.includes(overlayId);
+    const image = document.getElementById('zpo-overlay-' + overlayId);
+    if (image) image.hidden = hidden;
+    const btn = document.getElementById('show-hide-' + overlayId);
+    if (btn) btn.setAttribute('data-shown', (!hidden).toString());
+}
+
+export function setOverlayHidden(overlayId, hidden) {
+    config.hiddenOverlays = hidden
+        ? [...new Set([...config.hiddenOverlays, overlayId])]
+        : config.hiddenOverlays.filter(id => id !== overlayId);
+    applyOverlayVisibility(overlayId);
+}
+
+export function setAllOverlaysHidden(hidden) {
+    config.hiddenOverlays = hidden ? config.wantedOverlays.map(o => o.id) : [];
+    for (const overlay of config.wantedOverlays) applyOverlayVisibility(overlay.id);
+}
+
 export function removeWantedOverlay(overlayId) {
     const overlay = config.wantedOverlays.find(o => o.id === overlayId);
     if (!isRemovable(overlay, config.knownOverlays)) {
@@ -144,11 +167,9 @@ export function removeWantedOverlay(overlayId) {
 
 function dropOverlay(overlayId) {
     config.wantedOverlays = config.wantedOverlays.filter(o => o.id !== overlayId);
+    config.hiddenOverlays = config.hiddenOverlays.filter(id => id !== overlayId);
     removeOverlayFromDOM(overlayId);
-    const availNode = document.getElementById('avail-node-' + overlayId);
-    if (availNode) {
-        availNode.hidden = false;
-    }
+    refreshUIKnownOverlaysVisibility();
     const wantedNode = document.getElementById('wanted-node-' + overlayId);
     if (wantedNode) {
         wantedNode.remove();
@@ -177,6 +198,7 @@ function appendOverlayToDOM(overlay) {
     image.className = 'zevent-place-overlay-img';
     image.id = 'zpo-overlay-' + overlay.id;
     image.style = 'background: none; position: absolute; left: 0px; top: 0px;z-index: 1000; pointer-events: none;';
+    image.hidden = config.hiddenOverlays.includes(overlay.id);
 
     const geometry = overlayGeometry(overlay);
     if (geometry) {

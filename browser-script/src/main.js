@@ -1,5 +1,5 @@
 import { appendOurUI, keepOurselfInDOM } from './panel';
-import { applyQueryOverlays, refreshKnownOverlays, reloadWantedOverlaysInDOM } from './overlay';
+import { applyQueryOverlays, refreshKnownOverlays, reloadWantedOverlaysInDOM, setAllOverlaysHidden } from './overlay';
 import { checkVersion } from './version.js';
 import { injectStyles } from './style.js';
 import { initSymbols } from './symbols.js';
@@ -52,14 +52,7 @@ import { placeOrigin } from './constants.js';
         }
         if (event.code === 'KeyH') {
             showAll = !showAll;
-            const ourOverlays = document.querySelectorAll('.zevent-place-overlay-img');
-            ourOverlays.forEach(function (e) {
-                e.hidden = !showAll;
-            });
-            const btnShowHide = document.querySelectorAll('.zpo-btn-show-hide');
-            btnShowHide.forEach(function (btn) {
-                btn.setAttribute('data-shown', showAll);
-            });
+            setAllOverlaysHidden(!showAll);
         }
     });
 

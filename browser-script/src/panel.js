@@ -1,6 +1,12 @@
 import { inviteDiscordURL, scriptUpdateURL, version } from './constants';
 import { coordSanityCheck, urlSanityCheck, zpoLog } from './utils';
-import { addWantedOverlay, refreshKnownOverlays, reloadWantedOverlaysInDOM, removeWantedOverlay } from './overlay';
+import {
+    addWantedOverlay,
+    refreshKnownOverlays,
+    reloadWantedOverlaysInDOM,
+    removeWantedOverlay,
+    setOverlayHidden,
+} from './overlay';
 import { config } from './store';
 import { isRemovable, linkedNames } from './links.js';
 import { getPanelParent } from './selectors';
@@ -65,7 +71,7 @@ export function appendOurUI() {
 
     const searchInput = ourUI.querySelector('#zevent-place-overlay-search');
     if (searchInput) {
-        searchInput.oninput = searchOverlays;
+        searchInput.oninput = refreshUIKnownOverlaysVisibility;
     }
 
     const enableSymbolsCheckbox = ourUI.querySelector('#enableSymbolsCheckbox');
@@ -154,16 +160,16 @@ function eventAddCustomOverlay() {
     addWantedOverlay(overlay);
 }
 
-function searchOverlays(e) {
-    const search = e.target.value.toLowerCase();
-    zpoLog('searchOverlays :' + search);
-    config.knownOverlays.forEach(function (overlay) {
+export function refreshUIKnownOverlaysVisibility() {
+    const searchInput = document.querySelector('#zevent-place-overlay-search');
+    const search = searchInput ? searchInput.value.toLowerCase() : '';
+    for (const overlay of config.knownOverlays) {
         const node = document.getElementById('avail-node-' + overlay.id);
-        if (!node) return;
-        node.hidden = !(
-            overlay.community_name.toLowerCase().includes(search) || overlay.description.toLowerCase().includes(search)
-        );
-    });
+        if (!node) continue;
+        const matches =
+            overlay.community_name.toLowerCase().includes(search) || overlay.description.toLowerCase().includes(search);
+        node.hidden = !matches || config.wantedOverlays.some(o => o.id === overlay.id);
+    }
 }
 
 export function appendUIWantedOverlay(overlay) {
@@ -178,7 +184,9 @@ export function appendUIWantedOverlay(overlay) {
     // Use template system
     tr.innerHTML = renderTemplate('wanted-overlay', {
         overlayId: overlay.id,
-        overlayUrl: config.enableSymbols ? (overlay.overlay_colorblind_url ?? overlay.overlay_url) : overlay.overlay_url,
+        overlayUrl: config.enableSymbols
+            ? (overlay.overlay_colorblind_url ?? overlay.overlay_url)
+            : overlay.overlay_url,
         threadUrl: overlay.thread_url,
         title: overlay.community_name,
         linkedTo: linkedNames(overlay, config.wantedOverlays).join(', '),
@@ -193,14 +201,9 @@ export function appendUIWantedOverlay(overlay) {
 
     const showHideBtn = tr.querySelector('.zpo-btn-show-hide');
     if (showHideBtn) {
-        showHideBtn.onclick = () => {
-            const ourOverlay = document.querySelector('#zpo-overlay-' + overlay.id);
-            if (ourOverlay) {
-                const isHidden = ourOverlay.hidden;
-                ourOverlay.hidden = !isHidden;
-                showHideBtn.setAttribute('data-shown', isHidden.toString());
-            }
-        };
+        const hidden = config.hiddenOverlays.includes(overlay.id);
+        showHideBtn.setAttribute('data-shown', (!hidden).toString());
+        showHideBtn.onclick = () => setOverlayHidden(overlay.id, !config.hiddenOverlays.includes(overlay.id));
     }
 
     ulWantedOverlays.appendChild(tr);
@@ -236,11 +239,7 @@ function appendUIKnownOverlay(ulKnownOverlays, overlay) {
         title: overlay.community_name,
     });
     const btnAdd = tr.querySelector('#btn-add-' + overlay.id);
-    if (btnAdd)
-        btnAdd.onclick = () => {
-            addWantedOverlay(overlay);
-            tr.hidden = true;
-        };
+    if (btnAdd) btnAdd.onclick = () => addWantedOverlay(overlay);
 
     if (typeof overlay.description === 'string') {
         const btnDescription = tr.querySelector('#btn-description-' + overlay.id);
@@ -263,10 +262,6 @@ function appendUIKnownOverlay(ulKnownOverlays, overlay) {
             overlayId: overlay.id,
         })
     );
-
-    if (config.wantedOverlays.find(o => o.id === overlay.id)) {
-        tr.hidden = true;
-    }
 }
 
 export function reloadUIKnownOverlays() {
@@ -282,6 +277,7 @@ export function reloadUIKnownOverlays() {
     for (const overlay of config.knownOverlays) {
         appendUIKnownOverlay(ulKnownOverlays, overlay);
     }
+    refreshUIKnownOverlaysVisibility();
 }
 
 export function keepOurselfInDOM() {
